@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>داستان ولورا (درباره ما) | فروشگاه اینترنتی زیبایی ولورا</title>
+  <meta name="description" content="داستان برند ولورا شاپ - رویکرد ما در زیبایی مدرن، تعهد به اصالت ۱۰۰٪ محصولات، بسته‌بندی لوکس و حمایت از تنوع زیبایی در خاورمیانه" />
+  <meta property="og:title" content="داستان برند ولورا شاپ (Veloraa) - درباره ما" />
+  <meta property="og:description" content="زیبایی در انتخاب‌های آگاهانه و جزئیات دوست‌داشتنی معنا پیدا می‌کند - با ارزش‌ها و استانداردهای طلایی ولورا آشنا شوید" />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#913B60",
+            "primary-hover": "#782D4D",
+            secondary: "#D88FA7",
+            "plum-deep": "#512B3A",
+            "text-main": "#30252B",
+            "text-muted": "#776B70",
+            "bg-warm": "#FFFCF8",
+            "surface-low": "#F8E9EE",
+            "surface-soft": "#F0D3DC",
+            "border-soft": "#EADDE1"
+          },
+          fontFamily: {
+            sans: ['Vazirmatn', 'system-ui', 'sans-serif'],
+            vazir: ['Vazirmatn', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="bg-[#FFFCF8] text-[#30252B] font-sans antialiased selection:bg-[#F0D3DC] selection:text-[#512B3A]">
+
+  <!-- Top Announcement Bar -->
+  <div class="w-full bg-[#F8E9EE] border-b border-[#EADDE1] py-2 px-4 text-center text-xs text-[#776B70]">
+    <div class="max-w-[1440px] mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-[#913B60] animate-pulse"></span>
+        <span class="font-medium text-[#512B3A]">ارسال رایگان برای سفارش‌های بالای ۱ میلیون تومان</span>
+      </div>
+      <div class="flex items-center gap-4 text-xs font-semibold">
+        <span class="flex items-center gap-1 text-[#913B60]">
+          <span class="material-symbols-outlined text-[16px]">verified</span>
+          ضمانت اصالت ۱۰۰٪ کالا
+        </span>
+        <span class="opacity-30 hidden sm:inline">|</span>
+        <a href="https://t.me/veloraa_support" target="_blank" class="hidden sm:flex items-center gap-1 text-[#229ED9] hover:underline">
+          سفارش مستقیم تلگرام: @veloraa_support
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Persistent Header Navigation -->
+  <header class="sticky top-0 w-full z-40 glass-header">
+    <div class="h-20 max-w-[1440px] mx-auto px-4 md:px-10 flex items-center justify-between gap-6">
+      
+      <!-- Brand & Desktop Nav Links -->
+      <div class="flex items-center gap-8">
+        <button id="mobile-menu-toggle" class="xl:hidden p-2 text-[#30252B] hover:text-[#913B60] transition-colors" aria-label="منوی سایت">
+          <span class="material-symbols-outlined text-[26px]">menu</span>
+        </button>
+
+        <a href="index.html" class="flex items-center gap-3 group">
+          <span class="text-3xl font-extrabold tracking-tight text-[#913B60] font-sans transition-transform group-hover:scale-[1.02]">Veloraa</span>
+          <span class="text-xs bg-[#F0D3DC] text-[#512B3A] px-2.5 py-0.5 rounded-full font-semibold border border-[#EADDE1]">ولورا شاپ</span>
+        </a>
+
+        <nav class="hidden xl:flex items-center gap-7">
+          <a href="index.html" class="nav-link py-1 text-sm font-medium text-[#776B70] hover:text-[#913B60] transition-colors">خانه</a>
+          <a href="products.html" class="nav-link py-1 text-sm font-medium text-[#776B70] hover:text-[#913B60] transition-colors">فروشگاه</a>
+          <a href="about.html" class="nav-link active py-1 text-sm font-medium text-[#776B70] hover:text-[#913B60] transition-colors">درباره ما</a>
+          <a href="contact.html" class="nav-link py-1 text-sm font-medium text-[#776B70] hover:text-[#913B60] transition-colors">پشتیبانی و تماس</a>
+        </nav>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-3 md:gap-4 flex-shrink-0">
+        <a href="https://t.me/veloraa_support" target="_blank" class="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#229ED9]/10 hover:bg-[#229ED9]/20 text-[#229ED9] text-xs font-semibold transition-colors border border-[#229ED9]/20" title="سفارش در تلگرام">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.62 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.88 8.01-3.44 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.21-.04.38z"/></svg>
+          <span>سفارش تلگرام</span>
+        </a>
+
+        <button onclick="VeloraaCart.openDrawer()" class="relative p-2.5 rounded-full bg-[#F8E9EE] text-[#512B3A] hover:bg-[#F0D3DC] border border-[#EADDE1] transition-all flex items-center justify-center" title="سبد خرید">
+          <span class="material-symbols-outlined text-[22px]">local_mall</span>
+          <span class="cart-badge-count absolute -top-1 -right-1 bg-[#913B60] text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-sm">۲</span>
+        </button>
+
+        <a href="contact.html" class="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F8E9EE] hover:bg-[#F0D3DC] border border-[#EADDE1] transition-colors text-xs font-medium text-[#30252B]">
+          <span>حساب کاربری</span>
+          <div class="w-7 h-7 rounded-full bg-[#913B60] flex items-center justify-center text-white">
+            <span class="material-symbols-outlined text-[17px]">person</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <div id="mobile-menu-backdrop" class="fixed inset-0 z-50 drawer-backdrop opacity-0 hidden transition-opacity duration-300"></div>
+  <div id="mobile-menu-drawer" class="fixed top-0 right-0 z-50 h-full w-72 bg-[#FFFCF8] shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-out border-l border-[#EADDE1]">
+    <div class="p-5 border-b border-[#EADDE1] flex items-center justify-between bg-white">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl font-bold text-[#913B60]">Veloraa</span>
+        <span class="text-[11px] bg-[#F0D3DC] text-[#512B3A] px-2 py-0.5 rounded-full font-bold">ولورا شاپ</span>
+      </div>
+      <button id="mobile-menu-close" class="p-1.5 rounded-full text-[#776B70] hover:text-[#30252B] hover:bg-[#F8E9EE]">
+        <span class="material-symbols-outlined text-[22px]">close</span>
+      </button>
+    </div>
+    <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
+      <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#30252B] hover:bg-[#F8E9EE] text-sm font-medium transition-colors">
+        <span class="material-symbols-outlined text-[20px]">home</span>
+        <span>صفحه اصلی</span>
+      </a>
+      <a href="products.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#30252B] hover:bg-[#F8E9EE] text-sm font-medium transition-colors">
+        <span class="material-symbols-outlined text-[20px]">storefront</span>
+        <span>فروشگاه و محصولات</span>
+      </a>
+      <a href="about.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F8E9EE] text-[#913B60] text-sm font-bold">
+        <span class="material-symbols-outlined text-[20px]">auto_stories</span>
+        <span>درباره ما</span>
+      </a>
+      <a href="contact.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#30252B] hover:bg-[#F8E9EE] text-sm font-medium transition-colors">
+        <span class="material-symbols-outlined text-[20px]">headset_mic</span>
+        <span>پشتیبانی و تماس</span>
+      </a>
+    </nav>
+    <div class="p-4 border-t border-[#EADDE1] bg-white space-y-2">
+      <a href="https://t.me/veloraa_support" target="_blank" class="w-full h-11 rounded-xl btn-telegram flex items-center justify-center gap-2 text-xs font-bold shadow-sm">
+        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.62 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.88 8.01-3.44 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.21-.04.38z"/></svg>
+        <span>ارتباط مستقیم تلگرام</span>
+      </a>
+    </div>
+  </div>
+
+  <main class="w-full flex-1 pb-16">
+    <div class="max-w-[1440px] mx-auto px-4 md:px-10 pt-6">
+      
+      <!-- Breadcrumbs -->
+      <nav class="flex items-center gap-2 text-xs sm:text-sm text-[#776B70] mb-6">
+        <a href="index.html" class="hover:text-[#913B60] transition-colors flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">home</span>
+          <span>خانه</span>
+        </a>
+        <span class="opacity-40">/</span>
+        <span class="text-[#913B60] font-semibold">داستان ولورا (درباره ما)</span>
+      </nav>
+
+      <!-- Editorial Hero Section -->
+      <section class="mb-16">
+        <div class="relative rounded-3xl overflow-hidden bg-[#F8E9EE] border border-[#EADDE1] shadow-xs">
+          <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[540px] items-stretch">
+            
+            <!-- Visual Portrait Side (Order 2 on mobile, 1 on desktop RTL) -->
+            <div class="lg:col-span-6 relative min-h-[360px] lg:min-h-full overflow-hidden order-2 lg:order-1">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIiIlQt-c5E2WrOC7Oq4oFM12CkD8TR8gU2k1Y-NUX0WZRdLdnuzievA4lvz360GQxmm3VjMaIwWoIlNje8PX0bM9JZcWNpnmP3fv30uodCxf6VfhaoRd5IbkJZYTxumcPP5AnwaXaUMKCFpPds1qEesTtuGkk7BTWfCPtNA22D-RhaSmcVzzofHrL89nX5hOXbWu_ofKwfMmPAD5uwHVo5wA0KhtgSwEh08QWDSnMnAT_xRmq0mbT" alt="Editorial beauty portrait" class="absolute inset-0 w-full h-full object-cover object-center hover:scale-105 transition-transform duration-700" />
+              
+              <div class="absolute inset-0 bg-gradient-to-t from-[#30252B]/40 via-transparent to-transparent lg:hidden"></div>
+              
+              <!-- Floating Badge -->
+              <div class="absolute bottom-6 left-6 right-6 lg:left-8 lg:bottom-8 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-[#EADDE1] max-w-xs hidden sm:flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-[#F0D3DC] flex items-center justify-center text-[#913B60] shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">spa</span>
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-[#30252B]">اصالت بی‌قیدوشرط</p>
+                  <p class="text-[11px] text-[#776B70] mt-0.5">دستچین‌شده از معتبرترین آزمایشگاه‌های پوستی جهان</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Content Narrative -->
+            <div class="lg:col-span-6 p-8 md:p-12 lg:p-14 flex flex-col justify-between order-1 lg:order-2 bg-gradient-to-bl from-[#F8E9EE] via-[#FFFCF8] to-[#F8E9EE]">
+              <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white text-[#913B60] text-xs font-bold mb-6 border border-[#EADDE1] shadow-xs">
+                  <span class="w-2 h-2 rounded-full bg-[#913B60] animate-pulse"></span>
+                  <span>رویکرد ولورا در زیبایی مدرن</span>
+                </div>
+
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#30252B] tracking-tight leading-snug mb-6">
+                  زیبایی در <span class="text-[#913B60] italic font-semibold">انتخاب‌های آگاهانه</span> و جزئیات دوست‌داشتنی معنا پیدا می‌کند.
+                </h1>
+
+                <p class="text-xs sm:text-sm text-[#776B70] leading-relaxed text-justify mb-8">
+                  در ولورا، زیبایی را فراتر از کلیشه‌های تجاری زودگذر می‌دانیم. ما باور داریم پوست سالم آیینه‌ای از احترام به خود، تعادل درونی و آگاهی است. تک‌تک فرمولاسیون‌ها، اکسیرها و رنگ‌ها با وسواس طراحان مد و دقت متخصصان پوست انتخاب شده‌اند تا درخشش منحصربه‌فرد چهره‌تان جلوه‌گر شود.
+                </p>
+              </div>
+
+              <!-- Stats Strip -->
+              <div class="grid grid-cols-3 gap-4 p-4 rounded-2xl bg-white border border-[#EADDE1] shadow-xs">
+                <div class="flex flex-col">
+                  <span class="text-xl md:text-2xl font-extrabold text-[#913B60]">+۴۵۰</span>
+                  <span class="text-[11px] text-[#776B70]">برند اصیل جهانی</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xl md:text-2xl font-extrabold text-[#913B60]">۱۰۰٪</span>
+                  <span class="text-[11px] text-[#776B70]">ضمانت اصالت فرمول</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xl md:text-2xl font-extrabold text-[#913B60]">+۸۵k</span>
+                  <span class="text-[11px] text-[#776B70]">بانوان همراه ولورا</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Brand Story: Asymmetric Two-Column Narrative -->
+      <section class="mb-16">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          
+          <!-- Narrative Origin (RTL right) -->
+          <div class="lg:col-span-6 flex flex-col justify-center">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-6 h-[2px] bg-[#913B60]"></span>
+              <span class="text-xs font-bold text-[#913B60] tracking-widest uppercase">سرآغاز یک رویا</span>
+            </div>
+
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-[#512B3A] mb-6">داستان خلق ولورا شاپ</h2>
+
+            <div class="space-y-4 text-xs sm:text-sm text-[#776B70] text-justify leading-relaxed">
+              <div class="bg-[#F8E9EE] border-r-4 border-[#913B60] p-4 rounded-xl text-[#512B3A] font-semibold leading-relaxed">
+                «ولورا شاپ با ایده ساده‌ای شکل گرفته است: پیدا کردن محصولات زیبایی باید تجربه‌ای لذت‌بخش، روشن و متناسب با سلیقه هر فرد باشد. ما می‌خواهیم فضایی فراهم کنیم تا محصولات آرایشی و مراقبتی را با اطلاعات شفاف‌تر و انتخابی آسان‌تر کشف کنی.»
+              </div>
+
+              <p>
+                سال‌ها سردرگمی میان تبلیغات پر سر و صدا، ادعاهای بی‌پایه و بسته‌بندی‌های تجملی فاقد کارایی، انگیزه‌ای شد تا ولورا را پایه‌گذاری کنیم. از نخستین روز، عهد بستیم که واسطه‌ای صادق باشیم؛ دسترسی به ناب‌ترین کرم‌ها، پاک‌کننده‌ها و عطرها بدون کم‌وکاست، همراه با شناخت دقیق ساختار هر پوست.
+              </p>
+
+              <p>
+                تیم ولورا از دل جامعه‌ای از پزشکان پوست، منتقدان تخصصی آرایش و عطرسازان تجربی رشد کرد. ما به جای سردرگم کردن شما با اصطلاحات پیچیده بیوشیمی، هر کالا را با زبانی صمیمانه، کاربردی و شفاف روایت می‌کنیم تا هر خرید، نوازشی مطمئن برای روح و جسم شما باشد.
+              </p>
+            </div>
+
+            <div class="mt-6 flex items-center gap-4 p-4 rounded-2xl bg-white border border-[#EADDE1]">
+              <div class="w-12 h-12 rounded-xl bg-[#F8E9EE] flex items-center justify-center text-[#913B60] shrink-0">
+                <span class="material-symbols-outlined text-[24px]">auto_stories</span>
+              </div>
+              <div>
+                <p class="text-xs sm:text-sm font-bold text-[#30252B]">آرامش در اصالت</p>
+                <p class="text-[11px] text-[#776B70]">مسیری شفاف از کشف نیاز تا لمس زیباترین نسخه خودتان</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multi-Layered Visual Composition -->
+          <div class="lg:col-span-6 relative">
+            <div class="relative w-full h-[460px] sm:h-[500px]">
+              <!-- Large Main Image -->
+              <div class="absolute top-0 right-0 w-4/5 h-[380px] rounded-3xl overflow-hidden shadow-md border border-[#EADDE1]">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBs1Z1DKzm6pD62bGCBDQJTHYM6gOCykrSSlK9_1DNkw2RXqizdK9qGgAG13EJw_kBjPGoLphaaRxT5xd-hWVMrf44SEWVnvki8acnmtbxDjfQiu0NE-JPPxqFslny6ACWgii-FVFhISa_Fb96uDNmFtcAlbWjs410tf2gLXjWhSSDAfYqTOIPuJ4ggpYHHKP5hnRoEm2CNIqapVrELIy8_8Vx0I6Q7yFZkP8yQ0bS0iHE-iAKSuupm" alt="Luxury skincare bottles" class="w-full h-full object-cover" />
+              </div>
+
+              <!-- Overlapping Secondary Image -->
+              <div class="absolute bottom-0 left-0 w-3/5 h-[260px] rounded-3xl overflow-hidden shadow-xl border-4 border-white bg-white">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqAA7_8Iti9DY3gNeioFt2yr5LSfpLgWyHCD_fl1U3eAnhHEgz_uYSwvFMOGKX3w8mY9B28dYgmc6TJFlxEPI2Ibipl9kFxxvh2XnsOBYw9qZg9ndIxE8Qd-KiVRSqGNLKFADr_1kBN-b-_8-LN_XeirwdLBHbufE9xnyq4-N7_WfbC3fXeO3dLqX5EyB8EFr9hXFCruTt9eggO1XuH_1b_2Ruh2I-wmiKKbgR8RpGTNKkYatMRajw" alt="Close up moisturizer cream texture" class="w-full h-full object-cover" />
+              </div>
+
+              <!-- Floating Accent Badge -->
+              <div class="absolute top-1/2 left-6 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-[#EADDE1] max-w-[200px]">
+                <div class="flex items-center gap-1.5 text-[#913B60] mb-1">
+                  <span class="material-symbols-outlined text-[18px]">verified</span>
+                  <span class="text-xs font-bold">فرمول‌های پاک</span>
+                </div>
+                <p class="text-[11px] text-[#776B70] leading-snug">پایبند به مسئولیت زیست‌محیطی و اصول اخلاقی زیبایی پایدار</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Core Values & Mission (4 Refined Visual Feature Cards) -->
+      <section class="mb-16">
+        <div class="text-center max-w-2xl mx-auto mb-10">
+          <span class="text-xs font-bold text-[#913B60] tracking-wider uppercase mb-1 inline-block">ستون‌های هویتی ما</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-[#512B3A]">ارزش‌های بنیادین در ولورا شاپ</h2>
+          <p class="text-xs sm:text-sm text-[#776B70] mt-1">
+            هر تصمیمی در ولورا، از انتخاب تأمین‌کنندگان تا روبان بسته‌بندی نهایی، بر پایه این چهار اصل استوار است.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Card 1 -->
+          <div class="bg-white border border-[#EADDE1] p-6 rounded-3xl flex flex-col justify-between shadow-xs hover:shadow-md hover:border-[#D88FA7] transition-all group">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-[#F8E9EE] text-[#913B60] flex items-center justify-center shadow-xs mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-[26px]">search_insights</span>
+              </div>
+              <span class="text-[11px] text-[#913B60] font-bold block mb-1">اصل اول</span>
+              <h3 class="text-base font-bold text-[#30252B] mb-2">انتخاب آگاهانه</h3>
+              <p class="text-xs text-[#776B70] leading-relaxed text-justify">
+                ارائه اطلاعات موشکافانه، فهرست شفاف ترکیبات فعال، راهنمای غلظت اسیدها و بررسی علمی عملکرد هر محصول بدون بزرگ‌نمایی‌های تبلیغاتی.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-[#EADDE1] flex items-center gap-1.5 text-xs text-[#913B60] font-bold">
+              <span class="material-symbols-outlined text-[16px]">check_circle</span>
+              <span>شفافیت در ترکیبات</span>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="bg-white border border-[#EADDE1] p-6 rounded-3xl flex flex-col justify-between shadow-xs hover:shadow-md hover:border-[#D88FA7] transition-all group">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-[#F8E9EE] text-[#913B60] flex items-center justify-center shadow-xs mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-[26px]">inventory_2</span>
+              </div>
+              <span class="text-[11px] text-[#913B60] font-bold block mb-1">اصل دوم</span>
+              <h3 class="text-base font-bold text-[#30252B] mb-2">توجه به جزئیات</h3>
+              <p class="text-xs text-[#776B70] leading-relaxed text-justify">
+                بسته‌بندی اختصاصی عایق دما، حفظ پایداری سرم‌های حساس به نور، پلمپ رسمی کارخانه و لمس رایحه‌ای دلنشین هنگام گشودن جعبه ولورا.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-[#EADDE1] flex items-center gap-1.5 text-xs text-[#913B60] font-bold">
+              <span class="material-symbols-outlined text-[16px]">check_circle</span>
+              <span>بسته‌بندی محافظتی هاردباکس</span>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="bg-white border border-[#EADDE1] p-6 rounded-3xl flex flex-col justify-between shadow-xs hover:shadow-md hover:border-[#D88FA7] transition-all group">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-[#F8E9EE] text-[#913B60] flex items-center justify-center shadow-xs mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-[26px]">touch_app</span>
+              </div>
+              <span class="text-[11px] text-[#913B60] font-bold block mb-1">اصل سوم</span>
+              <h3 class="text-base font-bold text-[#30252B] mb-2">تجربه خرید ساده</h3>
+              <p class="text-xs text-[#776B70] leading-relaxed text-justify">
+                دسترسی سریع با فیلترهای هوشمند نوع پوست، تسویه حساب آسان، سفارش مستقیم تلگرام و همراهی گرم تیم پشتیبانی در تمام گام‌های سفر شما.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-[#EADDE1] flex items-center gap-1.5 text-xs text-[#913B60] font-bold">
+              <span class="material-symbols-outlined text-[16px]">check_circle</span>
+              <span>سفارش تلگرامی و پشتیبانی سریع</span>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="bg-white border border-[#EADDE1] p-6 rounded-3xl flex flex-col justify-between shadow-xs hover:shadow-md hover:border-[#D88FA7] transition-all group">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-[#F8E9EE] text-[#913B60] flex items-center justify-center shadow-xs mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-[26px]">diversity_1</span>
+              </div>
+              <span class="text-[11px] text-[#913B60] font-bold block mb-1">اصل چهارم</span>
+              <h3 class="text-base font-bold text-[#30252B] mb-2">احترام به سلیقه‌ها</h3>
+              <p class="text-xs text-[#776B70] leading-relaxed text-justify">
+                تنوعی گسترده برای تمامی تناژهای پوستی خاورمیانه، انواع بافت مو، طیف‌های رایحه بویایی و ترجیحات آرایشی از طبیعی تا مجلسی.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-[#EADDE1] flex items-center gap-1.5 text-xs text-[#913B60] font-bold">
+              <span class="material-symbols-outlined text-[16px]">check_circle</span>
+              <span>جامعیت و تنوع بی‌مرز</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- The Veloraa Experience: Tactile Moodboard & Sensorial Textures -->
+      <section class="mb-16">
+        <div class="bg-[#F8E9EE] border border-[#EADDE1] p-8 md:p-12 rounded-3xl shadow-xs">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+            <div>
+              <span class="text-xs font-bold text-[#913B60]">حس مخملی لمس زیبایی</span>
+              <h2 class="text-2xl sm:text-3xl font-extrabold text-[#512B3A] mt-1">
+                تجربه ولورا؛ پیوند علم و حواس پنج‌گانه
+              </h2>
+            </div>
+            <p class="text-xs sm:text-sm text-[#776B70] max-w-md text-justify">
+              ما محصولات را صرفاً بر اساس کارکرد ارزیابی نمی‌کنیم؛ بافت ابریشمی، جذب سبک، رایحه ملایم و احساس آرامش هنگام مراقبت شبانگاهی، بخشی جدانشدنی از استاندارد ولورا هستند.
+            </p>
+          </div>
+
+          <!-- Bento Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Texture 1 -->
+            <div class="relative group rounded-2xl overflow-hidden min-h-[280px] shadow-sm border border-[#EADDE1]">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7enGqHHCoLBFg7nVWEeSp6O8MyTiKJKL6LkOSS9mF72RRmH4MT2h6EH2O68mxgwUAmZ2bb85nVMuGPCOupTr3hj9Pc44fXkY1zsUDPMYIIE0G4fIUVWNQjU93LQeTPFcbh331Ga3M8SAe7qzaIO2bH5S72GV6LF_8glNGFrA3KjpjPDy46smoyvrAAEDIEuVqt4vDVJ9e7nEH0JjqHl_iuSRiDuqws3AVeA1CMhjE1BT-QMJN49C1" alt="Velvet cream texture" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div class="absolute inset-0 bg-gradient-to-t from-[#30252B]/85 via-[#30252B]/30 to-transparent flex flex-col justify-end p-6 text-white">
+                <span class="text-xs text-[#D88FA7] font-bold mb-1">بافت مخملی</span>
+                <h4 class="text-base font-bold text-white">کرم‌های تغذیه‌کننده عمیق</h4>
+                <p class="text-xs text-white/80 mt-1">آبرسانی پیوسته و لطافت بی‌پایان بدون حس سنگینی روی منافذ</p>
+              </div>
+            </div>
+
+            <!-- Texture 2 -->
+            <div class="relative group rounded-2xl overflow-hidden min-h-[280px] shadow-sm border border-[#EADDE1]">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUlaPpxFF9JCUkVmmEw_zDO7yU__6bZNDm99F1INQScWdXtYeeWbiDLQ1LBjn1mFowUxf3GnSkdu2TkCa8qoBHZS-SBnMC71SO8ugFNQ9MgAwcf2LcqcKwP0CWAX91Q_bkj-9ukism_aYTbRWv1SrKH0k7gfVwNP7kRcri73VV-ksLu2Qn1-h-gFZWwtGNUGvliIwHlh9RWqkmSIkYfx7NXiY1cwxXbeYfgD94GizPmtnRAumTBUxM" alt="Luminous oil drops" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div class="absolute inset-0 bg-gradient-to-t from-[#30252B]/85 via-[#30252B]/30 to-transparent flex flex-col justify-end p-6 text-white">
+                <span class="text-xs text-[#D88FA7] font-bold mb-1">درخشش زنده</span>
+                <h4 class="text-base font-bold text-white">سرم‌های شفاف و تقویت‌کننده</h4>
+                <p class="text-xs text-white/80 mt-1">تقویت سد دفاعی پوست با اکسیرهای غلیظ هیالورونیک و پپتیدها</p>
+              </div>
+            </div>
+
+            <!-- Texture 3 -->
+            <div class="relative group rounded-2xl overflow-hidden min-h-[280px] shadow-sm border border-[#EADDE1]">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCT-qhlRf5UY0O-g9qZa6gX5iVgVsWVn8IWwXhZLK-QJKjmRNtwcu--CM6wkoxTGTzo4BiQrInO1So4Ol1izU6te2EmTdEZVTkhF7aoUxyP4gyKpsfljLxkGCxKhUjjrXH61PHDjV7NMwOjAgWATw94RR9icM8NTziwZP75Y1j4nfqRsF0trTW9qvJV9KS_L0zMv2R2TyMB7MkjW8gKofCp3yRgpTBqf9SC-9i9z8kIN__AaM5Sed6_" alt="Natural pigment powders" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div class="absolute inset-0 bg-gradient-to-t from-[#30252B]/85 via-[#30252B]/30 to-transparent flex flex-col justify-end p-6 text-white">
+                <span class="text-xs text-[#D88FA7] font-bold mb-1">رنگدانه‌های معدنی</span>
+                <h4 class="text-base font-bold text-white">آرایش سبک و تنفس‌پذیر</h4>
+                <p class="text-xs text-white/80 mt-1">پوشانندگی طبیعی که به بافت طبیعی پوست اجازه زندگی می‌دهد</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Interactive Routine Explorer Showcase -->
+      <section class="mb-16">
+        <div class="bg-white border border-[#EADDE1] rounded-3xl p-6 md:p-10 shadow-xs">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <div class="lg:col-span-5">
+              <span class="text-xs font-bold text-[#913B60]">راهنمای هوشمند ولورا</span>
+              <h3 class="text-xl sm:text-2xl font-bold text-[#512B3A] mt-1 mb-3">
+                روتین متناسب با نیاز خودت را پیدا کن
+              </h3>
+              <p class="text-xs sm:text-sm text-[#776B70] mb-6 leading-relaxed text-justify">
+                ما انتخاب محصول را ساده کرده‌ایم. با انتخاب هدف اصلی پوست خود، رویکرد پیشنهادی متخصصان ولورا را مشاهده کن:
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <button id="tab-glow" onclick="VeloraaApp.switchRoutineTab('glow')" class="routine-btn px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all bg-[#913B60] text-white shadow-sm">
+                  درخشش و شادابی
+                </button>
+                <button id="tab-hydrate" onclick="VeloraaApp.switchRoutineTab('hydrate')" class="routine-btn px-5 py-2.5 rounded-full font-medium text-xs sm:text-sm transition-all bg-white text-[#776B70] hover:text-[#913B60] border border-[#EADDE1]">
+                  آبرسانی عمیق
+                </button>
+                <button id="tab-calm" onclick="VeloraaApp.switchRoutineTab('calm')" class="routine-btn px-5 py-2.5 rounded-full font-medium text-xs sm:text-sm transition-all bg-white text-[#776B70] hover:text-[#913B60] border border-[#EADDE1]">
+                  پوست‌های حساس و تسکین
+                </button>
+              </div>
+            </div>
+
+            <div class="lg:col-span-7">
+              <!-- Glow Panel -->
+              <div id="content-glow" class="p-6 rounded-2xl bg-[#FFFCF8] border border-[#EADDE1] flex flex-col sm:flex-row items-center gap-6 shadow-xs">
+                <div class="w-full sm:w-1/3 h-48 rounded-xl overflow-hidden shrink-0 border border-[#EADDE1]">
+                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQsK5awra4mzXZrmLfk0nRlMoUuf8NZIgVN2Fz8NqR635byr-Fl9hykFnIoy63LGP5JYWc4k5NvifIPXH1njwnZpn8xttwJwOUAsdMEzYKHDmOzXs5KXsbJb4bAmPzkrIfnOf8vJQ_vxLbmwpotFsf2KzbxX9Nna-KJIjvhEibarVOAKiyvRPBdgt-Mli2vxWayyoUfg4Zp3GziW1TciSik3U_Msx_EBNKD_UKtMkn67RHP-oqywQ" alt="Vitamin C Glow Serum" class="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <span class="text-xs bg-[#F0D3DC] text-[#512B3A] px-3 py-1 rounded-full font-bold inline-block mb-2">پیشنهاد ولورا: روتین آنتی‌اکسیدان</span>
+                  <h4 class="text-base font-bold text-[#30252B] mb-2">تمرکز بر ویتامین C و نیاسینامید</h4>
+                  <p class="text-xs sm:text-sm text-[#776B70] leading-relaxed text-justify mb-4">
+                    ترکیب ویتامین C پایدار به همراه ضدآفتاب طیف گسترده، لکه‌های ناشی از آفتاب را محو کرده و درخشندگی طبیعی پوست را در کمتر از ۴ هفته احیا می‌کند.
+                  </p>
+                  <a href="products.html" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#913B60] hover:underline">
+                    <span>مشاهده محصولات این روتین در فروشگاه</span>
+                    <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Hydrate Panel -->
+              <div id="content-hydrate" class="hidden p-6 rounded-2xl bg-[#FFFCF8] border border-[#EADDE1] flex flex-col sm:flex-row items-center gap-6 shadow-xs">
+                <div class="w-full sm:w-1/3 h-48 rounded-xl overflow-hidden shrink-0 border border-[#EADDE1]">
+                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMMinDWjtmaXZuP4VXqcO3Xr0wqsjaxDTyRix9p6FxCkPji_bE7e-VxdJ6T7BtZ5vfNPcz3UmFIciba29Owz2PpmZsU_ybK69e_4GMfIRL7Fw3WEdOXpToQWQDMjt3eb3w-WW-Wp4ImHltRc0n0hyW8U0vu70DaxzoYPJKrEjM9UgS4XtZrdlUfGVxMDlh6ezGHUt0arueXMQD8BlRLN-MKnTWkazwmdtZALRa5TB26BxiVYdOlUD2" alt="Hyaluronic moisturizer" class="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <span class="text-xs bg-[#F0D3DC] text-[#512B3A] px-3 py-1 rounded-full font-bold inline-block mb-2">پیشنهاد ولورا: آبرسانی چندلایه</span>
+                  <h4 class="text-base font-bold text-[#30252B] mb-2">مولکول‌های سه‌گانه هیالورونیک و سد سرامید</h4>
+                  <p class="text-xs sm:text-sm text-[#776B70] leading-relaxed text-justify mb-4">
+                    جذب رطوبت از لایه‌های زیرین تا سطح پوست با فرمولاسیون‌های غیرچرب، احیاکننده شادابی چهره‌های خسته و دهیدراته در اقلیم‌های خشک.
+                  </p>
+                  <a href="products.html" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#913B60] hover:underline">
+                    <span>مشاهده محصولات آبرسان</span>
+                    <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Calm Panel -->
+              <div id="content-calm" class="hidden p-6 rounded-2xl bg-[#FFFCF8] border border-[#EADDE1] flex flex-col sm:flex-row items-center gap-6 shadow-xs">
+                <div class="w-full sm:w-1/3 h-48 rounded-xl overflow-hidden shrink-0 border border-[#EADDE1]">
+                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXdqSATGj4uadzSe3SpBbTfBPgv3LrrgXUIPXzgIbZgQMdbMd27XQjTYa52ZRZrh1NMvuBIAyacDajT0ex-xTpX2Tx3a5VkXGKAh5gtYH_JYM9oUlC2F17mSbVG3lTcNoGnxWc3s9p4ExVOrBEc8a8b4tmcolTZg1Aw_zbmQw-Y1s02hXspnXsX1-fVYFLbatQEPiqwbQGlN-_ZybJ3qVkax-0n1-ugNTYu2jOCNv34faKPiZVt9CX" alt="Cica soothing serum" class="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <span class="text-xs bg-[#F0D3DC] text-[#512B3A] px-3 py-1 rounded-full font-bold inline-block mb-2">پیشنهاد ولورا: روتین سیکا و تسکین</span>
+                  <h4 class="text-base font-bold text-[#30252B] mb-2">عصاره سنتلا، آلانتوئین و بدون عطر مصنوعی</h4>
+                  <p class="text-xs sm:text-sm text-[#776B70] leading-relaxed text-justify mb-4">
+                    کاهش فوری قرمزی، التیام پوست‌های تحریک‌شده بر اثر لایه‌برداری یا آفتاب، و بازسازی ساختار دفاعی اپیدرم با بیشترین سازگاری.
+                  </p>
+                  <a href="products.html" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#913B60] hover:underline">
+                    <span>مشاهده محصولات ضدقرمزی</span>
+                    <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final Call to Action -->
+      <section class="mb-16">
+        <div class="relative bg-[#913B60] text-white rounded-3xl p-8 md:p-14 text-center flex flex-col items-center shadow-xl overflow-hidden">
+          <div class="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white mb-6 backdrop-blur-md">
+            <span class="material-symbols-outlined text-[28px]">diamond</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-4 tracking-tight leading-snug">
+            دنیای زیبایی ولورا را کشف کن
+          </h2>
+          <p class="text-xs sm:text-sm text-white/90 leading-relaxed mb-8 max-w-lg">
+            همین حالا محصولات محبوب و روتین‌های پیشنهادی را بررسی کن و سفر لذت‌بخش مراقبت از خودت را با اطمینان و همراهی ما آغاز نما.
+          </p>
+          <div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <a href="products.html" class="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white text-[#913B60] text-xs sm:text-sm font-bold shadow-lg hover:bg-[#F8E9EE] transition-all flex items-center justify-center gap-2">
+              <span>مشاهده محصولات فروشگاه</span>
+              <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            </a>
+            <a href="https://t.me/veloraa_support" target="_blank" class="w-full sm:w-auto px-7 py-3.5 rounded-full btn-telegram text-xs sm:text-sm font-bold shadow-md flex items-center justify-center gap-2">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.62 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.88 8.01-3.44 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.21-.04.38z"/></svg>
+              <span>مشاوره رایگان با کارشناس در تلگرام</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Persistent Editorial Luxury Footer -->
+  <footer class="w-full bg-white border-t border-[#EADDE1] pt-14 pb-8">
+    <div class="max-w-[1440px] mx-auto px-4 md:px-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl font-bold tracking-tight text-[#913B60]">Veloraa</span>
+            <span class="text-xs bg-[#F0D3DC] text-[#512B3A] px-2.5 py-0.5 rounded-full font-semibold border border-[#EADDE1]">ولورا شاپ</span>
+          </div>
+          <p class="text-xs sm:text-sm text-[#776B70] leading-relaxed text-justify">
+            ولورا شاپ با تمرکز بر اصالت، هنر عطرسازی و فرمولاسیون‌های پایدار زیبایی، مقصدی لوکس برای عاشقان زیبایی در خاورمیانه است. تمامی محصولات با ضمانت اصالت ۱۰۰٪ عرضه می‌شوند.
+          </p>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-[#512B3A] mb-4">دسته‌بندی‌های اصلی</h4>
+          <ul class="space-y-2.5 text-xs sm:text-sm text-[#776B70]">
+            <li><a href="products.html" class="hover:text-[#913B60]">مراقبت پوست و سرم‌ها</a></li>
+            <li><a href="products.html" class="hover:text-[#913B60]">آرایش صورت و رژ لب</a></li>
+            <li><a href="products.html" class="hover:text-[#913B60]">عطر و ادکلن نیش</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-[#512B3A] mb-4">سفارش و پشتیبانی</h4>
+          <ul class="space-y-2.5 text-xs sm:text-sm text-[#776B70]">
+            <li><button onclick="VeloraaCart.openDrawer()" class="hover:text-[#913B60] text-right">سبد خرید من</button></li>
+            <li><button onclick="VeloraaCart.openTelegramOrderModal()" class="hover:text-[#913B60] text-right text-[#229ED9] font-bold">سفارش در تلگرام (@veloraa_support)</button></li>
+            <li><a href="contact.html" class="hover:text-[#913B60]">پشتیبانی مشتریان</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-[#512B3A] mb-4">ارتباط مستقیم</h4>
+          <p class="text-xs text-[#776B70] mb-2 dir-ltr text-right">support@veloraa.com</p>
+          <p class="text-xs text-[#776B70] mb-3 dir-ltr text-right">۰۲۱-۹۱۰۰۴۳۲۱</p>
+          <a href="https://t.me/veloraa_support" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl btn-telegram text-xs font-bold">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.62 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.88 8.01-3.44 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.21-.04.38z"/></svg>
+            <span>چت اختصاصی تلگرام</span>
+          </a>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-[#EADDE1] flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#776B70]">
+        <p>تمامی حقوق مادی و معنوی متعلق به ولورا شاپ می‌باشد © ۱۴۰۳</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="assets/js/cart.js"></script>
+  <script src="assets/js/main.js"></script>
+<script src="assets/js/compat.js"></script>
+</body>
+</html>

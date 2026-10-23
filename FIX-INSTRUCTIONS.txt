@@ -1,0 +1,18 @@
+# Veloraa Shop — GitHub Pages repair package
+
+## What changed
+- Kept the four main HTML pages and original assets.
+- Added readable root-level aliases for the ten AI Studio secondary pages.
+- Added `assets/js/compat.js` to route common navigation labels to the new pages and repair placeholder links where safe.
+- Added the compatibility script to the main and secondary pages.
+
+## Publish
+1. Download and extract this ZIP.
+2. In your `veloraashop` GitHub repository, upload the contents of this folder (not the outer folder itself) to the same publishing directory as `index.html`.
+3. Allow GitHub Pages to redeploy, then test the site.
+4. Do not upload the ZIP itself as the website source.
+
+## Added page names
+cart.html, shop.html, checkout.html, account.html, about-details.html, faq.html, categories.html, product-details.html, support.html, home-alt.html
+
+Note: this is a compatibility repair based on the supplied static export. Test ordering, login/account and Telegram checkout flows after deployment; static GitHub Pages cannot provide server-side accounts or payment processing without an external service.
