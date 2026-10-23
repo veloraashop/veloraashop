@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>فروشگاه محصولات زیبایی | ولورا شاپ (Veloraa)</title>
+  <meta name="description" content="فروشگاه اینترنتی ولورا شاپ - خرید تخصصی سرم‌های پوست، محصولات آرایشی، عطر نیش و مراقبت مو با ضمانت اصالت و سفارش سریع در تلگرام" />
+  <meta property="og:title" content="فروشگاه محصولات زیبایی ولورا شاپ" />
+  <meta property="og:description" content="دستچینی اصیل از برترین برندهای بین‌المللی آرایشی و بهداشتی با قیمت‌های شفاف و ارسال اکسپرس" />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#913B60",
+            "primary-hover": "#782D4D",
+            secondary: "#D88FA7",
+            "plum-deep": "#512B3A",
+            "text-main": "#30252B",
+            "text-muted": "#776B70",
+            "bg-warm": "#FFFCF8",
+            "surface-low": "#F8E9EE",
+            "surface-soft": "#F0D3DC",
+            "border-soft": "#EADDE1"
+          },
+          fontFamily: {
+            sans: ['Vazirmatn', 'system-ui', 'sans-serif'],
+            vazir: ['Vazirmatn', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="bg-[#FFFCF8] text-[#30252B] font-sans antialiased selection:bg-[#F0D3DC] selection:text-[#512B3A]">
+
+  <!-- Top Announcement Bar -->
+  <div class="w-full bg-[#F8E9EE] border-b border-[#EADDE1] py-2 px-4 text-center text-xs text-[#776B70]">
+    <div class="max-w-[1440px] mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-[#913B60] animate-pulse"></span>
+        <span class="font-medium text-[#512B3A]">ارسال رایگان برای تمام سفارش‌های بالای ۱ میلیون تومان</span>
+      </div>
+      <div class="flex items-center gap-4 text-xs font-semibold">
+        <span class="flex items-center gap-1 text-[#913B60]">
+          <span class="material-symbols-outlined text-[16px]">verified</span>
+          ضمانت اصالت ۱۰۰٪ کالا
+        </span>
+        <span class="opacity-30 hidden sm:inline">|</span>
+        <a href="https://t.me/veloraa_support" target="_blank" class="hidden sm:flex items-center gap-1 text-[#229ED9] hover:underline">
+          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.62 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.88 8.01-3.44 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.21-.04.38z"/></svg>
+          سفارش سریع در تلگرام: @veloraa_support
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Persistent Header Navigation -->
+  <header class="sticky top-0 w-full z-40 glass-header">
+    <div class="h-20 max-w-[1440px] mx-auto px-4 md:px-10 flex items-center justify-between gap-6">
+      
+      <!-- Brand & Desktop Nav Links -->
+      <div class="flex items-center gap-8">
+        <button id="mobile-menu-toggle" class="xl:hidden p-2 text-[#30252B] hover:text-[#913B60] transition-colors" aria-label="منوی سایت">
+          <span class="material-symbols-outlined text-[26px]">menu</span>
+        </button>
+
+        <a href="index.html" class="flex items-center gap-3 group">
+          <span class="text-3xl font-extrabold tracking-tight text-[#913B60] font-sans transition-transform group-hover:scale-[1.02]">Veloraa</span>
+          <span class="text-xs bg-[#F0D3DC] text-[#512B3A] px-2.5 py-0.5 rounded-full font-semibold border border-[#EADDE1]">ولورا شاپ</span>
+        </a>
+
+        <nav class="hidden xl:flex items-center gap-7">
+          <a href="index.html" class="nav-link py-1 text-sm font-medium text-[#776B70] hover:text-[#913B60] transition-colors">خانه</a>
+          <a href="products.html" class="nav-link active py-1 text-sm font-medium text-[#776B70] hover:text-[#913B60] transition-colors">فروشگاه</a>
+          <a href="about.html" class="nav-link py-1 text-sm font-medium text-[#776B70] hover:text-[#913B60] transition-colors">درباره ما</a>
+          <a href="contact.html" class="nav-link py-1 text-sm font-medium text-[#776B70] hover:text-[#913B60] transition-colors">پشتیبانی و تماس</a>
+        </nav>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-3 md:gap-4 flex-shrink-0">
+        <a href="https://t.me/veloraa_support" target="_blank" class="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#229ED9]/10 hover:bg-[#229ED9]/20 text-[#229ED9] text-xs font-semibold transition-colors border border-[#229ED9]/20" title="سفارش در تلگرام">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.62 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.88 8.01-3.44 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.21-.04.38z"/></svg>
+          <span>سفارش تلگرام</span>
+        </a>
+
+        <button onclick="VeloraaCart.openDrawer()" class="relative p-2.5 rounded-full bg-[#F8E9EE] text-[#512B3A] hover:bg-[#F0D3DC] border border-[#EADDE1] transition-all flex items-center justify-center" title="سبد خرید">
+          <span class="material-symbols-outlined text-[22px]">local_mall</span>
+          <span class="cart-badge-count absolute -top-1 -right-1 bg-[#913B60] text-white text-[11px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-sm">۲</span>
+        </button>
+
+        <a href="contact.html" class="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F8E9EE] hover:bg-[#F0D3DC] border border-[#EADDE1] transition-colors text-xs font-medium text-[#30252B]">
+          <span>حساب کاربری</span>
+          <div class="w-7 h-7 rounded-full bg-[#913B60] flex items-center justify-center text-white">
+            <span class="material-symbols-outlined text-[17px]">person</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <div id="mobile-menu-backdrop" class="fixed inset-0 z-50 drawer-backdrop opacity-0 hidden transition-opacity duration-300"></div>
+  <div id="mobile-menu-drawer" class="fixed top-0 right-0 z-50 h-full w-72 bg-[#FFFCF8] shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-out border-l border-[#EADDE1]">
+    <div class="p-5 border-b border-[#EADDE1] flex items-center justify-between bg-white">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl font-bold text-[#913B60]">Veloraa</span>
+        <span class="text-[11px] bg-[#F0D3DC] text-[#512B3A] px-2 py-0.5 rounded-full font-bold">ولورا شاپ</span>
+      </div>
+      <button id="mobile-menu-close" class="p-1.5 rounded-full text-[#776B70] hover:text-[#30252B] hover:bg-[#F8E9EE]">
+        <span class="material-symbols-outlined text-[22px]">close</span>
+      </button>
+    </div>
+    <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
+      <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#30252B] hover:bg-[#F8E9EE] text-sm font-medium transition-colors">
+        <span class="material-symbols-outlined text-[20px]">home</span>
+        <span>صفحه اصلی</span>
+      </a>
+      <a href="products.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F8E9EE] text-[#913B60] text-sm font-bold">
+        <span class="material-symbols-outlined text-[20px]">storefront</span>
+        <span>فروشگاه و محصولات</span>
+      </a>
+      <a href="about.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#30252B] hover:bg-[#F8E9EE] text-sm font-medium transition-colors">
+        <span class="material-symbols-outlined text-[20px]">auto_stories</span>
+        <span>درباره ما</span>
+      </a>
+      <a href="contact.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#30252B] hover:bg-[#F8E9EE] text-sm font-medium transition-colors">
+        <span class="material-symbols-outlined text-[20px]">headset_mic</span>
+        <span>پشتیبانی و تماس</span>
+      </a>
+    </nav>
+    <div class="p-4 border-t border-[#EADDE1] bg-white space-y-2">
+      <a href="https://t.me/veloraa_support" target="_blank" class="w-full h-11 rounded-xl btn-telegram flex items-center justify-center gap-2 text-xs font-bold shadow-sm">
+        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.62 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.88 8.01-3.44 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.21-.04.38z"/></svg>
+        <span>ارتباط مستقیم تلگرام</span>
+      </a>
+    </div>
+  </div>
+
+  <main class="w-full flex-1 pb-16">
+    <div class="max-w-[1440px] mx-auto px-4 md:px-10 pt-6">
+      
+      <!-- 1. Breadcrumbs -->
+      <nav class="flex items-center gap-2 text-xs sm:text-sm text-[#776B70] mb-6">
+        <a href="index.html" class="hover:text-[#913B60] transition-colors flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">home</span>
+          <span>خانه</span>
+        </a>
+        <span class="opacity-40">/</span>
+        <span class="text-[#913B60] font-semibold">فروشگاه محصولات زیبایی</span>
+      </nav>
+
+      <!-- 2. Header Section with Beauté Editorial Silhouette -->
+      <div class="relative bg-[#F8E9EE] border border-[#EADDE1] rounded-3xl p-6 sm:p-10 mb-8 overflow-hidden shadow-xs">
+        <div class="absolute -bottom-8 left-6 text-[#EADDE1]/50 select-none pointer-events-none hidden md:block">
+          <span class="text-8xl font-black uppercase tracking-widest">BEAUTÉ</span>
+        </div>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div class="max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white text-[#913B60] text-xs font-bold mb-3 shadow-xs border border-[#EADDE1]">
+              <span class="material-symbols-outlined text-[16px]">spa</span>
+              <span>کالکشن تخصصی زیبایی ولورا</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#512B3A] mb-2">فروشگاه محصولات زیبایی</h1>
+            <p class="text-xs sm:text-sm text-[#776B70] leading-relaxed">
+              محصولات مراقبت پوست، عطر و آرایش مورد علاقه‌ات را کشف کن؛ دستچینی اصیل از برترین برندها با تضمین ۱۰۰٪ اصالت و امکان سفارش مستقیم در تلگرام.
+            </p>
+          </div>
+          <div class="flex items-center gap-3 self-start md:self-auto bg-white px-5 py-3 rounded-2xl border border-[#EADDE1] shadow-xs">
+            <span class="material-symbols-outlined text-[#913B60] text-[22px]">auto_awesome</span>
+            <div class="flex items-baseline gap-1">
+              <span class="text-lg font-bold text-[#913B60]">۱۴۸+</span>
+              <span class="text-xs text-[#776B70]">محصول برگزیده</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Live Search & Active Filter Chips -->
+      <div class="bg-white border border-[#EADDE1] rounded-2xl p-4 md:p-5 shadow-xs mb-8">
+        <div class="flex flex-col md:flex-row items-center gap-3">
+          <div class="relative flex-1 w-full">
+            <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#776B70] text-[20px]">search</span>
+            <input id="catalog-search-input" type="text" placeholder="نام محصول، برند یا دغدغه پوستی را جست‌وجو کن..." class="w-full h-12 pr-11 pl-10 rounded-full bg-[#FFFCF8] border border-[#EADDE1] text-xs sm:text-sm text-[#30252B] placeholder:text-[#776B70] focus:border-[#913B60] outline-none transition-all" />
+            <button id="catalog-search-clear" class="hidden absolute left-4 top-1/2 -translate-y-1/2 text-[#776B70] hover:text-[#30252B] p-1">
+              <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          </div>
+          <button onclick="applyCatalogSearch()" class="w-full md:w-auto h-12 px-7 rounded-full bg-[#913B60] hover:bg-[#782D4D] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-xs flex-shrink-0">
+            <span>فیلتر و جست‌وجو</span>
+            <span class="material-symbols-outlined text-[18px]">tune</span>
+          </button>
+        </div>
+
+        <!-- Filter Tags -->
+        <div class="mt-4 pt-3 border-t border-[#EADDE1] flex flex-wrap items-center gap-2 text-xs">
+          <span class="text-[#776B70] font-semibold flex items-center gap-1 ml-1">
+            <span class="material-symbols-outlined text-[16px]">filter_alt</span>
+            فیلترهای سریع:
+          </span>
+          <button onclick="filterByCategory('all')" class="cat-chip active px-3.5 py-1.5 rounded-full bg-[#913B60] text-white font-bold transition-all" data-category="all">همه محصولات</button>
+          <button onclick="filterByCategory('skincare')" class="cat-chip px-3.5 py-1.5 rounded-full bg-[#F8E9EE] text-[#512B3A] hover:bg-[#F0D3DC] font-medium transition-all" data-category="skincare">مراقبت پوست</button>
+          <button onclick="filterByCategory('makeup')" class="cat-chip px-3.5 py-1.5 rounded-full bg-[#F8E9EE] text-[#512B3A] hover:bg-[#F0D3DC] font-medium transition-all" data-category="makeup">آرایش و لب</button>
+          <button onclick="filterByCategory('fragrance')" class="cat-chip px-3.5 py-1.5 rounded-full bg-[#F8E9EE] text-[#512B3A] hover:bg-[#F0D3DC] font-medium transition-all" data-category="fragrance">عطرهای نیش</button>
+        </div>
+      </div>
+
+      <!-- 4. Two-Column Catalog Layout (Sidebar Filters + Products Grid) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- RIGHT SIDEBAR (Filters) - 3 cols on lg -->
+        <aside class="lg:col-span-3 w-full space-y-6">
+          <div class="bg-white border border-[#EADDE1] rounded-2xl p-5 shadow-xs space-y-6">
+            <div class="flex items-center justify-between pb-3 border-b border-[#EADDE1]">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-[#913B60] text-[20px]">tune</span>
+                <h2 class="text-sm font-bold text-[#512B3A]">فیلترهای پیشرفته</h2>
+              </div>
+              <button onclick="resetAllFilters()" class="text-xs text-[#913B60] hover:underline">بازنشانی</button>
+            </div>
+
+            <!-- Category Section -->
+            <div>
+              <h3 class="text-xs font-bold text-[#512B3A] mb-3">دسته‌بندی‌ها</h3>
+              <div class="space-y-2 text-xs">
+                <label class="flex items-center justify-between p-2 rounded-lg bg-[#F8E9EE]/60 cursor-pointer">
+                  <div class="flex items-center gap-2">
+                    <input type="checkbox" checked class="w-4 h-4 text-[#913B60] accent-[#913B60] rounded" />
+                    <span class="text-[#30252B] font-medium">مراقبت پوست</span>
+                  </div>
+                  <span class="text-[11px] text-[#776B70]">۵۲</span>
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-lg hover:bg-[#F8E9EE] cursor-pointer transition-colors">
+                  <div class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4 text-[#913B60] accent-[#913B60] rounded" />
+                    <span class="text-[#776B70]">آرایش صورت و لب</span>
+                  </div>
+                  <span class="text-[11px] text-[#776B70]">۳۸</span>
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-lg hover:bg-[#F8E9EE] cursor-pointer transition-colors">
+                  <div class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4 text-[#913B60] accent-[#913B60] rounded" />
+                    <span class="text-[#776B70]">عطر و ادکلن نیش</span>
+                  </div>
+                  <span class="text-[11px] text-[#776B70]">۱۹</span>
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-lg hover:bg-[#F8E9EE] cursor-pointer transition-colors">
+                  <div class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4 text-[#913B60] accent-[#913B60] rounded" />
+                    <span class="text-[#776B70]">مراقبت مو</span>
+                  </div>
+                  <span class="text-[11px] text-[#776B70]">۱۶</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Brands Filter -->
+            <div class="pt-3 border-t border-[#EADDE1]">
+              <h3 class="text-xs font-bold text-[#512B3A] mb-3">برندهای برگزیده</h3>
+              <div class="space-y-2 text-xs">
+                <label class="flex items-center justify-between p-1.5 cursor-pointer">
+                  <div class="flex items-center gap-2">
+                    <input type="checkbox" checked class="w-4 h-4 text-[#913B60] accent-[#913B60] rounded" />
+                    <span class="text-[#30252B] font-medium">The Ordinary</span>
+                  </div>
+                  <span class="text-[11px] text-[#776B70]">۲۴</span>
+                </label>
+                <label class="flex items-center justify-between p-1.5 cursor-pointer">
+                  <div class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4 text-[#913B60] accent-[#913B60] rounded" />
+                    <span class="text-[#776B70]">CeraVe</span>
+                  </div>
+                  <span class="text-[11px] text-[#776B70]">۱۸</span>
+                </label>
+                <label class="flex items-center justify-between p-1.5 cursor-pointer">
+                  <div class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4 text-[#913B60] accent-[#913B60] rounded" />
+                    <span class="text-[#776B70]">Note Cosmetics</span>
+                  </div>
+                  <span class="text-[11px] text-[#776B70]">۱۴</span>
+                </label>
+                <label class="flex items-center justify-between p-1.5 cursor-pointer">
+                  <div class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4 text-[#913B60] accent-[#913B60] rounded" />
+                    <span class="text-[#776B70]">سینره (Cinere)</span>
+                  </div>
+                  <span class="text-[11px] text-[#776B70]">۱۵</span>
+                </label>
+                <label class="flex items-center justify-between p-1.5 cursor-pointer">
+                  <div class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4 text-[#913B60] accent-[#913B60] rounded" />
+                    <span class="text-[#776B70]">Maybelline</span>
+                  </div>
+                  <span class="text-[11px] text-[#776B70]">۱۲</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Skin Type Filter -->
+            <div class="pt-3 border-t border-[#EADDE1]">
+              <h3 class="text-xs font-bold text-[#512B3A] mb-3">نوع پوست</h3>
+              <div class="flex flex-wrap gap-1.5">
+                <button class="px-2.5 py-1 rounded-full bg-[#913B60] text-white text-[11px] font-bold">همه</button>
+                <button class="px-2.5 py-1 rounded-full bg-[#F8E9EE] text-[#512B3A] text-[11px] hover:bg-[#F0D3DC]">خشک</button>
+                <button class="px-2.5 py-1 rounded-full bg-[#F8E9EE] text-[#512B3A] text-[11px] hover:bg-[#F0D3DC]">چرب</button>
+                <button class="px-2.5 py-1 rounded-full bg-[#F8E9EE] text-[#512B3A] text-[11px] hover:bg-[#F0D3DC]">مختلط</button>
+                <button class="px-2.5 py-1 rounded-full bg-[#F8E9EE] text-[#512B3A] text-[11px] hover:bg-[#F0D3DC]">حساس</button>
+              </div>
+            </div>
+
+            <!-- Telegram Instant Order Widget in Sidebar -->
+            <div class="rounded-2xl p-4 bg-[#229ED9]/10 border border-[#229ED9]/20 text-right">
+              <div class="flex items-center gap-2 mb-2 text-[#229ED9]">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.62 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.88 8.01-3.44 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.21-.04.38z"/></svg>
+                <span class="text-xs font-bold">سفارش مستقیم تلگرامی</span>
+              </div>
+              <p class="text-[11px] text-[#776B70] leading-relaxed mb-3">
+                می‌توانید عکس محصول مورد نظرتان را برای مشاوران تلگرام ارسال کرده و بلافاصله فاکتور دریافت نمایید.
+              </p>
+              <a href="https://t.me/veloraa_support" target="_blank" class="w-full py-2 rounded-xl btn-telegram text-xs font-bold flex items-center justify-center gap-1.5">
+                <span>پیام در تلگرام ولورا</span>
+                <span class="material-symbols-outlined text-[15px]">arrow_back</span>
+              </a>
+            </div>
+          </div>
+        </aside>
+
+        <!-- LEFT MAIN CATALOG AREA - 9 cols on lg -->
+        <section class="lg:col-span-9 w-full space-y-6">
+          
+          <!-- Sort & Display Controls Bar -->
+          <div class="bg-white border border-[#EADDE1] rounded-2xl p-4 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+              <span class="text-xs text-[#776B70] font-semibold whitespace-nowrap ml-1 flex items-center gap-1">
+                <span class="material-symbols-outlined text-[18px]">sort</span>
+                مرتب‌سازی:
+              </span>
+              <button onclick="sortProducts('featured', this)" class="sort-btn active px-3 py-1.5 rounded-full text-xs font-bold bg-[#913B60] text-white">مرتبط‌ترین</button>
+              <button onclick="sortProducts('newest', this)" class="sort-btn px-3 py-1.5 rounded-full text-xs font-medium bg-[#F8E9EE] text-[#512B3A] hover:bg-[#F0D3DC]">جدیدترین</button>
+              <button onclick="sortProducts('price-asc', this)" class="sort-btn px-3 py-1.5 rounded-full text-xs font-medium bg-[#F8E9EE] text-[#512B3A] hover:bg-[#F0D3DC]">ارزان‌ترین</button>
+              <button onclick="sortProducts('price-desc', this)" class="sort-btn px-3 py-1.5 rounded-full text-xs font-medium bg-[#F8E9EE] text-[#512B3A] hover:bg-[#F0D3DC]">گران‌ترین</button>
+              <button onclick="sortProducts('discount', this)" class="sort-btn px-3 py-1.5 rounded-full text-xs font-medium bg-[#F8E9EE] text-[#512B3A] hover:bg-[#F0D3DC]">بیشترین تخفیف</button>
+            </div>
+            
+            <div class="text-xs text-[#776B70] self-end md:self-auto">
+              نمایش <span class="font-bold text-[#30252B]" id="visible-count">۹</span> محصول برگزیده
+            </div>
+          </div>
+
+          <!-- Products Grid (9 Full Rich Cards) -->
+          <div id="catalog-products-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            <!-- Cards rendered dynamically by JS for full filter/search interactivity -->
+          </div>
+
+          <!-- Empty state when no products match -->
+          <div id="no-products-msg" class="hidden py-16 text-center bg-white border border-[#EADDE1] rounded-3xl p-8">
+            <div class="w-16 h-16 rounded-full bg-[#F8E9EE] text-[#913B60] flex items-center justify-center mx-auto mb-3">
+              <span class="material-symbols-outlined text-[32px]">sentiment_dissatisfied</span>
+            </div>
+            <h3 class="text-base font-bold text-[#512B3A] mb-1">محصولی با این مشخصات یافت نشد</h3>
+            <p class="text-xs text-[#776B70] mb-4">لطفاً عبارت دیگری را جستجو کنید یا فیلترهای انتخابی را پاک کنید.</p>
+            <button onclick="resetAllFilters()" class="px-5 py-2.5 rounded-xl bg-[#913B60] text-white text-xs font-bold">
+              مشاهده تمامی محصولات
+            </button>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-xs text-[#776B70]">
+              صفحه <strong class="text-[#30252B]">۱</strong> از ۱۷
+            </div>
+            <div class="flex items-center gap-1.5 text-xs font-bold">
+              <button class="w-9 h-9 rounded-full bg-white border border-[#EADDE1] text-[#776B70] flex items-center justify-center opacity-40 cursor-not-allowed">
+                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+              </button>
+              <button class="w-9 h-9 rounded-full bg-[#913B60] text-white flex items-center justify-center shadow-xs">۱</button>
+              <button class="w-9 h-9 rounded-full bg-white border border-[#EADDE1] text-[#30252B] hover:bg-[#F8E9EE] flex items-center justify-center">۲</button>
+              <button class="w-9 h-9 rounded-full bg-white border border-[#EADDE1] text-[#30252B] hover:bg-[#F8E9EE] flex items-center justify-center">۳</button>
+              <span class="px-1 text-[#776B70]">...</span>
+              <button class="w-9 h-9 rounded-full bg-white border border-[#EADDE1] text-[#30252B] hover:bg-[#F8E9EE] flex items-center justify-center">۱۷</button>
+              <button class="w-9 h-9 rounded-full bg-white border border-[#EADDE1] text-[#30252B] hover:bg-[#F8E9EE] flex items-center justify-center">
+                <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Cruelty-free & Sustainability banner -->
+          <div class="mt-8 rounded-2xl bg-[#F8E9EE] border border-[#EADDE1] p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xs">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-white border border-[#EADDE1] flex items-center justify-center text-[#913B60] flex-shrink-0 shadow-xs">
+                <span class="material-symbols-outlined text-[28px]">eco</span>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-[#913B60] block mb-0.5">تعهد اخلاقی ولورا</span>
+                <h4 class="text-sm sm:text-base font-bold text-[#512B3A]">زیباییِ پایدار، بدون تست روی حیوانات</h4>
+                <p class="text-xs text-[#776B70] mt-1">تمام محصولات ارائه‌شده دارای استانداردهای سلامت جهانی و بسته‌بندی زیست‌تخریب‌پذیر هستند.</p>
+              </div>
+            </div>
+            <a href="about.html" class="px-5 py-2.5 rounded-full bg-white text-[#913B60] border border-[#EADDE1] hover:bg-[#913B60] hover:text-white transition-all text-xs font-bold whitespace-nowrap shadow-xs">
+              مطالعه تعهدات ولورا
+            </a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Persistent Editorial Luxury Footer -->
+  <footer class="w-full bg-white border-t border-[#EADDE1] pt-14 pb-8">
+    <div class="max-w-[1440px] mx-auto px-4 md:px-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl font-bold tracking-tight text-[#913B60]">Veloraa</span>
+            <span class="text-xs bg-[#F0D3DC] text-[#512B3A] px-2.5 py-0.5 rounded-full font-semibold border border-[#EADDE1]">ولورا شاپ</span>
+          </div>
+          <p class="text-xs sm:text-sm text-[#776B70] leading-relaxed text-justify">
+            ولورا شاپ مقصدی لوکس برای عاشقان زیبایی در خاورمیانه است. تمامی محصولات با ضمانت اصالت ۱۰۰٪ عرضه می‌شوند.
+          </p>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-[#512B3A] mb-4">دسته‌بندی‌های اصلی</h4>
+          <ul class="space-y-2.5 text-xs sm:text-sm text-[#776B70]">
+            <li><a href="products.html" class="hover:text-[#913B60]">مراقبت پوست و سرم‌ها</a></li>
+            <li><a href="products.html" class="hover:text-[#913B60]">آرایش صورت و رژ لب</a></li>
+            <li><a href="products.html" class="hover:text-[#913B60]">عطر و ادکلن نیش</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-[#512B3A] mb-4">سفارش و پشتیبانی</h4>
+          <ul class="space-y-2.5 text-xs sm:text-sm text-[#776B70]">
+            <li><button onclick="VeloraaCart.openDrawer()" class="hover:text-[#913B60] text-right">سبد خرید من</button></li>
+            <li><button onclick="VeloraaCart.openTelegramOrderModal()" class="hover:text-[#913B60] text-right text-[#229ED9] font-bold">سفارش در تلگرام (@veloraa_support)</button></li>
+            <li><a href="contact.html" class="hover:text-[#913B60]">پشتیبانی مشتریان</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-[#512B3A] mb-4">ارتباط مستقیم</h4>
+          <p class="text-xs text-[#776B70] mb-2 dir-ltr text-right">support@veloraa.com</p>
+          <p class="text-xs text-[#776B70] mb-3 dir-ltr text-right">۰۲۱-۹۱۰۰۴۳۲۱</p>
+          <a href="https://t.me/veloraa_support" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl btn-telegram text-xs font-bold">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.62 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.88 8.01-3.44 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.21-.04.38z"/></svg>
+            <span>چت اختصاصی تلگرام</span>
+          </a>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-[#EADDE1] flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#776B70]">
+        <p>تمامی حقوق مادی و معنوی متعلق به ولورا شاپ می‌باشد © ۱۴۰۳</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="assets/js/cart.js"></script>
+  <script src="assets/js/main.js"></script>
+
+  <!-- Products Catalog Logic -->
+  <script>
+    let activeCategory = 'all';
+    let searchQuery = '';
+    let currentSort = 'featured';
+
+    function renderProducts() {
+      const grid = document.getElementById('catalog-products-grid');
+      const emptyMsg = document.getElementById('no-products-msg');
+      const countEl = document.getElementById('visible-count');
+      if (!grid) return;
+
+      let list = [...VeloraaApp.PRODUCTS_CATALOG];
+
+      // Filter category
+      if (activeCategory !== 'all') {
+        list = list.filter(p => p.category === activeCategory);
+      }
+
+      // Filter search
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        list = list.filter(p => p.title.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+      }
+
+      // Sort
+      if (currentSort === 'price-asc') {
+        list.sort((a, b) => a.price - b.price);
+      } else if (currentSort === 'price-desc') {
+        list.sort((a, b) => b.price - a.price);
+      } else if (currentSort === 'discount') {
+        list.sort((a, b) => b.discount - a.discount);
+      }
+
+      if (countEl) countEl.textContent = VeloraaCart.toPersianDigits(list.length);
+
+      if (list.length === 0) {
+        grid.innerHTML = '';
+        if (emptyMsg) emptyMsg.classList.remove('hidden');
+        return;
+      }
+
+      if (emptyMsg) emptyMsg.classList.add('hidden');
+
+      grid.innerHTML = list.map(product => `
+        <article class="product-card-hover group bg-white border border-[#EADDE1] rounded-3xl p-4 flex flex-col justify-between shadow-xs">
+          <div class="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-[#F8E9EE] mb-4 p-4 flex items-center justify-center">
+            <img src="${product.image}" alt="${product.title}" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+            
+            ${product.discount > 0 ? `
+              <span class="absolute top-3 right-3 bg-[#913B60] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">
+                ${VeloraaCart.toPersianDigits(product.discount)}٪ تخفیف
+              </span>
+            ` : ''}
+
+            <button onclick="VeloraaCart.toggleWishlist({ id: '${product.id}', title: '${product.title}' })" class="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/90 text-[#776B70] hover:text-[#913B60] flex items-center justify-center shadow-xs transition-colors" title="افزودن به علاقه‌مندی">
+              <span class="material-symbols-outlined text-[18px]">favorite</span>
+            </button>
+
+            <button onclick="VeloraaApp.openQuickView('${product.id}')" class="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[11px] font-bold text-[#512B3A] hover:bg-white transition-colors shadow-xs flex items-center gap-1">
+              <span class="material-symbols-outlined text-[15px]">visibility</span>
+              <span>پیش‌نمایش</span>
+            </button>
+          </div>
+
+          <div class="flex flex-col flex-1">
+            <div class="flex items-center justify-between text-xs text-[#776B70] mb-1">
+              <span class="font-bold text-[#D88FA7] uppercase tracking-wider">${product.brand}</span>
+              <div class="flex items-center gap-0.5 text-amber-500">
+                <span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                <span class="font-bold text-[#30252B]">${VeloraaCart.toPersianDigits(product.rating)}</span>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-bold text-[#30252B] mb-3 line-clamp-2 leading-snug group-hover:text-[#913B60] transition-colors">
+              ${product.title}
+            </h3>
+
+            <div class="mt-auto pt-3 border-t border-[#EADDE1] flex items-center justify-between">
+              <div>
+                ${product.originalPrice > product.price ? `
+                  <span class="text-[11px] line-through text-[#776B70] block">${VeloraaCart.formatToman(product.originalPrice)}</span>
+                ` : ''}
+                <div class="flex items-baseline gap-1">
+                  <span class="text-base sm:text-lg font-bold text-[#913B60]">${VeloraaCart.formatToman(product.price)}</span>
+                  <span class="text-xs text-[#776B70]">تومان</span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1.5">
+                <!-- Telegram Order Button -->
+                <button onclick="VeloraaCart.openTelegramOrderModal({ id: '${product.id}', title: '${product.title}', price: ${product.price}, volume: '${product.volume}' })" class="p-2.5 rounded-full bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9] hover:text-white transition-all shadow-xs" title="سفارش سریع در تلگرام">
+                  <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.12.03-1.99 1.27-5.62 3.72-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.88 8.01-3.44 3.82-1.59 4.61-1.87 5.13-1.88.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.21-.04.38z"/></svg>
+                </button>
+
+                <!-- Add to Cart Button -->
+                <button onclick="VeloraaCart.addItem({ id: '${product.id}', title: '${product.title}', brand: '${product.brand}', price: ${product.price}, originalPrice: ${product.originalPrice}, image: '${product.image}', volume: '${product.volume}' })" class="p-2.5 rounded-full bg-[#F8E9EE] text-[#913B60] hover:bg-[#913B60] hover:text-white transition-all shadow-xs" title="افزودن به سبد">
+                  <span class="material-symbols-outlined text-[19px]">add_shopping_cart</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function filterByCategory(cat) {
+      activeCategory = cat;
+      document.querySelectorAll('.cat-chip').forEach(btn => {
+        if (btn.dataset.category === cat) {
+          btn.className = 'cat-chip active px-3.5 py-1.5 rounded-full bg-[#913B60] text-white font-bold transition-all';
+        } else {
+          btn.className = 'cat-chip px-3.5 py-1.5 rounded-full bg-[#F8E9EE] text-[#512B3A] hover:bg-[#F0D3DC] font-medium transition-all';
+        }
+      });
+      renderProducts();
+    }
+
+    function sortProducts(type, btn) {
+      currentSort = type;
+      document.querySelectorAll('.sort-btn').forEach(b => {
+        b.className = 'sort-btn px-3 py-1.5 rounded-full text-xs font-medium bg-[#F8E9EE] text-[#512B3A] hover:bg-[#F0D3DC]';
+      });
+      if (btn) btn.className = 'sort-btn active px-3 py-1.5 rounded-full text-xs font-bold bg-[#913B60] text-white';
+      renderProducts();
+    }
+
+    function applyCatalogSearch() {
+      const input = document.getElementById('catalog-search-input');
+      searchQuery = input.value.trim();
+      renderProducts();
+    }
+
+    function resetAllFilters() {
+      activeCategory = 'all';
+      searchQuery = '';
+      currentSort = 'featured';
+      const input = document.getElementById('catalog-search-input');
+      if (input) input.value = '';
+      filterByCategory('all');
+    }
+
+    // Auto load on init
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check query param from URL if redirected from another page
+      const urlParams = new URLSearchParams(window.location.search);
+      const q = urlParams.get('q');
+      if (q) {
+        searchQuery = q;
+        const input = document.getElementById('catalog-search-input');
+        if (input) input.value = q;
+      }
+      renderProducts();
+    });
+  </script>
+</body>
+</html>
