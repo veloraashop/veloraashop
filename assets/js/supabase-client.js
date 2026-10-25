@@ -2,7 +2,7 @@
 (function(){
   const CONFIG = {
     url: 'https://YOUR-PROJECT-REF.supabase.co',
-    anonKey: 'YOUR_SUPABASE_ANON_PUBLIC_KEY'
+    anonKey: 'sb_publishable_k2KyTS9aiQJY8JGxsi17eQ_ccYYXR-F'
   };
   const configured = /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(CONFIG.url) && !CONFIG.url.includes('YOUR-PROJECT') && CONFIG.anonKey && !CONFIG.anonKey.includes('YOUR_SUPABASE');
   window.VeloraaBackend = { config: CONFIG, configured, client: null };
