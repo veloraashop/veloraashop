@@ -74,17 +74,19 @@
         return note('رمز عبور باید حداقل ۱۰ نویسه داشته باشد.');
       }
 
-      const { data, error } = await B.client.auth.signUp({
-        email,
-        password,
-        options: {
-  data: {
-    full_name: name,
-    phone: phone
-  },
-  emailRedirectTo: 'https://veloraashop.dpdns.org/account.html'
+      const { data, error } = await B.client.auth.resend({
+  type: 'signup',
+  email: 'ایمیل-ثبت-نام-شده',
+  options: {
+    emailRedirectTo: 'https://veloraashop.dpdns.org/account.html'
+  }
+});
+
+if (error) {
+  console.error('خطای ارسال مجدد ایمیل:', error);
+} else {
+  console.log('درخواست ارسال مجدد ثبت شد.');
 }
-      });
 
       if (error) return note(error.message);
 
