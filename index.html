@@ -125,15 +125,16 @@
         </button>
 
         <!-- User Profile Quick Link -->
-        <a href="account.html" class="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F8E9EE] hover:bg-[#F0D3DC] border border-[#EADDE1] transition-colors text-xs font-medium text-[#30252B]">
-          <span>حساب کاربری</span>
-          <div class="w-7 h-7 rounded-full bg-[#913B60] flex items-center justify-center text-white">
-            <span class="material-symbols-outlined text-[17px]">person</span>
-          </div>
-        </a>
-      </div>
-    </div>
-  </header>
+        
+<!-- User Profile Quick Link -->
+<a id="account-quick-link" href="account.html"
+   class="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F8E9EE] hover:bg-[#F0D3DC] border border-[#EADDE1] transition-colors text-xs font-medium text-[#30252B]">
+  <span id="account-quick-link-label">ورود / ثبت‌نام</span>
+  <div class="w-7 h-7 rounded-full bg-[#913B60] flex items-center justify-center text-white">
+    <span class="material-symbols-outlined text-[17px]">person</span>
+  </div>
+</a>
+
 
   <!-- Mobile Drawer Menu -->
   <div id="mobile-menu-backdrop" class="fixed inset-0 z-50 drawer-backdrop opacity-0 hidden transition-opacity duration-300"></div>
@@ -1175,10 +1176,11 @@
   </footer>
 
   <!-- Core JavaScript Scripts -->
-  <script src="assets/js/cart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+<script src="assets/js/cart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/supabase-client.js"></script>
-  <script src="assets/js/main.js"></script>
-<script src="assets/js/compat.js"></script>
+<script src="assets/js/account-header.js"></script>
+<script src="assets/js/main.js"></script>
 </body>
 </html>
