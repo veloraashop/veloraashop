@@ -78,11 +78,12 @@
         email,
         password,
         options: {
-          data: {
-            full_name: name,
-            phone: phone
-          }
-        }
+  data: {
+    full_name: name,
+    phone: phone
+  },
+  emailRedirectTo: 'https://veloraashop.dpdns.org/account.html'
+}
       });
 
       if (error) return note(error.message);
