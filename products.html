@@ -465,6 +465,8 @@
   </footer>
 
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-client.js"></script>
   <script src="assets/js/cart.js"></script>
   <script src="assets/js/main.js"></script>
 
@@ -611,6 +613,7 @@
     }
 
     // Auto load on init
+    window.addEventListener('veloraa:products-updated', renderProducts);
     document.addEventListener('DOMContentLoaded', () => {
       // Check query param from URL if redirected from another page
       const urlParams = new URLSearchParams(window.location.search);
@@ -623,6 +626,7 @@
       renderProducts();
     });
   </script>
+<script src="assets/js/public-store.js"></script>
 <script src="assets/js/compat.js"></script>
 </body>
 </html>
