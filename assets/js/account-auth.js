@@ -60,46 +60,52 @@
       return;
     }
 
-    $('signup-form').addEventListener('submit', async e => {
-      e.preventDefault();
+    
+$('signup-form').addEventListener('submit', async e => {
+  e.preventDefault();
 
-      const email = $('signup-email').value.trim();
-      const password = $('signup-password').value;
-      const name = $('signup-name').value.trim();
-      const phoneInput = $('signup-phone');
-      const phone = phoneInput ? phoneInput.value.trim() : '';
+  const email = $('signup-email').value.trim();
+  const password = $('signup-password').value;
+  const name = $('signup-name').value.trim();
+  const phoneInput = $('signup-phone');
+  const phone = phoneInput ? phoneInput.value.trim() : '';
 
-      if (!name) return note('نام و نام خانوادگی را وارد کن.');
-      if (password.length < 10) {
-        return note('رمز عبور باید حداقل ۱۰ نویسه داشته باشد.');
-      }
+  if (!name) return note('نام و نام خانوادگی را وارد کن.');
+  if (password.length < 10) {
+    return note('رمز عبور باید حداقل ۱۰ نویسه داشته باشد.');
+  }
 
-      const { data, error } = await B.client.auth.resend({
-  type: 'signup',
-  email: 'ایمیل-ثبت-نام-شده',
-  options: {
-    emailRedirectTo: 'https://veloraashop.dpdns.org/account.html'
+  const { data, error } = await B.client.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: name,
+        phone: phone
+      },
+      emailRedirectTo:
+        'https://veloraashop.dpdns.org/account.html'
+    }
+  });
+
+  if (error) {
+    return note(
+      error.message.includes('already registered')
+        ? 'این ایمیل قبلاً ثبت شده است. وارد حساب شو یا بازیابی رمز را امتحان کن.'
+        : 'ثبت‌نام ناموفق بود: ' + error.message
+    );
+  }
+
+  if (data.session) {
+    note('ثبت‌نام موفق بود. در حال بارگذاری حساب کاربری…', true);
+    await refresh();
+  } else {
+    note(
+      'درخواست ثبت‌نام ثبت شد. صندوق ورودی و پوشهٔ هرزنامه را بررسی کن.',
+      true
+    );
   }
 });
-
-if (error) {
-  console.error('خطای ارسال مجدد ایمیل:', error);
-} else {
-  console.log('درخواست ارسال مجدد ثبت شد.');
-}
-
-      if (error) return note(error.message);
-
-      if (data.session) {
-        note('ثبت‌نام موفق بود. در حال بارگذاری حساب کاربری…', true);
-        await refresh();
-      } else {
-        note(
-          'ثبت‌نام انجام شد. ایمیلت را تأیید کن و سپس وارد حساب شو.',
-          true
-        );
-      }
-    });
 
     $('login-form').addEventListener('submit', async e => {
       e.preventDefault();
