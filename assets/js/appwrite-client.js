@@ -10,7 +10,7 @@
   const CONFIG = {
     endpoint: "https://fra.cloud.appwrite.io/v1",
     projectId: "6ae08864001fc9ef3c89",
-    databaseId: "veloraa-shop-db",
+    databaseId: "6ae0897600198d7df87d",
     productsTableId: "products",
     profilesTableId: "profiles"
   };
