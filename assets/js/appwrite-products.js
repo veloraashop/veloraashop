@@ -1,4 +1,3 @@
-
 /* Veloraa Shop - Appwrite Products */
 (function () {
   "use strict";
