@@ -1,32 +1,44 @@
-/* Veloraa Shop: database-only product catalogue.
-   The database is the single source of truth. Static HTML demo cards are replaced
-   immediately and then populated only with active Supabase products. */
+
+/* Veloraa Shop - Appwrite product catalogue */
 (function () {
   'use strict';
 
-  const B = window.VeloraaBackend;
   const categoryMap = {
-    skincare: 'skincare', makeup: 'makeup', haircare: 'haircare',
-    fragrance: 'fragrance', hygiene: 'hygiene', tools: 'tools',
-    nails: 'nails', bodycare: 'bodycare', other: 'other'
+    skincare: 'skincare',
+    makeup: 'makeup',
+    haircare: 'haircare',
+    fragrance: 'fragrance',
+    hygiene: 'hygiene',
+    tools: 'tools',
+    nails: 'nails',
+    bodycare: 'bodycare',
+    other: 'other'
   };
+
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
   }[c]));
-  const money = n => new Intl.NumberFormat('fa-IR').format(Number(n || 0)) + ' تومان';
+
+  const money = n =>
+    new Intl.NumberFormat('fa-IR').format(Number(n || 0)) + ' تومان';
 
   function getHomeGrid() {
     const section = document.querySelector('#featured-products');
     if (!section) return null;
-    // The old selector expected the grid to be a direct child of the section's
-    // first inner div; the actual page has a heading row before the product grid.
-    return section.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3')
-      || section.querySelector('.grid');
+
+    return section.querySelector(
+      '.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3'
+    ) || section.querySelector('.grid');
   }
 
   function renderHome(products) {
     const grid = getHomeGrid();
     if (!grid) return;
+
     grid.innerHTML = products.slice(0, 6).map(p => `
       <article class="product-card-hover group bg-white border border-[#EADDE1] rounded-3xl p-4 flex flex-col">
         <a href="product-details.html?id=${encodeURIComponent(p.id)}">
@@ -39,70 +51,70 @@
           <h3 class="font-bold text-sm text-[#30252B] mb-2">${esc(p.title)}</h3>
           <div class="flex gap-2 items-center">
             <strong class="text-[#913B60]">${money(p.price)}</strong>
-            ${p.discount > 0 ? `<del class="text-xs text-gray-400">${money(p.originalPrice)}</del>` : ''}
+            ${p.discount > 0
+              ? `<del class="text-xs text-gray-400">${money(p.originalPrice)}</del>`
+              : ''}
           </div>
         </a>
       </article>`).join('')
-      || '<div class="col-span-full py-12 text-center text-[#776B70]">هنوز محصول فعالی ثبت نشده است. محصولات را از پنل مدیریت اضافه کنید.</div>';
+      || '<div class="col-span-full py-12 text-center text-[#776B70]">هنوز محصول فعالی ثبت نشده است.</div>';
   }
 
   function mapProduct(p) {
+    const price = Number(p.price || 0);
+    const discount = Math.min(100, Math.max(0, Number(p.discount || 0)));
+
     return {
-      id: p.id,
-      title: p.name,
-      brand: p.brand || 'Veloraa',
+      id: p.$id,
+      title: p.name || '',
+      brand: 'Veloraa',
       category: categoryMap[p.category] || p.category || 'other',
-      skinType: p.skin_type || 'all',
-      price: Number(p.sale_price ?? p.price),
-      originalPrice: Number(p.price),
-      discount: Number(p.discount_percent || 0),
-      rating: Number(p.rating || 0),
-      reviewsCount: Number(p.reviews_count || 0),
-      inStock: Number(p.stock_quantity) > 0,
-      stock: Number(p.stock_quantity),
-      volume: p.variant || '',
-      image: p.image_url || '',
+      skinType: 'all',
+      price: Math.round(price * (1 - discount / 100)),
+      originalPrice: Number(p.oldPrice || p.originalPrice || price),
+      discount,
+      rating: 0,
+      reviewsCount: 0,
+      inStock: Number(p.stock || 0) > 0,
+      stock: Number(p.stock || 0),
+      volume: '',
+      image: p.image || '',
       description: p.description || '',
-      features: Array.isArray(p.features) ? p.features : [],
+      features: [],
       remote: true
     };
   }
 
   async function load() {
     const catalog = window.VeloraaApp?.PRODUCTS_CATALOG;
-    if (catalog) catalog.splice(0, catalog.length);
 
-    // Remove old hard-coded product cards immediately, even while Supabase loads.
-    renderHome([]);
+    try {
+      if (!window.VeloraaProducts?.load) {
+        throw new Error('Appwrite products module is not loaded.');
+      }
 
-    if (!B?.client) {
+      const remote = (await window.VeloraaProducts.load()).map(mapProduct);
+
+      if (catalog) {
+        catalog.splice(0, catalog.length, ...remote);
+      }
+
+      renderHome(remote);
+
       window.dispatchEvent(new CustomEvent('veloraa:products-updated', {
-        detail: { products: [] }
+        detail: { products: remote }
       }));
-      return;
-    }
+    } catch (error) {
+      console.error('Veloraa Appwrite products error:', error);
 
-    const { data, error } = await B.client
-      .from('products')
-      .select('*')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.warn('Veloraa products unavailable:', error.message);
+      // Keep the current catalogue intact if Appwrite fails.
       window.dispatchEvent(new CustomEvent('veloraa:products-updated', {
-        detail: { products: [] }
+        detail: {
+          products: catalog ? [...catalog] : [],
+          error: error.message
+        }
       }));
-      renderHome([]);
-      return;
     }
-
-    const remote = (data || []).map(mapProduct);
-    if (catalog) catalog.push(...remote);
-    renderHome(remote);
-    window.dispatchEvent(new CustomEvent('veloraa:products-updated', {
-      detail: { products: remote }
-    }));
   }
 
   if (document.readyState === 'loading') {
