@@ -41,7 +41,7 @@
 
     grid.innerHTML = products.slice(0, 6).map(p => `
       <article class="product-card-hover group bg-white border border-[#EADDE1] rounded-3xl p-4 flex flex-col">
-        <a href="product-details.html?id=${encodeURIComponent(p.id)}">
+        <a href="${p.id ? `product-details.html?id=${encodeURIComponent(p.id)}` : 'products.html'}">
           <div class="aspect-[4/5] rounded-2xl overflow-hidden bg-[#F8E9EE] mb-4 p-4 flex items-center justify-center">
             ${p.image
               ? `<img src="${esc(p.image)}" alt="${esc(p.title)}" class="w-full h-full object-contain">`
@@ -65,7 +65,7 @@
     const discount = Math.min(100, Math.max(0, Number(p.discount || 0)));
 
     return {
-      id: p.$id,
+      id: p.$id || p.id || p.$rowId || '',
       title: p.name || '',
       brand: 'Veloraa',
       category: categoryMap[p.category] || p.category || 'other',
