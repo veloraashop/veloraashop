@@ -110,7 +110,7 @@
       // Keep the current catalogue intact if Appwrite fails.
       window.dispatchEvent(new CustomEvent('veloraa:products-updated', {
         detail: {
-          products: catalog ? [...catalog] : [],
+          products:[],
           error: error.message
         }
       }));
