@@ -30,13 +30,23 @@
   const account = new window.Appwrite.Account(client);
   const tablesDB = new window.Appwrite.TablesDB(client);
 
-  window.VeloraaAppwrite = {
-    client,
-    account,
-    tablesDB,
-    config: Object.freeze({ ...CONFIG })
-  };
+  
+window.VeloraaAppwrite = {
+  client,
+  account,
+  tablesDB,
+  config: Object.freeze({ ...CONFIG }),
 
-  console.log("Veloraa Appwrite client آماده است.");
+  async testProductsConnection() {
+    return await tablesDB.listRows({
+      databaseId: CONFIG.databaseId,
+      tableId: CONFIG.productsTableId,
+      queries: []
+    });
+  }
+};
+
+console.log("Veloraa Appwrite client آماده است.");
+
 })();
 
