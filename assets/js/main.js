@@ -125,42 +125,7 @@ const VeloraaApp = (function() {
       description: 'شاهکار اختصاصی عطرسازی نیش با نت‌های آغازین رز دمشقی، نکتار ترنج، قلب یاس سفید و پایه عود اصیل و کهربای گرم.',
       features: ['پخش بوی استثنایی', 'ماندگاری ۴۸ ساعته', 'بطری کریستال دست‌ساز']
     },
-    {
-      id: 'cerave-cream-jar',
-      title: 'کرم مرطوب‌کننده کاسه‌ای با ۳ سرامید اساسی سراوی',
-      brand: 'CeraVe',
-      category: 'skincare',
-      skinType: 'dry',
-      price: 740000,
-      originalPrice: 775000,
-      discount: 5,
-      rating: 4.8,
-      reviewsCount: 195,
-      inStock: true,
-      volume: '۵۰ میلی‌لیتر',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBvsVqrur_ah5kcgRWU6_RxrzUCCT9EGOGM9yCjQjjTvEdEX3YjWGt7PzcMS5zLfQI48AhLmLcuRqTsn4AqavBJlQB447rUeJAAvEbmVF8ofvcY0SJl5-o5GPwIwabqmKTCtmy4zRhA8vCV-9vZ1o6eOsbuujP_bauY9M_yAPnIqIC-Ejny1pEhLovRdb00v7j0s09dPWujc-c6qcLc5eda6lOK0Ts1_1oDcYBeM6tsxPII-O3OEhYL',
-      description: 'کرم فوق‌العاده مغذی حاوی ۳ سرامید حیاتی، مناسب خشکی‌های شدید زمستانه و بازسازی بریر آسیب‌دیده پوست.',
-      features: ['بدون بو', 'پایه گیاهی', 'نفوذ عمیق ۲۴ ساعته']
-    },
-    {
-      id: 'ord-hyaluronic',
-      title: 'سرم آبرسان عمیق هیالورونیک اسید ۲٪ + B5 دی اوردینری',
-      brand: 'The Ordinary',
-      category: 'skincare',
-      skinType: 'all',
-      price: 650000,
-      originalPrice: 820000,
-      discount: 21,
-      rating: 4.9,
-      reviewsCount: 128,
-      inStock: true,
-      volume: '۳۰ میلی‌لیتر',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD5MTzA__ukmNNh752bY0yqFl6LKySLkfP7mpc3lsG4bXNGQDTQJHc6CNIxRbiXnV9w-eYadDidLOSYhOKbGg8s3epGzXuF0gPnA7IGnCWP7EBbnLKE-YdNU-21lLg2EjqlJqXze290COjgEbFN_wJjQ5Yff6MwYhJVlIuu93rQi0diYih4AjJF6vuAemRmqwWmmj9wy42J0rWBEcvt4ZVDps8OUsueC_CZpa8gRpbXn5cLupfXPOS0',
-      description: 'آبرسانی سه لایه با وزن‌های مولکولی مختلف هیالورونیک اسید برای پوستی مرطوب، بدون احساس خشکی و کشیدگی.',
-      features: ['پرفروش‌ترین آبرسان جهان', 'فاقد چربی', 'فاقد تست حیوانی']
-    }
-  ];
-
+const PRODUCTS_CATALOG = [];
   // Initialize
   function init() {
     setupActiveNavigation();
