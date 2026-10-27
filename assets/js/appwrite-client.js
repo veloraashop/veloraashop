@@ -1,4 +1,3 @@
-
 /* Veloraa Shop - Appwrite Client */
 (function () {
   "use strict";
