@@ -1,67 +1,42 @@
 
-/* Veloraa Shop - Appwrite Products */
+/* Veloraa Shop - Appwrite Client */
 (function () {
   "use strict";
 
-  const PAGE_SIZE = 100;
-
-  async function loadProducts() {
-    const backend = window.VeloraaAppwrite;
-
-    if (!backend || !backend.client) {
-      throw new Error("Appwrite client is not ready.");
-    }
-
-    if (!window.Appwrite) {
-      throw new Error("Appwrite SDK is not loaded.");
-    }
-
-    const { TablesDB, Query } = window.Appwrite;
-
-    const tablesDB =
-      backend.tablesDB ||
-      new TablesDB(backend.client);
-
-    const config = backend.config || {};
-
-    const databaseId =
-      config.databaseId || config.databaseID;
-
-    const tableId =
-      config.productsTableId || config.productsTableID;
-
-    if (!databaseId || !tableId) {
-      throw new Error("Appwrite database/table configuration is missing.");
-    }
-
-    const result = await tablesDB.listRows({
-      databaseId,
-      tableId,
-      queries: [
-        Query.limit(PAGE_SIZE)
-      ]
-    });
-
-    return (result.rows || [])
-      .filter(product => product.isActive === true)
-      .map(product => ({
-        id: product.$id,
-        name: product.name || "",
-        price: Number(product.price || 0),
-        oldPrice: Number(
-          product.oldPrice ??
-          product.originalPrice ??
-          0
-        ),
-        description: product.description || "",
-        image: product.image || "",
-        category: product.category || "",
-        stock: Number(product.stock || 0),
-        discount: Number(product.discount || 0)
-      }));
+  if (!window.Appwrite) {
+    console.error("Appwrite SDK بارگذاری نشده است.");
+    return;
   }
 
-  window.VeloraaProducts = {
-    load: loadProducts
+  const CONFIG = {
+    endpoint: "https://fra.cloud.appwrite.io/v1",
+    projectId: "6ae08864001fc9ef3c89",
+    databaseId: "6ae0897600198d7df87d",
+    productsTableId: "products",
+    profilesTableId: "profiles"
   };
+
+  if (
+    CONFIG.endpoint.includes("YOUR_") ||
+    CONFIG.projectId === "YOUR_PROJECT_ID"
+  ) {
+    console.error("اطلاعات اتصال Appwrite هنوز تنظیم نشده است.");
+    return;
+  }
+
+  const client = new window.Appwrite.Client()
+    .setEndpoint(CONFIG.endpoint)
+    .setProject(CONFIG.projectId);
+
+  const account = new window.Appwrite.Account(client);
+  const tablesDB = new window.Appwrite.TablesDB(client);
+
+  window.VeloraaAppwrite = {
+    client,
+    account,
+    tablesDB,
+    config: Object.freeze({ ...CONFIG })
+  };
+
+  console.log("Veloraa Appwrite client آماده است.");
 })();
