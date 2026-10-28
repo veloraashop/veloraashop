@@ -2,617 +2,1099 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#913b60">
+  <meta name="description" content="پنل مدیریت فروشگاه اینترنتی ولورا شاپ">
   <title>پنل مدیریت | Veloraa Shop</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --p:#913b60; --p2:#782d4d; --pink:#f8e9ee;
-      --bg:#fff9fb; --line:#eadde1; --text:#30252b;
-      --muted:#776b70; --green:#27764a; --red:#b42318;
-      --white:#fff; --shadow:0 8px 28px #512b3a0c;
+      --primary: #913b60;
+      --primary-dark: #6f2948;
+      --primary-light: #f8eaf0;
+      --background: #f7f5f7;
+      --surface: #ffffff;
+      --text: #29232a;
+      --muted: #817780;
+      --border: #eee5eb;
+      --success: #18845b;
+      --danger: #c43850;
+      --warning: #a96a0a;
+      --radius: 16px;
+      --shadow: 0 8px 28px rgba(53, 26, 43, .06);
     }
 
-    * { box-sizing:border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
-      margin:0; background:var(--bg); color:var(--text);
-      font-family:Vazirmatn,system-ui,sans-serif;
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: "Vazirmatn", Tahoma, sans-serif;
+      font-size: 14px;
+      line-height: 1.8;
     }
 
-    a { color:var(--p); text-decoration:none; }
-    button,input,select,textarea { font:inherit; }
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
     button {
-      cursor:pointer; border:0; border-radius:12px;
-      background:var(--p); color:white; padding:10px 15px;
-      font-weight:700;
+      cursor: pointer;
     }
-    button:hover { background:var(--p2); }
-    button:disabled { opacity:.55; cursor:wait; }
 
-    .secondary {
-      background:#fff; color:var(--p); border:1px solid var(--line);
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
     }
-    .danger {
-      background:#fff0ef; color:var(--red); border:1px solid #f4d0cd;
-    }
-    .small { padding:6px 10px; font-size:12px; }
 
-    .shell { max-width:1500px; margin:auto; padding:20px; }
-    .top {
-      display:flex; align-items:center; justify-content:space-between;
-      gap:14px; padding:16px 20px; background:white;
-      border:1px solid var(--line); border-radius:18px;
-      box-shadow:var(--shadow); margin-bottom:18px;
+    a {
+      color: inherit;
+      text-decoration: none;
     }
-    .brand { font-weight:800; color:var(--p); font-size:20px; }
-    .top-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    .muted { color:var(--muted); font-size:13px; }
 
-    .notice {
-      padding:12px 14px; border-radius:12px; margin:12px 0;
-      background:#fff0ef; color:var(--red); border:1px solid #f4d0cd;
+    [hidden] {
+      display: none !important;
     }
-    .notice.ok { background:#edf8f0; color:var(--green); border-color:#cce8d3; }
 
-    .panel {
-      background:white; border:1px solid var(--line); border-radius:18px;
-      padding:18px; box-shadow:var(--shadow); min-width:0;
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
     }
-    .panel h2 { font-size:17px; margin:0 0 12px; }
-    .login { max-width:620px; margin:40px auto; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+      border-radius: 13px;
+      background: var(--primary);
+      color: white;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .brand-name {
+      font-weight: 800;
+      font-size: 17px;
+    }
+
+    .brand-caption {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr);
+      gap: 22px;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .sidebar {
+      align-self: start;
+      position: sticky;
+      top: 90px;
+      padding: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-title {
+      padding: 8px 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tabs {
+      display: grid;
+      gap: 5px;
+    }
+
+    .tab {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border: 0;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--text);
+      text-align: right;
+      transition: .2s;
+    }
+
+    .tab:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .tab.active {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    .page-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 4px;
+      font-size: 23px;
+    }
+
+    h2 {
+      font-size: 18px;
+    }
+
+    h3 {
+      font-size: 15px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .small {
+      font-size: 12px;
+    }
+
+    .card {
+      min-width: 0;
+      padding: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .card + .card {
+      margin-top: 18px;
+    }
 
     .stats {
-      display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:12px; margin:14px 0;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
     }
+
     .stat {
-      background:#fff; border:1px solid var(--line);
-      border-radius:16px; padding:16px;
-    }
-    .stat span { display:block; color:var(--muted); font-size:12px; }
-    .stat strong {
-      display:block; font-size:23px; margin-top:8px; overflow-wrap:anywhere;
+      padding: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
 
-    .tabs { display:flex; gap:8px; overflow:auto; padding:4px 0 14px; margin-bottom:4px; }
-    .tabs button {
-      white-space:nowrap; background:#fff; color:var(--muted);
-      border:1px solid var(--line);
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
     }
-    .tabs button.active { background:var(--p); color:#fff; border-color:var(--p); }
-    .view[hidden],[hidden] { display:none!important; }
 
-    .cols {
-      display:grid; grid-template-columns:minmax(280px,.85fr) minmax(0,1.6fr);
-      gap:14px;
+    .stat-value {
+      margin: 8px 0 0;
+      font-size: 25px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
     }
-    .formgrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
-    .field { display:flex; flex-direction:column; gap:6px; min-width:0; }
-    .field.full { grid-column:1/-1; }
-    .field label { font-size:12px; font-weight:700; color:var(--muted); }
 
-    input,select,textarea {
-      width:100%; min-width:0; padding:10px 11px;
-      border:1px solid var(--line); border-radius:11px;
-      background:#fff; color:var(--text); outline:none;
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
     }
-    input:focus,select:focus,textarea:focus {
-      border-color:var(--p); box-shadow:0 0 0 3px #913b6017;
-    }
-    textarea { min-height:90px; resize:vertical; }
-    .check { display:flex; align-items:center; gap:8px; font-size:13px; }
-    .check input { width:auto; }
 
-    .actions,.rowline {
-      display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:13px;
+    .section-heading h2,
+    .section-heading h3 {
+      margin: 0;
     }
-    .tabletools {
-      display:flex; gap:8px; align-items:center; justify-content:space-between;
-      flex-wrap:wrap; margin:10px 0;
-    }
-    .tabletools input { max-width:300px; }
-    .tablewrap { width:100%; overflow:auto; border:1px solid var(--line); border-radius:12px; }
 
-    table { border-collapse:collapse; width:100%; min-width:650px; font-size:13px; }
-    th,td { text-align:right; padding:11px 12px; border-bottom:1px solid #f1e8eb; vertical-align:middle; }
-    th { background:#fff7fa; color:var(--muted); font-size:12px; white-space:nowrap; }
-    tr:last-child td { border-bottom:0; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 40px;
+      padding: 8px 14px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: .2s;
+    }
 
-    .thumb { width:42px; height:42px; border-radius:9px; object-fit:cover; background:var(--pink); }
-    .pill {
-      display:inline-block; padding:4px 9px; border-radius:99px;
-      background:var(--pink); color:var(--p); font-size:11px; white-space:nowrap;
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
     }
-    .pill.green { background:#edf8f0; color:var(--green); }
-    .pill.red { background:#fff0ef; color:var(--red); }
-    .empty { text-align:center; padding:24px; color:var(--muted); }
-    .split { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    .hint {
-      background:#fff7fa; border:1px solid var(--line); border-radius:12px;
-      padding:12px; font-size:12px; color:var(--muted); line-height:1.9;
-    }
-    .foot { padding:20px; text-align:center; color:var(--muted); font-size:12px; }
 
-    @media(max-width:1000px) {
-      .cols { grid-template-columns:1fr; }
-      .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .btn-primary:hover {
+      background: var(--primary-dark);
     }
-    @media(max-width:600px) {
-      .shell { padding:10px; }
-      .top { padding:13px; align-items:flex-start; }
-      .brand { font-size:17px; }
-      .top-actions { justify-content:flex-end; }
-      .panel { padding:13px; }
-      .formgrid,.split { grid-template-columns:1fr; }
-      .stats { gap:8px; }
-      .stat { padding:12px; }
-      .stat strong { font-size:19px; }
-      .tabs button { padding:9px 12px; }
-      .top .muted { display:none; }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #faf6f8;
+    }
+
+    .btn-danger {
+      color: var(--danger);
+      background: #fff0f2;
+      border-color: #f5d4da;
+    }
+
+    .btn-small {
+      min-height: 32px;
+      padding: 5px 9px;
+      font-size: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea,
+    .toolbar input,
+    .toolbar select {
+      width: 100%;
+      min-width: 0;
+      padding: 10px 12px;
+      color: var(--text);
+      background: #fff;
+      border: 1px solid #e5dbe2;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus,
+    .toolbar input:focus,
+    .toolbar select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(145, 59, 96, .09);
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .check-field {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding-top: 28px;
+    }
+
+    .check-field input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .toolbar > * {
+      flex: 1 1 160px;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+      background: #fff;
+    }
+
+    th,
+    td {
+      padding: 12px 13px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #fcf8fa;
+      color: #685b65;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    td {
+      font-size: 13px;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:hover {
+      background: #fdfafd;
+    }
+
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 100px;
+      background: #f0edf0;
+      color: #5e545d;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .badge.success {
+      color: var(--success);
+      background: #e7f7ef;
+    }
+
+    .badge.danger {
+      color: var(--danger);
+      background: #fff0f2;
+    }
+
+    .badge.warning {
+      color: var(--warning);
+      background: #fff4dc;
+    }
+
+    .notice {
+      margin: 0 0 18px;
+      padding: 13px 16px;
+      border: 1px solid #e6dce3;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+
+    .notice.ok {
+      color: #146b4b;
+      border-color: #bce7d1;
+      background: #edfbf3;
+    }
+
+    .notice.error {
+      color: #a3263d;
+      border-color: #f0c7cf;
+      background: #fff1f3;
+    }
+
+    .notice.warning {
+      color: #80530a;
+      border-color: #f1dfb5;
+      background: #fff9e9;
+    }
+
+    .empty-state {
+      padding: 25px 12px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .view {
+      min-width: 0;
+    }
+
+    .view > .card + .card {
+      margin-top: 18px;
+    }
+
+    .login-card {
+      max-width: 600px;
+      margin: 35px auto;
+      text-align: center;
+    }
+
+    .login-card .form-actions {
+      justify-content: center;
+    }
+
+    .detail-box {
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fcfafb;
+      overflow-wrap: anywhere;
+    }
+
+    .detail-box:empty {
+      display: none;
+    }
+
+    footer {
+      padding: 22px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    @media (max-width: 1050px) {
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .tabs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      .topbar {
+        padding: 12px;
+      }
+
+      .brand-name {
+        font-size: 14px;
+      }
+
+      .brand-caption {
+        font-size: 11px;
+      }
+
+      .top-actions .btn {
+        padding: 7px 9px;
+        font-size: 12px;
+      }
+
+      .layout {
+        padding: 12px;
+        gap: 14px;
+      }
+
+      .tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tab {
+        padding: 9px;
+        font-size: 12px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      .stats {
+        gap: 9px;
+      }
+
+      .stat {
+        padding: 13px;
+      }
+
+      .stat-value {
+        font-size: 20px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.full {
+        grid-column: auto;
+      }
+
+      .check-field {
+        padding-top: 0;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
     }
   </style>
 
-  <!-- Appwrite Web SDK -->
+  <!-- بارگذاری SDK و فایل اتصال، هر کدام فقط یک بار -->
   <script src="https://cdn.jsdelivr.net/npm/appwrite@20.0.0"></script>
-
-  <!-- Appwrite client -->
   <script src="assets/js/appwrite-client.js" defer></script>
-
-  <!--
-    IMPORTANT:
-    Do not load the old Supabase-based admin.js here.
-    Replace it with the Appwrite-compatible admin.js before enabling
-    the complete admin dashboard.
-  -->
 </head>
 
 <body>
-<main class="shell">
-
-  <header class="top">
-    <div>
-      <a class="brand" href="index.html">Veloraa Shop <span class="muted">/ پنل مدیریت</span></a>
-      <div class="muted">مدیریت فروشگاه، محصولات و سفارش‌ها</div>
-    </div>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="بازگشت به فروشگاه">
+      <span class="brand-mark">V</span>
+      <span>
+        <span class="brand-name">Veloraa Shop</span>
+        <span class="brand-caption" style="display:block">پنل مدیریت فروشگاه</span>
+      </span>
+    </a>
 
     <div class="top-actions">
-      <a class="secondary" href="index.html" style="padding:9px 12px;border-radius:12px">مشاهده فروشگاه ↗</a>
-      <a class="secondary" href="account.html" style="padding:9px 12px;border-radius:12px">حساب کاربری</a>
-      <button id="logout-top" class="secondary" hidden>خروج</button>
+      <a class="btn btn-secondary" href="index.html">مشاهده فروشگاه</a>
+      <button class="btn btn-secondary" id="logout-top" type="button">خروج از حساب</button>
     </div>
   </header>
 
-  <div id="admin-message" class="notice" hidden role="status" aria-live="polite"></div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-title">مدیریت فروشگاه</div>
 
-  <section id="admin-login-needed" class="panel login">
-    <h1>ورود مدیر</h1>
-    <p class="muted">برای ورود به این بخش، با حساب مدیریتی خود وارد شوید.</p>
-    <p>ابتدا از صفحه حساب کاربری وارد شوید؛ سپس این صفحه را دوباره باز کنید.</p>
-    <div class="actions">
-      <a href="account.html"><button type="button">رفتن به ورود حساب</button></a>
-      <button type="button" id="check-access" class="secondary">بررسی دوباره دسترسی</button>
-    </div>
-  </section>
+      <nav class="tabs" aria-label="بخش‌های پنل مدیریت">
+        <button class="tab active" type="button" data-view="dashboard">📊 داشبورد</button>
+        <button class="tab" type="button" data-view="products">🛍️ محصولات</button>
+        <button class="tab" type="button" data-view="orders">📦 سفارش‌ها</button>
+        <button class="tab" type="button" data-view="categories">🗂️ دسته‌بندی‌ها</button>
+        <button class="tab" type="button" data-view="coupons">🎟️ کدهای تخفیف</button>
+        <button class="tab" type="button" data-view="customers">👥 مشتریان</button>
+      </nav>
+    </aside>
 
-  <section id="admin-app" hidden>
-    <nav class="tabs" aria-label="بخش‌های مدیریت">
-      <button class="active" data-view="dashboard">داشبورد</button>
-      <button data-view="products">محصولات</button>
-      <button data-view="orders">سفارش‌ها</button>
-      <button data-view="categories">دسته‌بندی‌ها</button>
-      <button data-view="coupons">کدهای تخفیف</button>
-      <button data-view="customers">مشتریان</button>
-    </nav>
+    <main class="main">
+      <div id="admin-message" class="notice" role="status" aria-live="polite" hidden></div>
 
-    <section class="view" id="view-dashboard">
-      <div class="stats">
-        <div class="stat"><span>کل محصولات</span><strong id="stat-products">—</strong></div>
-        <div class="stat"><span>سفارش‌های ثبت‌شده</span><strong id="stat-orders">—</strong></div>
-        <div class="stat"><span>فروش سفارش‌های غیرلغوشده</span><strong id="stat-sales">—</strong></div>
-        <div class="stat"><span>موجودی کم (۵ یا کمتر)</span><strong id="stat-low">—</strong></div>
-      </div>
-
-      <div class="split">
-        <section class="panel">
-          <h2>آخرین سفارش‌ها</h2>
-          <div class="tablewrap">
-            <table>
-              <thead><tr><th>شماره</th><th>مشتری</th><th>مبلغ</th><th>وضعیت</th></tr></thead>
-              <tbody id="recent-orders"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="panel">
-          <h2>نیازمند توجه</h2>
-          <div id="attention" class="hint">برای مشاهده اطلاعات، ابتدا دسترسی مدیر بررسی شود.</div>
-          <div class="actions">
-            <button data-jump="products">مدیریت محصولات</button>
-            <button class="secondary" data-jump="orders">مدیریت سفارش‌ها</button>
-          </div>
-        </section>
-      </div>
-    </section>
-
-    <section class="view" id="view-products" hidden>
-      <div class="cols">
-        <section class="panel">
-          <h2 id="product-form-title">افزودن محصول</h2>
-
-          <form id="product-form">
-            <input id="product-id" type="hidden">
-
-            <div class="formgrid">
-              <div class="field full">
-                <label for="p-name">نام محصول *</label>
-                <input id="p-name" required maxlength="180">
-              </div>
-
-              <div class="field">
-                <label for="p-brand">برند</label>
-                <input id="p-brand" maxlength="100">
-              </div>
-
-              <div class="field">
-                <label for="p-category">دسته‌بندی *</label>
-                <select id="p-category" required>
-                  <option value="">ابتدا دسته‌بندی را بارگذاری کنید</option>
-                </select>
-              </div>
-
-              <div class="field">
-                <label for="p-price">قیمت اصلی (تومان) *</label>
-                <input id="p-price" type="number" min="0" step="1" required>
-              </div>
-
-              <div class="field">
-                <label for="p-discount">تخفیف محصول (%)</label>
-                <input id="p-discount" type="number" min="0" max="100" value="0">
-              </div>
-
-              <div class="field">
-                <label for="p-stock">موجودی</label>
-                <input id="p-stock" type="number" min="0" step="1" value="0" required>
-              </div>
-
-              <div class="field">
-                <label for="p-variant">حجم / رنگ / مدل</label>
-                <input id="p-variant" maxlength="120">
-              </div>
-
-              <div class="field full">
-                <label for="p-image-file">بارگذاری تصویر (حداکثر ۵ مگابایت)</label>
-                <input id="p-image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
-              </div>
-
-              <div class="field full">
-                <label for="p-image-url">یا آدرس تصویر</label>
-                <input id="p-image-url" type="url" placeholder="https://...">
-              </div>
-
-              <div class="field full">
-                <label for="p-description">توضیحات</label>
-                <textarea id="p-description" maxlength="5000"></textarea>
-              </div>
-
-              <label class="check field full">
-                <input id="p-active" type="checkbox" checked>
-                نمایش محصول در فروشگاه
-              </label>
-            </div>
-
-            <div class="actions">
-              <button type="submit" id="save-product">ذخیره محصول</button>
-              <button type="button" class="secondary" id="reset-product">فرم جدید</button>
-            </div>
-          </form>
-        </section>
-
-        <section class="panel">
-          <div class="rowline" style="justify-content:space-between;margin-top:0">
-            <h2>فهرست محصولات</h2>
-            <button class="secondary" data-refresh="products">به‌روزرسانی</button>
-          </div>
-
-          <div class="tabletools">
-            <input id="product-search" placeholder="جستجوی نام یا برند…">
-            <span class="muted" id="product-count"></span>
-          </div>
-
-          <div class="tablewrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>تصویر</th><th>نام</th><th>قیمت</th><th>تخفیف</th>
-                  <th>موجودی</th><th>وضعیت</th><th>عملیات</th>
-                </tr>
-              </thead>
-              <tbody id="products-table">
-                <tr><td colspan="7" class="empty">اتصال پنل محصولات پس از آماده‌شدن اسکریپت مدیریتی فعال می‌شود.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-    </section>
-
-    <section class="view" id="view-orders" hidden>
-      <section class="panel">
-        <div class="rowline" style="justify-content:space-between;margin-top:0">
-          <div>
-            <h2>مدیریت سفارش‌ها</h2>
-            <p class="muted">این بخش پس از پیاده‌سازی API سفارش‌ها فعال می‌شود.</p>
-          </div>
-          <button class="secondary" data-refresh="orders">به‌روزرسانی</button>
+      <section id="admin-login-needed" class="card login-card">
+        <div style="font-size:40px;margin-bottom:10px">🔐</div>
+        <h1>دسترسی به پنل مدیریت</h1>
+        <p class="muted">
+          برای استفاده از پنل، ابتدا وارد حساب کاربری مدیر شوید.
+          ورود به حساب به‌تنهایی به معنی داشتن مجوز مدیریت نیست.
+        </p>
+        <div class="form-actions">
+          <a class="btn btn-primary" href="account.html">ورود به حساب کاربری</a>
+          <button class="btn btn-secondary" id="check-access" type="button">بررسی دسترسی</button>
         </div>
-
-        <div class="tabletools">
-          <input id="order-search" placeholder="جستجوی شماره، نام یا تلفن…">
-          <select id="order-filter">
-            <option value="all">همه وضعیت‌ها</option>
-            <option value="pending">در انتظار بررسی</option>
-            <option value="confirmed">تأییدشده</option>
-            <option value="processing">در حال آماده‌سازی</option>
-            <option value="shipped">ارسال‌شده</option>
-            <option value="delivered">تحویل‌شده</option>
-            <option value="cancelled">لغوشده</option>
-          </select>
-        </div>
-
-        <div class="tablewrap">
-          <table>
-            <thead><tr><th>شماره سفارش</th><th>تاریخ</th><th>مشتری</th><th>تلفن</th><th>مبلغ</th><th>وضعیت</th><th>عملیات</th></tr></thead>
-            <tbody id="orders-table"><tr><td colspan="7" class="empty">API سفارش‌ها هنوز متصل نشده است.</td></tr></tbody>
-          </table>
-        </div>
-
-        <div id="order-detail" class="hint" hidden></div>
       </section>
-    </section>
 
-    <section class="view" id="view-categories" hidden>
-      <div class="cols">
-        <section class="panel">
-          <h2>افزودن دسته‌بندی</h2>
-          <form id="category-form">
-            <input type="hidden" id="category-id">
-            <div class="field">
-              <label for="category-name">عنوان فارسی *</label>
-              <input id="category-name" required maxlength="80">
+      <div id="admin-app" hidden>
+        <!-- داشبورد -->
+        <section class="view" data-panel="dashboard">
+          <div class="page-heading">
+            <div>
+              <h1>داشبورد مدیریت</h1>
+              <p class="muted">نمای کلی وضعیت فروشگاه ولورا شاپ</p>
             </div>
-            <div class="field" style="margin-top:10px">
-              <label for="category-slug">شناسه انگلیسی (بدون فاصله) *</label>
-              <input id="category-slug" required pattern="[a-z0-9-]+" maxlength="50" placeholder="skin-care">
+            <button class="btn btn-primary" type="button" data-refresh>↻ به‌روزرسانی</button>
+          </div>
+
+          <div class="stats">
+            <article class="stat">
+              <div class="stat-label">تعداد محصولات</div>
+              <div class="stat-value" id="stat-products">—</div>
+            </article>
+            <article class="stat">
+              <div class="stat-label">تعداد سفارش‌ها</div>
+              <div class="stat-value" id="stat-orders">—</div>
+            </article>
+            <article class="stat">
+              <div class="stat-label">مجموع فروش</div>
+              <div class="stat-value" id="stat-sales">—</div>
+            </article>
+            <article class="stat">
+              <div class="stat-label">محصولات کم‌موجود</div>
+              <div class="stat-value" id="stat-low">—</div>
+            </article>
+          </div>
+
+          <div class="card">
+            <div class="section-heading">
+              <h2>آخرین سفارش‌ها</h2>
+              <button class="btn btn-secondary btn-small" type="button" data-jump="orders">مشاهده همه</button>
             </div>
-            <div class="actions">
-              <button type="submit">ذخیره دسته‌بندی</button>
-              <button class="secondary" type="button" id="reset-category">فرم جدید</button>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>شناسه</th>
+                    <th>مشتری</th>
+                    <th>مبلغ</th>
+                    <th>وضعیت</th>
+                    <th>تاریخ</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-orders">
+                  <tr><td colspan="5" class="empty-state">اطلاعات پس از اتصال به API نمایش داده می‌شود.</td></tr>
+                </tbody>
+              </table>
             </div>
-          </form>
-          <p class="hint">مدیریت دسته‌بندی‌ها پس از افزودن endpoint مربوطه به Function فعال می‌شود.</p>
+          </div>
+
+          <div class="card">
+            <h2>نیازمند بررسی</h2>
+            <div id="attention" class="detail-box">
+              هنوز اطلاعاتی بارگذاری نشده است.
+            </div>
+          </div>
         </section>
 
-        <section class="panel">
-          <h2>دسته‌بندی‌های ثبت‌شده</h2>
-          <div class="tablewrap">
-            <table>
-              <thead><tr><th>عنوان</th><th>شناسه</th><th>تعداد محصول</th><th>عملیات</th></tr></thead>
-              <tbody id="categories-table"><tr><td colspan="4" class="empty">API دسته‌بندی‌ها هنوز متصل نشده است.</td></tr></tbody>
-            </table>
+        <!-- محصولات -->
+        <section class="view" data-panel="products" hidden>
+          <div class="page-heading">
+            <div>
+              <h1>مدیریت محصولات</h1>
+              <p class="muted">افزودن، ویرایش، تخفیف و مدیریت موجودی</p>
+            </div>
+            <button class="btn btn-primary" type="button" data-jump="product-form">＋ محصول جدید</button>
+          </div>
+
+          <div class="card" id="product-form-card">
+            <div class="section-heading">
+              <h2 id="product-form-title">افزودن محصول</h2>
+            </div>
+
+            <form id="product-form">
+              <input type="hidden" id="product-id" name="id">
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="p-name">نام محصول *</label>
+                  <input id="p-name" name="name" required maxlength="200">
+                </div>
+
+                <div class="field">
+                  <label for="p-brand">برند</label>
+                  <input id="p-brand" name="brand" maxlength="120">
+                </div>
+
+                <div class="field">
+                  <label for="p-category">دسته‌بندی</label>
+                  <input id="p-category" name="category" maxlength="120" placeholder="مثلاً مراقبت پوست">
+                </div>
+
+                <div class="field">
+                  <label for="p-price">قیمت اصلی (تومان) *</label>
+                  <input id="p-price" name="price" type="number" min="0" step="1" required>
+                </div>
+
+                <div class="field">
+                  <label for="p-discount">درصد تخفیف</label>
+                  <input id="p-discount" name="discount" type="number" min="0" max="100" step="1" value="0">
+                </div>
+
+                <div class="field">
+                  <label for="p-stock">موجودی</label>
+                  <input id="p-stock" name="stock" type="number" min="0" step="1" value="0">
+                </div>
+
+                <div class="field">
+                  <label for="p-variant">رنگ یا مدل</label>
+                  <input id="p-variant" name="variant" maxlength="200" placeholder="مثلاً رنگ شماره 08">
+                </div>
+
+                <div class="field">
+                  <label for="p-image-url">نشانی تصویر محصول</label>
+                  <input id="p-image-url" name="image" type="url" placeholder="https://example.com/image.jpg">
+                </div>
+
+                <div class="field full">
+                  <label for="p-image-file">انتخاب فایل تصویر (در صورت پشتیبانی API)</label>
+                  <input id="p-image-file" name="imageFile" type="file" accept="image/*">
+                  <small class="muted">انتخاب فایل به‌تنهایی تصویر را آپلود نمی‌کند؛ برای آن باید Storage و منطق آپلود پیاده‌سازی شده باشد.</small>
+                </div>
+
+                <div class="field full">
+                  <label for="p-description">توضیحات محصول</label>
+                  <textarea id="p-description" name="description" rows="4"></textarea>
+                </div>
+
+                <div class="field check-field">
+                  <input id="p-active" name="isActive" type="checkbox" checked>
+                  <label for="p-active">نمایش محصول در فروشگاه</label>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn btn-primary" id="save-product" type="submit">ذخیره محصول</button>
+                <button class="btn btn-secondary" id="reset-product" type="reset">پاک کردن فرم</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="section-heading">
+              <h2>فهرست محصولات</h2>
+              <span class="badge" id="product-count">۰ محصول</span>
+            </div>
+
+            <div class="toolbar">
+              <input id="product-search" type="search" placeholder="جست‌وجوی نام محصول یا برند..." aria-label="جست‌وجوی محصول">
+              <button class="btn btn-secondary" type="button" data-refresh>به‌روزرسانی فهرست</button>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>محصول</th>
+                    <th>دسته‌بندی</th>
+                    <th>قیمت</th>
+                    <th>تخفیف</th>
+                    <th>موجودی</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                  </tr>
+                </thead>
+                <tbody id="products-table">
+                  <tr><td colspan="7" class="empty-state">در انتظار دریافت محصولات...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- سفارش‌ها -->
+        <section class="view" data-panel="orders" hidden>
+          <div class="page-heading">
+            <div>
+              <h1>مدیریت سفارش‌ها</h1>
+              <p class="muted">بررسی سفارش‌ها و به‌روزرسانی وضعیت آن‌ها</p>
+            </div>
+            <button class="btn btn-secondary" type="button" data-refresh>↻ به‌روزرسانی</button>
+          </div>
+
+          <div class="card">
+            <div class="toolbar">
+              <input id="order-search" type="search" placeholder="جست‌وجو بر اساس شناسه یا مشتری..." aria-label="جست‌وجوی سفارش">
+              <select id="order-filter" aria-label="فیلتر وضعیت سفارش">
+                <option value="">همه وضعیت‌ها</option>
+                <option value="pending">در انتظار پرداخت</option>
+                <option value="paid">پرداخت‌شده</option>
+                <option value="processing">در حال آماده‌سازی</option>
+                <option value="shipped">ارسال‌شده</option>
+                <option value="delivered">تحویل‌شده</option>
+                <option value="cancelled">لغوشده</option>
+              </select>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>شناسه سفارش</th>
+                    <th>مشتری</th>
+                    <th>مبلغ کل</th>
+                    <th>وضعیت</th>
+                    <th>تاریخ</th>
+                    <th>عملیات</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-table">
+                  <tr><td colspan="6" class="empty-state">در انتظار دریافت سفارش‌ها...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>جزئیات سفارش</h2>
+            <div id="order-detail" class="detail-box">برای مشاهده جزئیات، یک سفارش را انتخاب کنید.</div>
+          </div>
+        </section>
+
+        <!-- دسته‌بندی‌ها -->
+        <section class="view" data-panel="categories" hidden>
+          <div class="page-heading">
+            <div>
+              <h1>مدیریت دسته‌بندی‌ها</h1>
+              <p class="muted">ساخت و ویرایش دسته‌بندی‌های فروشگاه</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>افزودن یا ویرایش دسته‌بندی</h2>
+            <form id="category-form">
+              <input id="category-id" name="id" type="hidden">
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="category-name">نام دسته‌بندی *</label>
+                  <input id="category-name" name="name" required maxlength="120">
+                </div>
+
+                <div class="field">
+                  <label for="category-slug">شناسه متنی (Slug)</label>
+                  <input id="category-slug" name="slug" maxlength="140" placeholder="مثلاً skin-care">
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit">ذخیره دسته‌بندی</button>
+                <button class="btn btn-secondary" id="reset-category" type="reset">پاک کردن فرم</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="section-heading">
+              <h2>فهرست دسته‌بندی‌ها</h2>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>نام</th>
+                    <th>شناسه متنی</th>
+                    <th>عملیات</th>
+                  </tr>
+                </thead>
+                <tbody id="categories-table">
+                  <tr><td colspan="3" class="empty-state">در انتظار دریافت دسته‌بندی‌ها...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- کدهای تخفیف -->
+        <section class="view" data-panel="coupons" hidden>
+          <div class="page-heading">
+            <div>
+              <h1>کدهای تخفیف</h1>
+              <p class="muted">ایجاد و مدیریت کدهای تخفیف</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 id="coupon-form-title">ساخت کد تخفیف</h2>
+
+            <form id="coupon-form">
+              <input id="coupon-id" name="id" type="hidden">
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="coupon-code">کد تخفیف *</label>
+                  <input id="coupon-code" name="code" required maxlength="60" placeholder="مثلاً VELORAA10">
+                </div>
+
+                <div class="field">
+                  <label for="coupon-type">نوع تخفیف *</label>
+                  <select id="coupon-type" name="type" required>
+                    <option value="percent">درصدی</option>
+                    <option value="fixed">مبلغ ثابت (تومان)</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="coupon-value">مقدار تخفیف *</label>
+                  <input id="coupon-value" name="value" type="number" min="1" step="1" required>
+                </div>
+
+                <div class="field">
+                  <label for="coupon-minimum">حداقل مبلغ سفارش (تومان)</label>
+                  <input id="coupon-minimum" name="minimum" type="number" min="0" step="1" value="0">
+                </div>
+
+                <div class="field">
+                  <label for="coupon-max">حداکثر مبلغ تخفیف (تومان)</label>
+                  <input id="coupon-max" name="max" type="number" min="0" step="1">
+                </div>
+
+                <div class="field">
+                  <label for="coupon-limit">محدودیت تعداد استفاده</label>
+                  <input id="coupon-limit" name="limit" type="number" min="1" step="1" placeholder="خالی = بدون محدودیت">
+                </div>
+
+                <div class="field">
+                  <label for="coupon-start">تاریخ شروع</label>
+                  <input id="coupon-start" name="start" type="date">
+                </div>
+
+                <div class="field">
+                  <label for="coupon-end">تاریخ پایان</label>
+                  <input id="coupon-end" name="end" type="date">
+                </div>
+
+                <div class="field check-field">
+                  <input id="coupon-active" name="active" type="checkbox" checked>
+                  <label for="coupon-active">فعال بودن کد تخفیف</label>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit">ذخیره کد تخفیف</button>
+                <button class="btn btn-secondary" id="reset-coupon" type="reset">پاک کردن فرم</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <h2>فهرست کدهای تخفیف</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>کد</th>
+                    <th>نوع</th>
+                    <th>مقدار</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                  </tr>
+                </thead>
+                <tbody id="coupons-table">
+                  <tr><td colspan="5" class="empty-state">در انتظار دریافت کدهای تخفیف...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- مشتریان -->
+        <section class="view" data-panel="customers" hidden>
+          <div class="page-heading">
+            <div>
+              <h1>مدیریت مشتریان</h1>
+              <p class="muted">مشاهده اطلاعات حساب مشتریان</p>
+            </div>
+            <button class="btn btn-secondary" type="button" data-refresh>↻ به‌روزرسانی</button>
+          </div>
+
+          <div class="card">
+            <div class="toolbar">
+              <input id="customer-search" type="search" placeholder="جست‌وجوی نام یا ایمیل..." aria-label="جست‌وجوی مشتری">
+              <span id="customer-count" class="badge">۰ مشتری</span>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>نام</th>
+                    <th>ایمیل</th>
+                    <th>تلفن</th>
+                    <th>نقش</th>
+                    <th>شناسه حساب</th>
+                  </tr>
+                </thead>
+                <tbody id="customers-table">
+                  <tr><td colspan="5" class="empty-state">در انتظار دریافت مشتریان...</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
       </div>
-    </section>
+    </main>
+  </div>
 
-    <section class="view" id="view-coupons" hidden>
-      <div class="cols">
-        <section class="panel">
-          <h2 id="coupon-form-title">ساخت کد تخفیف</h2>
-          <form id="coupon-form">
-            <input type="hidden" id="coupon-id">
+  <footer>
+    Veloraa Shop · پنل مدیریت فروشگاه
+  </footer>
 
-            <div class="formgrid">
-              <div class="field">
-                <label for="coupon-code">کد تخفیف *</label>
-                <input id="coupon-code" required maxlength="40" pattern="[A-Za-z0-9_-]+" placeholder="VELORA10">
-              </div>
-
-              <div class="field">
-                <label for="coupon-type">نوع تخفیف</label>
-                <select id="coupon-type">
-                  <option value="percent">درصدی</option>
-                  <option value="fixed">مبلغ ثابت (تومان)</option>
-                </select>
-              </div>
-
-              <div class="field">
-                <label for="coupon-value">مقدار تخفیف *</label>
-                <input id="coupon-value" type="number" min="1" step="1" required>
-              </div>
-
-              <div class="field">
-                <label for="coupon-minimum">حداقل مبلغ سفارش (تومان)</label>
-                <input id="coupon-minimum" type="number" min="0" value="0">
-              </div>
-
-              <div class="field">
-                <label for="coupon-max">سقف تخفیف درصدی (تومان)</label>
-                <input id="coupon-max" type="number" min="0" value="0">
-              </div>
-
-              <div class="field">
-                <label for="coupon-limit">حداکثر دفعات استفاده (۰ = نامحدود)</label>
-                <input id="coupon-limit" type="number" min="0" value="0">
-              </div>
-
-              <div class="field">
-                <label for="coupon-start">شروع اعتبار</label>
-                <input id="coupon-start" type="datetime-local">
-              </div>
-
-              <div class="field">
-                <label for="coupon-end">پایان اعتبار</label>
-                <input id="coupon-end" type="datetime-local">
-              </div>
-
-              <label class="check field full">
-                <input id="coupon-active" type="checkbox" checked>
-                فعال باشد
-              </label>
-            </div>
-
-            <div class="actions">
-              <button type="submit">ذخیره کد</button>
-              <button type="button" id="reset-coupon" class="secondary">فرم جدید</button>
-            </div>
-          </form>
-        </section>
-
-        <section class="panel">
-          <h2>کدهای تخفیف</h2>
-          <div class="tablewrap">
-            <table>
-              <thead><tr><th>کد</th><th>تخفیف</th><th>اعتبار</th><th>استفاده</th><th>وضعیت</th><th>عملیات</th></tr></thead>
-              <tbody id="coupons-table"><tr><td colspan="6" class="empty">API کدهای تخفیف هنوز متصل نشده است.</td></tr></tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-
-      <p class="hint">برای اعمال واقعی کدهای تخفیف در پرداخت، اعتبارسنجی باید در سمت سرور نیز پیاده‌سازی شود.</p>
-    </section>
-
-    <section class="view" id="view-customers" hidden>
-      <section class="panel">
-        <div class="rowline" style="justify-content:space-between;margin-top:0">
-          <div>
-            <h2>مشتریان</h2>
-            <p class="muted">این بخش پس از اتصال API امن پروفایل‌ها فعال می‌شود.</p>
-          </div>
-          <button class="secondary" data-refresh="customers">به‌روزرسانی</button>
-        </div>
-
-        <div class="tabletools">
-          <input id="customer-search" placeholder="جستجوی نام، ایمیل یا تلفن…">
-          <span class="muted" id="customer-count"></span>
-        </div>
-
-        <div class="tablewrap">
-          <table>
-            <thead><tr><th>نام</th><th>ایمیل</th><th>تلفن</th><th>نقش</th><th>عضویت</th></tr></thead>
-            <tbody id="customers-table"><tr><td colspan="5" class="empty">API مشتریان هنوز متصل نشده است.</td></tr></tbody>
-          </table>
-        </div>
-
-        <p class="hint">تغییر نقش مدیر باید فقط از طریق یک مسیر امن سمت سرور انجام شود.</p>
-      </section>
-    </section>
-  </section>
-
-  <footer class="foot">Veloraa Shop · پنل مدیریت فارسی و راست‌چین</footer>
-</main>
-
-<script>
-(function () {
-  "use strict";
-
-  const $ = (selector) => document.querySelector(selector);
-
-  const message = $("#admin-message");
-  const loginSection = $("#admin-login-needed");
-  const adminApp = $("#admin-app");
-  const logoutButton = $("#logout-top");
-
-  function showMessage(text, success = false) {
-    message.textContent = text;
-    message.classList.toggle("ok", success);
-    message.hidden = false;
-  }
-
-  async function checkAccess() {
-    const backend = window.VeloraaAppwrite;
-
-    if (!backend || !backend.account) {
-      showMessage("اتصال Appwrite بارگذاری نشده است. تنظیم SDK و فایل appwrite-client.js را بررسی کنید.");
-      loginSection.hidden = false;
-      adminApp.hidden = true;
-      logoutButton.hidden = true;
-      return;
-    }
-
-    try {
-      const user = await backend.getCurrentUser();
-
-      if (!user) {
-        showMessage("برای ورود به پنل، ابتدا وارد حساب کاربری شوید.");
-        loginSection.hidden = false;
-        adminApp.hidden = true;
-        logoutButton.hidden = true;
-        return;
-      }
-
-      /*
-       * Authentication alone is not admin authorization.
-       * The server Function must verify the user's ID against
-       * ADMIN_USER_IDS before permitting management operations.
-       */
-      showMessage("حساب وارد شده شناسایی شد. برای فعال شدن پنل، مجوز مدیر باید توسط API بررسی شود.");
-      loginSection.hidden = false;
-      adminApp.hidden = true;
-      logoutButton.hidden = false;
-    } catch (error) {
-      console.error("[Veloraa] Access check failed:", error);
-      showMessage("بررسی حساب ناموفق بود. اتصال شبکه و تنظیمات Appwrite را بررسی کنید.");
-      loginSection.hidden = false;
-      adminApp.hidden = true;
-      logoutButton.hidden = true;
-    }
-  }
-
-  document.addEventListener("click", async (event) => {
-    const tab = event.target.closest("[data-view]");
-
-    if (tab) {
-      const target = tab.dataset.view;
-      document.querySelectorAll("[data-view]").forEach((button) => {
-        button.classList.toggle("active", button === tab);
-      });
-
-      document.querySelectorAll(".view").forEach((view) => {
-        view.hidden = view.id !== "view-" + target;
-      });
-    }
-
-    const jump = event.target.closest("[data-jump]");
-
-    if (jump) {
-      const target = jump.dataset.jump;
-      const tabButton = document.querySelector(`[data-view="${target}"]`);
-      if (tabButton) tabButton.click();
-    }
-  });
-
-  $("#check-access").addEventListener("click", checkAccess);
-
-  logoutButton.addEventListener("click", async () => {
-    try {
-      await window.VeloraaAppwrite.account.deleteSession({ sessionId: "current" });
-      window.location.href = "account.html";
-    } catch (error) {
-      console.error("[Veloraa] Logout failed:", error);
-      showMessage("خروج انجام نشد. لطفاً دوباره تلاش کنید.");
-    }
-  });
-
-  checkAccess();
-})();
-</script>
-
+  <!-- appwrite-client.js در بخش head بارگذاری شده؛ اینجا فقط admin.js را بارگذاری کن -->
+  <script src="assets/js/admin.js" defer></script>
 </body>
 </html>
