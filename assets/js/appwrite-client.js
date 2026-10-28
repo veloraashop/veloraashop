@@ -66,7 +66,7 @@
     const jwt = await createJWT();
 
     const headers = {
-      Authorization: "Bearer " + jwt,
+      "x-appwrite-user-jwt": jwt,
       Accept: "application/json"
     };
 
