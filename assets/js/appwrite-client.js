@@ -1,10 +1,6 @@
 /**
  * Veloraa Shop — Appwrite Client
  * File: assets/js/appwrite-client.js
- *
- * IMPORTANT:
- * - Never put an Appwrite API key in this file.
- * - The user must be logged in before creating a JWT.
  */
 
 (function () {
@@ -15,15 +11,14 @@
     projectId: "6ae08864001fc9ef3c89",
     databaseId: "6ae0897600198d7df87d",
     productsTableId: "products",
-    profilesTableId: "profiles"
+    profilesTableId: "profiles",
+    adminApiUrl: "https://starter-function-bzit.fra.appwrite.run/"
   });
 
   const AppwriteSDK = window.Appwrite;
 
   if (!AppwriteSDK) {
-    console.error(
-      "[Veloraa] Appwrite SDK is missing. Load the Appwrite Web SDK first."
-    );
+    console.error("[Veloraa] Appwrite SDK is missing.");
     return;
   }
 
@@ -32,55 +27,40 @@
     .setProject(CONFIG.projectId);
 
   const account = new AppwriteSDK.Account(client);
-
   const tablesDB = new AppwriteSDK.TablesDB(client);
 
-  /**
-   * Return the current authenticated user.
-   */
   async function getCurrentUser() {
     try {
       return await account.get();
     } catch (error) {
-      if (error && error.code === 401) {
-        return null;
-      }
-
+      if (error && error.code === 401) return null;
       throw error;
     }
   }
 
-  /**
-   * Create a short-lived JWT for the current session.
-   * The token is returned to the caller, not printed to the console.
-   */
   async function createJWT() {
     const user = await getCurrentUser();
 
     if (!user) {
-      throw new Error("Please sign in to your account first.");
+      throw new Error("ابتدا وارد حساب کاربری خود شوید.");
     }
 
     const result = await account.createJWT();
 
     if (!result || !result.jwt) {
-      throw new Error("Appwrite did not return a JWT.");
+      throw new Error("دریافت JWT از Appwrite ناموفق بود.");
     }
 
     return result.jwt;
   }
 
-  /**
-   * Make an authenticated request to the Veloraa Admin API.
-   * The API endpoint must be configured separately.
-   */
   async function adminRequest({
-    url,
+    url = CONFIG.adminApiUrl,
     method = "GET",
     body
-  }) {
-    if (!url || typeof url !== "string") {
-      throw new Error("Admin API URL is not configured.");
+  } = {}) {
+    if (!url) {
+      throw new Error("آدرس Admin API تنظیم نشده است.");
     }
 
     const jwt = await createJWT();
@@ -101,7 +81,6 @@
     }
 
     const response = await fetch(url, options);
-
     const text = await response.text();
 
     let data = {};
@@ -116,7 +95,7 @@
 
     if (!response.ok) {
       const error = new Error(
-        data.error || data.message || `Request failed (${response.status})`
+        data.error || data.message || `خطای درخواست: ${response.status}`
       );
 
       error.status = response.status;
