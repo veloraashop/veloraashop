@@ -1,38 +1,791 @@
-(function(){
-'use strict';const B=window.VeloraaBackend,$=id=>document.getElementById(id);let products=[],orders=[],profiles=[],categories=[],coupons=[],session=null;
-const fmt=n=>new Intl.NumberFormat('fa-IR',{maximumFractionDigits:0}).format(Number(n||0));const money=n=>fmt(n)+' تومان';
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const statusLabels={pending:'در انتظار بررسی',confirmed:'تأییدشده',processing:'در حال آماده‌سازی',shipped:'ارسال‌شده',delivered:'تحویل‌شده',cancelled:'لغوشده'};
-function note(t,ok=false){const el=$('admin-message');el.textContent=t;el.className='notice'+(ok?' ok':'');el.hidden=false;window.scrollTo({top:0,behavior:'smooth'});}
-function clearNote(){ $('admin-message').hidden=true; }
-function emptyRow(cols,msg='موردی ثبت نشده است.'){return `<tr><td colspan="${cols}" class="empty">${esc(msg)}</td></tr>`;}
-function statusPill(s){return `<span class="pill ${s==='delivered'?'green':s==='cancelled'?'red':''}">${esc(statusLabels[s]||s||'نامشخص')}</span>`;}
-function go(view){document.querySelectorAll('.tabs [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!=='view-'+view);clearNote();}
-async function ensureAdmin(){if(!B?.client){$('admin-login-needed').hidden=false;note('تنظیمات Supabase در assets/js/supabase-client.js در این نسخه پیدا نشد. فایل تنظیم‌شده فعلی خودت را حفظ کن.');return false;}let r=await B.client.auth.getSession();if(r.error)throw r.error;session=r.data.session;if(!session){$('admin-login-needed').hidden=false;$('admin-app').hidden=true;return false;}const {data:profile,error}=await B.client.from('profiles').select('role').eq('id',session.user.id).maybeSingle();if(error)throw error;if(profile?.role!=='admin'){$('admin-login-needed').hidden=false;$('admin-app').hidden=true;note('این حساب دسترسی مدیر ندارد. نقش را فقط در SQL Editor امن Supabase تنظیم کن.');return false;}$('admin-login-needed').hidden=true;$('admin-app').hidden=false;$('logout-top').hidden=false;return true;}
-async function query(table,select='*',opts={}){let q=B.client.from(table).select(select);if(opts.order)q=q.order(opts.order,{ascending:opts.ascending??false});const {data,error}=await q;if(error)throw error;return data||[];}
-async function loadAll(){clearNote();try{const results=await Promise.allSettled([query('products','*',{order:'created_at'}),query('orders','*',{order:'created_at'}),query('profiles','id,email,full_name,phone,role,created_at',{order:'created_at'}),query('categories','*',{order:'name',ascending:true}),query('coupons','*',{order:'created_at'})]);const names=['محصولات','سفارش‌ها','مشتریان','دسته‌بندی‌ها','کدهای تخفیف'];let errs=[];results.forEach((r,i)=>{const value=r.status==='fulfilled'?r.value:[];if(i===0)products=value;else if(i===1)orders=value;else if(i===2)profiles=value;else if(i===3)categories=value;else coupons=value;if(r.status==='rejected')errs.push(names[i]+': '+(r.reason?.message||'خطا'));});renderAll();if(errs.length)note('بعضی بخش‌ها آماده نیستند؛ بررسی کن که فایل migration SQL اجرا شده باشد. '+errs.join(' | '));}catch(e){note(e.message||'دریافت اطلاعات ناموفق بود.');}}
-function renderAll(){renderDashboard();renderProducts();renderOrders();renderCategories();renderCoupons();renderCustomers();renderCategoryOptions();}
-function renderDashboard(){const noncancelled=orders.filter(o=>o.status!=='cancelled');$('stat-products').textContent=fmt(products.length);$('stat-orders').textContent=fmt(orders.length);$('stat-sales').textContent=money(noncancelled.reduce((a,o)=>a+Number(o.total||0),0));$('stat-low').textContent=fmt(products.filter(p=>p.is_active&&Number(p.stock_quantity)<=5).length);const recent=[...orders].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,6);$('recent-orders').innerHTML=recent.map(o=>`<tr><td>${esc(String(o.id).slice(0,8))}</td><td>${esc(o.customer_name||'—')}</td><td>${money(o.total)}</td><td>${statusPill(o.status)}</td></tr>`).join('')||emptyRow(4,'هنوز سفارشی در جدول دیتابیس ثبت نشده است.');const low=products.filter(p=>p.is_active&&Number(p.stock_quantity)<=5).slice(0,8);$('attention').innerHTML=low.length?`محصولات با موجودی کم:<ul>${low.map(p=>`<li>${esc(p.name)} — ${fmt(p.stock_quantity)} عدد</li>`).join('')}</ul>`:'در حال حاضر محصول فعالی با موجودی ۵ عدد یا کمتر وجود ندارد.';}
-function renderProducts(){const term=($('product-search')?.value||'').trim().toLowerCase();const list=products.filter(p=>(p.name+' '+p.brand).toLowerCase().includes(term));$('product-count').textContent=fmt(list.length)+' محصول';$('products-table').innerHTML=list.map(p=>{const stock=Number(p.stock_quantity||0);const status=!p.is_active?'پنهان':stock<=0?'ناموجود':'موجود';const cls=!p.is_active?'muted':stock<=0?'red':'green';return `<tr><td>${p.image_url?`<img class="thumb" src="${esc(p.image_url)}" alt="" loading="lazy">`:'—'}</td><td>${esc(p.name)}<div class="muted">${esc(p.brand||'')}</div></td><td>${money(p.price)}</td><td>${fmt(p.discount_percent)}٪</td><td><input class="inline-stock" type="number" min="0" step="1" value="${stock}" data-stock-input="${esc(p.id)}" aria-label="موجودی ${esc(p.name)}" style="width:82px;min-width:70px;padding:7px;border:1px solid var(--line,#eadde1);border-radius:8px"></td><td><span class="pill ${cls}">${status}</span></td><td class="product-actions"><button class="small" data-save-stock="${esc(p.id)}">ذخیره موجودی</button> <button class="small secondary" data-out-stock="${esc(p.id)}">ناموجود</button> <button class="small secondary" data-toggle-product="${esc(p.id)}">${p.is_active?'پنهان‌کردن':'نمایش در فروشگاه'}</button> <button class="small" data-edit-product="${esc(p.id)}">ویرایش</button> <button class="small danger" data-delete-product="${esc(p.id)}">حذف</button></td></tr>`}).join('')||emptyRow(7,'محصولی در دیتابیس ثبت نشده است. برای شروع، از فرم افزودن محصول استفاده کن.');}
-async function updateProductFields(id,fields,success){try{const {error}=await B.client.from('products').update(fields).eq('id',id);if(error)throw error;await loadAll();note(success,true);}catch(e){note(e.message||'تغییر محصول ذخیره نشد.');}}
-async function saveInlineStock(id){const input=document.querySelector(`[data-stock-input="${CSS.escape(id)}"]`);if(!input)return;const stock=Number(input.value);if(!Number.isInteger(stock)||stock<0){note('موجودی باید عدد صحیح و صفر یا بیشتر باشد.');return;}await updateProductFields(id,{stock_quantity:stock},stock===0?'موجودی صفر شد؛ محصول به‌صورت ناموجود نمایش داده می‌شود.':'موجودی محصول به‌روزرسانی شد.');}
+(function () {
+  "use strict";
 
-function resetProduct(){ $('product-form').reset();$('product-id').value='';$('product-form-title').textContent='افزودن محصول';$('p-discount').value=0;$('p-stock').value=0;$('p-active').checked=true; }
-function fillProduct(p){$('product-id').value=p.id;$('product-form-title').textContent='ویرایش محصول';$('p-name').value=p.name||'';$('p-brand').value=p.brand||'';$('p-category').value=p.category||'other';$('p-price').value=p.price??0;$('p-discount').value=p.discount_percent??0;$('p-stock').value=p.stock_quantity??0;$('p-variant').value=p.variant||'';$('p-image-url').value=p.image_url||'';$('p-description').value=p.description||'';$('p-active').checked=!!p.is_active;go('products');window.scrollTo({top:0,behavior:'smooth'});}
-async function uploadImage(file,existing){if(!file)return $('p-image-url').value.trim()||existing||'';if(!/^image\/(jpeg|png|webp|gif)$/.test(file.type))throw Error('فرمت تصویر باید JPG، PNG، WEBP یا GIF باشد.');if(file.size>5*1024*1024)throw Error('حجم تصویر باید حداکثر ۵ مگابایت باشد.');const ext=({ 'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif'})[file.type];const path=`products/${crypto.randomUUID()}.${ext}`;const {error}=await B.client.storage.from('product-images').upload(path,file,{upsert:false,contentType:file.type});if(error)throw error;return B.client.storage.from('product-images').getPublicUrl(path).data.publicUrl;}
-async function saveProduct(e){e.preventDefault();const btn=$('save-product');btn.disabled=true;try{const id=$('product-id').value,price=Number($('p-price').value),discount=Number($('p-discount').value),stock=Number($('p-stock').value);if(!Number.isFinite(price)||price<0||!Number.isFinite(stock)||stock<0||!Number.isInteger(stock)||discount<0||discount>100)throw Error('قیمت، تخفیف یا موجودی معتبر نیست.');const current=products.find(p=>p.id===id);const image_url=await uploadImage($('p-image-file').files[0],current?.image_url);const data={name:$('p-name').value.trim(),brand:$('p-brand').value.trim(),category:$('p-category').value,price,discount_percent:discount,sale_price:Math.round(price*(1-discount/100)),stock_quantity:stock,variant:$('p-variant').value.trim(),image_url,description:$('p-description').value.trim(),is_active:$('p-active').checked};if(!data.name)throw Error('نام محصول الزامی است.');const result=id?await B.client.from('products').update(data).eq('id',id):await B.client.from('products').insert(data);if(result.error)throw result.error;resetProduct();await loadAll();note('محصول با موفقیت ذخیره شد.',true);}catch(e){note(e.message||'ذخیره محصول انجام نشد.');}finally{btn.disabled=false;}}
-function renderOrders(){const term=($('order-search')?.value||'').toLowerCase().trim(),filter=$('order-filter')?.value||'all';const list=[...orders].filter(o=>(filter==='all'||o.status===filter)&&[o.id,o.customer_name,o.phone].some(v=>String(v||'').toLowerCase().includes(term))).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));$('orders-table').innerHTML=list.map(o=>`<tr><td>${esc(String(o.id).slice(0,8))}</td><td>${esc(new Date(o.created_at).toLocaleDateString('fa-IR'))}</td><td>${esc(o.customer_name||'—')}</td><td>${esc(o.phone||'—')}</td><td>${money(o.total)}</td><td><select data-order-status="${esc(o.id)}" aria-label="وضعیت سفارش">${Object.entries(statusLabels).map(([v,l])=>`<option value="${v}" ${o.status===v?'selected':''}>${l}</option>`).join('')}</select></td><td><button class="small secondary" data-order-detail="${esc(o.id)}">جزئیات</button></td></tr>`).join('')||emptyRow(7,'سفارشی مطابق این فیلتر پیدا نشد.');}
-async function updateOrder(id,status){if(!statusLabels[status])return;const {error}=await B.client.from('orders').update({status}).eq('id',id);if(error){note(error.message);return;}await loadAll();note('وضعیت سفارش به‌روزرسانی شد.',true);}
-async function showOrder(id){try{const o=orders.find(x=>x.id===id);const {data,error}=await B.client.from('order_items').select('product_name,unit_price,quantity').eq('order_id',id);if(error)throw error;const box=$('order-detail');box.hidden=false;box.innerHTML=`<b>جزئیات سفارش ${esc(String(id).slice(0,8))}</b><p>آدرس: ${esc(o?.address||'—')}</p><p>یادداشت: ${esc(o?.notes||'—')}</p><div class="tablewrap"><table><thead><tr><th>محصول</th><th>قیمت واحد</th><th>تعداد</th><th>جمع</th></tr></thead><tbody>${(data||[]).map(i=>`<tr><td>${esc(i.product_name)}</td><td>${money(i.unit_price)}</td><td>${fmt(i.quantity)}</td><td>${money(Number(i.unit_price)*Number(i.quantity))}</td></tr>`).join('')||'<tr><td colspan="4">جزئیات قلم‌های سفارش ذخیره نشده است.</td></tr>'}</tbody></table></div>`;}catch(e){note(e.message||'دریافت جزئیات سفارش ناموفق بود.');}}
-function renderCategoryOptions(){const opts=categories.map(c=>`<option value="${esc(c.slug)}">${esc(c.name)}</option>`).join('');const fallback=[['skincare','مراقبت پوست'],['makeup','آرایش'],['haircare','مراقبت مو'],['fragrance','عطر و ادکلن'],['hygiene','بهداشت'],['tools','ابزار آرایش'],['nails','ناخن'],['bodycare','مراقبت بدن'],['other','سایر']].map(([v,l])=>`<option value="${v}">${l}</option>`).join('');$('p-category').innerHTML=opts||fallback;}
-function renderCategories(){const count={};products.forEach(p=>count[p.category]=(count[p.category]||0)+1);$('categories-table').innerHTML=categories.map(c=>`<tr><td>${esc(c.name)}</td><td><code>${esc(c.slug)}</code></td><td>${fmt(count[c.slug]||0)}</td><td><button class="small" data-edit-category="${esc(c.id)}">ویرایش</button> <button class="small danger" data-delete-category="${esc(c.id)}">حذف</button></td></tr>`).join('')||emptyRow(4,'برای فعال‌سازی مدیریت دسته‌بندی‌ها migration SQL را اجرا کن.');}
-function resetCategory(){$('category-form').reset();$('category-id').value='';}
-async function saveCategory(e){e.preventDefault();const id=$('category-id').value,slug=$('category-slug').value.trim().toLowerCase(),name=$('category-name').value.trim();if(!/^[a-z0-9-]+$/.test(slug))return note('شناسه فقط می‌تواند شامل حروف انگلیسی کوچک، عدد و خط تیره باشد.');const res=id?await B.client.from('categories').update({name,slug}).eq('id',id):await B.client.from('categories').insert({name,slug});if(res.error)return note(res.error.message);resetCategory();await loadAll();note('دسته‌بندی ذخیره شد.',true);}
-function renderCoupons(){const now=Date.now();$('coupons-table').innerHTML=coupons.map(c=>{const valid=!!c.is_active&&(!c.starts_at||new Date(c.starts_at).getTime()<=now)&&(!c.ends_at||new Date(c.ends_at).getTime()>=now)&&(Number(c.usage_limit)===0||Number(c.usage_count)<Number(c.usage_limit));return `<tr><td><b>${esc(c.code)}</b></td><td>${c.discount_type==='percent'?fmt(c.discount_value)+'٪':money(c.discount_value)}</td><td>${esc(c.ends_at?new Date(c.ends_at).toLocaleDateString('fa-IR'):'بدون تاریخ پایان')}</td><td>${fmt(c.usage_count)} / ${Number(c.usage_limit)===0?'∞':fmt(c.usage_limit)}</td><td><span class="pill ${valid?'green':'red'}">${valid?'قابل استفاده':'غیرفعال/نامعتبر'}</span></td><td><button class="small" data-edit-coupon="${esc(c.id)}">ویرایش</button> <button class="small danger" data-delete-coupon="${esc(c.id)}">حذف</button></td></tr>`}).join('')||emptyRow(6,'کدی ثبت نشده است.');}
-function toLocal(v){if(!v)return '';const d=new Date(v);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}
-function resetCoupon(){$('coupon-form').reset();$('coupon-id').value='';$('coupon-form-title').textContent='ساخت کد تخفیف';$('coupon-type').value='percent';$('coupon-active').checked=true;$('coupon-minimum').value=0;$('coupon-max').value=0;$('coupon-limit').value=0;}
-async function saveCoupon(e){e.preventDefault();const id=$('coupon-id').value,code=$('coupon-code').value.trim().toUpperCase(),type=$('coupon-type').value,value=Number($('coupon-value').value),minimum=Number($('coupon-minimum').value||0),max=Number($('coupon-max').value||0),limit=Number($('coupon-limit').value||0),start=$('coupon-start').value?new Date($('coupon-start').value).toISOString():null,end=$('coupon-end').value?new Date($('coupon-end').value).toISOString():null;if(!/^[A-Z0-9_-]+$/.test(code)||value<=0||minimum<0||max<0||limit<0||(type==='percent'&&value>100))return note('مقادیر کد تخفیف نامعتبر است.');if(start&&end&&new Date(start)>=new Date(end))return note('تاریخ پایان باید بعد از شروع باشد.');const data={code,discount_type:type,discount_value:value,minimum_order:minimum,maximum_discount:max,usage_limit:limit,starts_at:start,ends_at:end,is_active:$('coupon-active').checked};const res=id?await B.client.from('coupons').update(data).eq('id',id):await B.client.from('coupons').insert(data);if(res.error)return note(res.error.message);resetCoupon();await loadAll();note('کد تخفیف ذخیره شد. توجه: برای اعمال در پرداخت، اتصال checkout نیز لازم است.',true);}
-function renderCustomers(){const term=($('customer-search')?.value||'').toLowerCase().trim();const list=profiles.filter(p=>[p.full_name,p.email,p.phone,p.role].some(v=>String(v||'').toLowerCase().includes(term)));$('customer-count').textContent=fmt(list.length)+' حساب';$('customers-table').innerHTML=list.map(p=>`<tr><td>${esc(p.full_name||'—')}</td><td>${esc(p.email||'—')}</td><td>${esc(p.phone||'—')}</td><td><span class="pill ${p.role==='admin'?'green':''}">${p.role==='admin'?'مدیر':'مشتری'}</span></td><td>${p.created_at?esc(new Date(p.created_at).toLocaleDateString('fa-IR')):'—'}</td></tr>`).join('')||emptyRow(5,'پروفایلی یافت نشد.');}
-function bind(){document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));document.querySelectorAll('[data-jump]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.jump)));document.querySelectorAll('[data-refresh]').forEach(b=>b.addEventListener('click',loadAll));$('check-access').addEventListener('click',async()=>{try{if(await ensureAdmin())await loadAll();}catch(e){note(e.message);}});$('logout-top').addEventListener('click',async()=>{await B.client.auth.signOut();location.href='account.html';});$('product-form').addEventListener('submit',saveProduct);$('reset-product').addEventListener('click',resetProduct);$('product-search').addEventListener('input',renderProducts);$('products-table').addEventListener('click',async e=>{const edit=e.target.closest('[data-edit-product]'),del=e.target.closest('[data-delete-product]'),saveStock=e.target.closest('[data-save-stock]'),outStock=e.target.closest('[data-out-stock]'),toggle=e.target.closest('[data-toggle-product]');if(saveStock){await saveInlineStock(saveStock.dataset.saveStock);return;}if(outStock){const p=products.find(x=>x.id===outStock.dataset.outStock);if(p&&confirm(`موجودی «${p.name}» صفر و محصول ناموجود شود؟`))await updateProductFields(p.id,{stock_quantity:0},'محصول ناموجود شد؛ از فروشگاه حذف نمی‌شود و موجودی آن صفر است.');return;}if(toggle){const p=products.find(x=>x.id===toggle.dataset.toggleProduct);if(p)await updateProductFields(p.id,{is_active:!p.is_active},p.is_active?'محصول از فروشگاه پنهان شد.':'محصول دوباره در فروشگاه نمایش داده می‌شود.');return;}if(edit){const p=products.find(x=>x.id===edit.dataset.editProduct);if(p)fillProduct(p);}if(del){const p=products.find(x=>x.id===del.dataset.deleteProduct);if(p&&confirm(`محصول «${p.name}» حذف شود؟ این کار قابل بازگشت نیست.`)){const {error}=await B.client.from('products').delete().eq('id',p.id);if(error)note(error.message);else{await loadAll();note('محصول حذف شد.',true);}}}});$('order-search').addEventListener('input',renderOrders);$('order-filter').addEventListener('change',renderOrders);$('orders-table').addEventListener('change',e=>{const el=e.target.closest('[data-order-status]');if(el)updateOrder(el.dataset.orderStatus,el.value);});$('orders-table').addEventListener('click',e=>{const el=e.target.closest('[data-order-detail]');if(el)showOrder(el.dataset.orderDetail);});$('category-form').addEventListener('submit',saveCategory);$('reset-category').addEventListener('click',resetCategory);$('categories-table').addEventListener('click',async e=>{const edit=e.target.closest('[data-edit-category]'),del=e.target.closest('[data-delete-category]');if(edit){const c=categories.find(x=>x.id===edit.dataset.editCategory);if(c){$('category-id').value=c.id;$('category-name').value=c.name;$('category-slug').value=c.slug;}}if(del){const c=categories.find(x=>x.id===del.dataset.deleteCategory);if(c&&confirm(`دسته‌بندی «${c.name}» حذف شود؟`)){const {error}=await B.client.from('categories').delete().eq('id',c.id);if(error)note(error.message);else{await loadAll();note('دسته‌بندی حذف شد.',true);}}}});$('coupon-form').addEventListener('submit',saveCoupon);$('reset-coupon').addEventListener('click',resetCoupon);$('coupons-table').addEventListener('click',async e=>{const edit=e.target.closest('[data-edit-coupon]'),del=e.target.closest('[data-delete-coupon]');if(edit){const c=coupons.find(x=>x.id===edit.dataset.editCoupon);if(c){$('coupon-id').value=c.id;$('coupon-form-title').textContent='ویرایش کد تخفیف';$('coupon-code').value=c.code;$('coupon-type').value=c.discount_type;$('coupon-value').value=c.discount_value;$('coupon-minimum').value=c.minimum_order;$('coupon-max').value=c.maximum_discount;$('coupon-limit').value=c.usage_limit;$('coupon-start').value=toLocal(c.starts_at);$('coupon-end').value=toLocal(c.ends_at);$('coupon-active').checked=!!c.is_active;go('coupons');}}if(del){const c=coupons.find(x=>x.id===del.dataset.deleteCoupon);if(c&&confirm(`کد «${c.code}» حذف شود؟`)){const {error}=await B.client.from('coupons').delete().eq('id',c.id);if(error)note(error.message);else{await loadAll();note('کد تخفیف حذف شد.',true);}}}});$('customer-search').addEventListener('input',renderCustomers);}
-document.addEventListener('DOMContentLoaded',async()=>{if(!$('admin-app'))return;bind();try{if(await ensureAdmin())await loadAll();}catch(e){note(e.message||'راه‌اندازی پنل ناموفق بود.');}});
+  const A = window.VeloraaAppwrite;
+  const $ = id => document.getElementById(id);
+
+  let products = [];
+  let orders = [];
+  let profiles = [];
+  let categories = [];
+  let coupons = [];
+  let authorized = false;
+
+  const fmt = n =>
+    new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 })
+      .format(Number(n || 0));
+
+  const money = n => fmt(n) + " تومان";
+
+  const esc = value =>
+    String(value ?? "").replace(/[&<>"']/g, c => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[c]);
+
+  const statusLabels = {
+    pending: "در انتظار بررسی",
+    confirmed: "تأییدشده",
+    processing: "در حال آماده‌سازی",
+    shipped: "ارسال‌شده",
+    delivered: "تحویل‌شده",
+    cancelled: "لغوشده"
+  };
+
+  function note(message, success = false) {
+    const el = $("admin-message");
+    if (!el) {
+      console[success ? "info" : "error"](message);
+      return;
+    }
+    el.textContent = message;
+    el.className = "notice" + (success ? " ok" : "");
+    el.hidden = false;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function clearNote() {
+    if ($("admin-message")) $("admin-message").hidden = true;
+  }
+
+  function emptyRow(cols, message = "موردی ثبت نشده است.") {
+    return `<tr><td colspan="${cols}" class="empty">${esc(message)}</td></tr>`;
+  }
+
+  function statusPill(status) {
+    const cls = status === "delivered" ? "green" :
+      status === "cancelled" ? "red" : "";
+    return `<span class="pill ${cls}">${esc(statusLabels[status] || status || "نامشخص")}</span>`;
+  }
+
+  function go(view) {
+    document.querySelectorAll(".tabs [data-view]").forEach(button => {
+      button.classList.toggle("active", button.dataset.view === view);
+    });
+
+    document.querySelectorAll(".view").forEach(section => {
+      section.hidden = section.id !== "view-" + view;
+    });
+
+    clearNote();
+  }
+
+  function normalize(resource, item) {
+    const row = { ...item, id: item.$id || item.id };
+
+    if (resource === "products") {
+      row.price = row.price ?? row.originalPrice ?? row.oldPrice ?? 0;
+      row.discount_percent = row.discount_percent ?? row.discount ?? 0;
+      row.stock_quantity = row.stock_quantity ?? row.stock ?? 0;
+      row.image_url = row.image_url ?? row.image ?? "";
+      row.is_active = row.is_active ?? row.isActive ?? true;
+      row.brand = row.brand ?? "";
+      row.category = row.category ?? "other";
+    }
+
+    if (resource === "profiles") {
+      row.email = row.email ?? "";
+      row.full_name = row.full_name ?? "";
+      row.phone = row.phone ?? "";
+      row.role = row.role ?? "customer";
+      row.created_at = row.created_at ?? row.$createdAt;
+    }
+
+    if (resource === "orders") {
+      row.created_at = row.created_at ?? row.$createdAt;
+      row.total = row.total ?? row.amount ?? 0;
+    }
+
+    return row;
+  }
+
+  function apiUrl(resource, id) {
+    if (!A?.config?.adminApiUrl) {
+      throw new Error("آدرس Admin API در appwrite-client.js تنظیم نشده است.");
+    }
+
+    const url = new URL(A.config.adminApiUrl);
+    url.searchParams.set("resource", resource);
+    if (id) url.searchParams.set("id", id);
+    return url.toString();
+  }
+
+  async function api(resource, method = "GET", id, body) {
+    if (!A?.adminRequest) {
+      throw new Error("Appwrite Client بارگذاری نشده است.");
+    }
+
+    const result = await A.adminRequest({
+      url: apiUrl(resource, id),
+      method,
+      body
+    });
+
+    return result.item ?? result.items ?? result;
+  }
+
+  async function ensureAdmin() {
+    $("admin-app").hidden = true;
+    $("admin-login-needed").hidden = false;
+
+    const user = await A.getCurrentUser();
+
+    if (!user) {
+      note("برای ورود به پنل، ابتدا وارد حساب Appwrite خود شو.");
+      return false;
+    }
+
+    // The server validates the JWT and the ADMIN_USER_IDS allowlist.
+    await api("products");
+
+    authorized = true;
+    $("admin-login-needed").hidden = true;
+    $("admin-app").hidden = false;
+
+    if ($("logout-top")) $("logout-top").hidden = false;
+    return true;
+  }
+
+  async function loadResource(resource) {
+    const result = await api(resource);
+
+    if (!Array.isArray(result)) {
+      throw new Error("پاسخ نامعتبر از API: " + resource);
+    }
+
+    return result.map(item => normalize(resource, item));
+  }
+
+  async function loadAll() {
+    if (!authorized) return;
+
+    clearNote();
+
+    const tasks = [
+      ["products", value => products = value],
+      ["orders", value => orders = value],
+      ["profiles", value => profiles = value],
+      ["categories", value => categories = value],
+      ["coupons", value => coupons = value]
+    ];
+
+    const results = await Promise.allSettled(
+      tasks.map(async ([resource, setter]) => {
+        const rows = await loadResource(resource);
+        setter(rows);
+        return resource;
+      })
+    );
+
+    renderAll();
+
+    const errors = results
+      .map((result, index) => result.status === "rejected"
+        ? tasks[index][0] + ": " + (result.reason?.message || "خطا")
+        : null)
+      .filter(Boolean);
+
+    if (errors.length) {
+      note("بعضی بخش‌ها بارگذاری نشدند: " + errors.join(" | "));
+    }
+  }
+
+  function renderAll() {
+    renderDashboard();
+    renderProducts();
+    renderOrders();
+    renderCustomers();
+    renderCategories();
+    renderCoupons();
+    renderCategoryOptions();
+  }
+
+  function renderDashboard() {
+    $("stat-products").textContent = fmt(products.length);
+    $("stat-orders").textContent = fmt(orders.length);
+
+    $("stat-sales").textContent = money(
+      orders.filter(o => o.status !== "cancelled")
+        .reduce((sum, o) => sum + Number(o.total || 0), 0)
+    );
+
+    $("stat-low").textContent = fmt(
+      products.filter(p => p.is_active && Number(p.stock_quantity) <= 5).length
+    );
+
+    const recent = [...orders]
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+      .slice(0, 6);
+
+    $("recent-orders").innerHTML = recent.map(o => `
+      <tr>
+        <td>${esc(String(o.id).slice(0, 8))}</td>
+        <td>${esc(o.customer_name || "—")}</td>
+        <td>${money(o.total)}</td>
+        <td>${statusPill(o.status)}</td>
+      </tr>
+    `).join("") || emptyRow(4, "سفارشی ثبت نشده است.");
+
+    const low = products.filter(
+      p => p.is_active && Number(p.stock_quantity) <= 5
+    );
+
+    $("attention").innerHTML = low.length
+      ? "محصولات با موجودی کم:<ul>" +
+        low.map(p => `<li>${esc(p.name)} — ${fmt(p.stock_quantity)}</li>`).join("") +
+        "</ul>"
+      : "محصول فعالی با موجودی ۵ عدد یا کمتر وجود ندارد.";
+  }
+
+  function renderProducts() {
+    const term = ($("product-search")?.value || "").trim().toLowerCase();
+
+    const list = products.filter(p =>
+      `${p.name || ""} ${p.brand || ""}`.toLowerCase().includes(term)
+    );
+
+    $("product-count").textContent = fmt(list.length) + " محصول";
+
+    $("products-table").innerHTML = list.map(p => {
+      const stock = Number(p.stock_quantity || 0);
+      const status = !p.is_active ? "پنهان" : stock <= 0 ? "ناموجود" : "موجود";
+      const cls = !p.is_active ? "muted" : stock <= 0 ? "red" : "green";
+
+      return `<tr>
+        <td>${p.image_url
+          ? `<img class="thumb" src="${esc(p.image_url)}" alt="" loading="lazy">`
+          : "—"}</td>
+        <td>${esc(p.name)}<div class="muted">${esc(p.brand)}</div></td>
+        <td>${money(p.price)}</td>
+        <td>${fmt(p.discount_percent)}٪</td>
+        <td><input class="inline-stock" type="number" min="0" step="1"
+          value="${stock}" data-stock-input="${esc(p.id)}" style="width:82px"></td>
+        <td><span class="pill ${cls}">${status}</span></td>
+        <td class="product-actions">
+          <button class="small" data-save-stock="${esc(p.id)}">ذخیره موجودی</button>
+          <button class="small secondary" data-toggle-product="${esc(p.id)}">${p.is_active ? "پنهان‌کردن" : "نمایش در فروشگاه"}</button>
+          <button class="small" data-edit-product="${esc(p.id)}">ویرایش</button>
+          <button class="small danger" data-delete-product="${esc(p.id)}">حذف</button>
+        </td>
+      </tr>`;
+    }).join("") || emptyRow(7, "محصولی ثبت نشده است.");
+  }
+
+  function resetProduct() {
+    $("product-form").reset();
+    $("product-id").value = "";
+    $("product-form-title").textContent = "افزودن محصول";
+    $("p-discount").value = 0;
+    $("p-stock").value = 0;
+    $("p-active").checked = true;
+    if ($("p-image-file")) $("p-image-file").value = "";
+  }
+
+  function fillProduct(p) {
+    $("product-id").value = p.id;
+    $("product-form-title").textContent = "ویرایش محصول";
+    $("p-name").value = p.name || "";
+    $("p-brand").value = p.brand || "";
+    $("p-category").value = p.category || "other";
+    $("p-price").value = p.price ?? 0;
+    $("p-discount").value = p.discount_percent ?? 0;
+    $("p-stock").value = p.stock_quantity ?? 0;
+    $("p-variant").value = p.variant || "";
+    $("p-image-url").value = p.image_url || "";
+    $("p-description").value = p.description || "";
+    $("p-active").checked = !!p.is_active;
+    go("products");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function productPayload() {
+    const price = Number($("p-price").value);
+    const discount = Number($("p-discount").value);
+    const stock = Number($("p-stock").value);
+
+    if (!Number.isFinite(price) || price < 0 ||
+        !Number.isInteger(stock) || stock < 0 ||
+        !Number.isFinite(discount) || discount < 0 || discount > 100) {
+      throw new Error("قیمت، تخفیف یا موجودی معتبر نیست.");
+    }
+
+    const name = $("p-name").value.trim();
+    if (!name) throw new Error("نام محصول الزامی است.");
+
+    if ($("p-image-file")?.files?.length) {
+      throw new Error("آپلود تصویر هنوز در API فعال نشده است؛ فعلاً URL تصویر را وارد کن.");
+    }
+
+    return {
+      name,
+      brand: $("p-brand").value.trim(),
+      category: $("p-category").value,
+      price,
+      discount_percent: discount,
+      sale_price: Math.round(price * (1 - discount / 100)),
+      stock_quantity: stock,
+      variant: $("p-variant").value.trim(),
+      image_url: $("p-image-url").value.trim(),
+      description: $("p-description").value.trim(),
+      is_active: $("p-active").checked
+    };
+  }
+
+  async function saveProduct(event) {
+    event.preventDefault();
+    const button = $("save-product");
+    button.disabled = true;
+
+    try {
+      const id = $("product-id").value;
+      const data = productPayload();
+      await api("products", id ? "PATCH" : "POST",
+        id || undefined, id ? { id, ...data } : data);
+
+      resetProduct();
+      await loadAll();
+      note("درخواست ذخیره محصول با موفقیت انجام شد.", true);
+    } catch (error) {
+      note(error.message || "ذخیره محصول ناموفق بود.");
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  async function changeProduct(id, data, message) {
+    await api("products", "PATCH", id, { id, ...data });
+    await loadAll();
+    note(message, true);
+  }
+
+  function renderOrders() {
+    const term = ($("order-search")?.value || "").trim().toLowerCase();
+    const filter = $("order-filter")?.value || "all";
+
+    const list = [...orders].filter(o =>
+      (filter === "all" || o.status === filter) &&
+      [o.id, o.customer_name, o.phone].some(
+        v => String(v || "").toLowerCase().includes(term)
+      )
+    ).sort((a, b) =>
+      new Date(b.created_at || 0) - new Date(a.created_at || 0)
+    );
+
+    $("orders-table").innerHTML = list.map(o => `
+      <tr>
+        <td>${esc(String(o.id).slice(0, 8))}</td>
+        <td>${o.created_at ? esc(new Date(o.created_at).toLocaleDateString("fa-IR")) : "—"}</td>
+        <td>${esc(o.customer_name || "—")}</td>
+        <td>${esc(o.phone || "—")}</td>
+        <td>${money(o.total)}</td>
+        <td><select data-order-status="${esc(o.id)}">
+          ${Object.entries(statusLabels).map(([value, label]) =>
+            `<option value="${value}" ${o.status === value ? "selected" : ""}>${label}</option>`
+          ).join("")}
+        </select></td>
+        <td><button class="small secondary" data-order-detail="${esc(o.id)}">جزئیات</button></td>
+      </tr>
+    `).join("") || emptyRow(7, "سفارشی مطابق این فیلتر پیدا نشد.");
+  }
+
+  async function renderOrderDetail(id) {
+    const order = orders.find(o => o.id === id);
+    const box = $("order-detail");
+
+    box.hidden = false;
+    box.textContent =
+      "اطلاعات سفارش: " + String(id) +
+      "\nنام مشتری: " + (order?.customer_name || "—") +
+      "\nوضعیت: " + (statusLabels[order?.status] || order?.status || "نامشخص") +
+      "\nآدرس: " + (order?.address || "—") +
+      "\nیادداشت: " + (order?.notes || "—") +
+      "\nبرای نمایش اقلام سفارش، API باید فیلتر order_id را پشتیبانی کند.";
+  }
+
+  function renderCategoryOptions() {
+    const fallback = [
+      ["skincare", "مراقبت پوست"], ["makeup", "آرایش"],
+      ["haircare", "مراقبت مو"], ["fragrance", "عطر و ادکلن"],
+      ["hygiene", "بهداشت"], ["tools", "ابزار آرایش"],
+      ["nails", "ناخن"], ["bodycare", "مراقبت بدن"],
+      ["other", "سایر"]
+    ];
+
+    const values = categories.length
+      ? categories.map(c => [c.slug, c.name])
+      : fallback;
+
+    $("p-category").innerHTML = values.map(([value, label]) =>
+      `<option value="${esc(value)}">${esc(label)}</option>`
+    ).join("");
+  }
+
+  function renderCategories() {
+    const counts = {};
+    products.forEach(p => {
+      counts[p.category] = (counts[p.category] || 0) + 1;
+    });
+
+    $("categories-table").innerHTML = categories.map(c => `
+      <tr>
+        <td>${esc(c.name)}</td>
+        <td><code>${esc(c.slug)}</code></td>
+        <td>${fmt(counts[c.slug] || 0)}</td>
+        <td>
+          <button class="small" data-edit-category="${esc(c.id)}">ویرایش</button>
+          <button class="small danger" data-delete-category="${esc(c.id)}">حذف</button>
+        </td>
+      </tr>
+    `).join("") || emptyRow(4, "دسته‌بندی‌ای ثبت نشده است.");
+  }
+
+  function resetCategory() {
+    $("category-form").reset();
+    $("category-id").value = "";
+  }
+
+  async function saveCategory(event) {
+    event.preventDefault();
+
+    const id = $("category-id").value;
+    const name = $("category-name").value.trim();
+    const slug = $("category-slug").value.trim().toLowerCase();
+
+    if (!name) return note("نام دسته‌بندی الزامی است.");
+    if (!/^[a-z0-9-]+$/.test(slug)) {
+      return note("شناسه دسته‌بندی فقط می‌تواند شامل حروف انگلیسی کوچک، عدد و خط تیره باشد.");
+    }
+
+    try {
+      await api("categories", id ? "PATCH" : "POST",
+        id || undefined, id ? { id, name, slug } : { name, slug });
+
+      resetCategory();
+      await loadAll();
+      note("دسته‌بندی ذخیره شد.", true);
+    } catch (error) {
+      note(error.message);
+    }
+  }
+
+  function renderCoupons() {
+    const now = Date.now();
+
+    $("coupons-table").innerHTML = coupons.map(c => {
+      const valid = !!c.is_active &&
+        (!c.starts_at || new Date(c.starts_at).getTime() <= now) &&
+        (!c.ends_at || new Date(c.ends_at).getTime() >= now) &&
+        (!Number(c.usage_limit) || Number(c.usage_count) < Number(c.usage_limit));
+
+      return `<tr>
+        <td><b>${esc(c.code)}</b></td>
+        <td>${c.discount_type === "percent" ? fmt(c.discount_value) + "٪" : money(c.discount_value)}</td>
+        <td>${c.ends_at ? esc(new Date(c.ends_at).toLocaleDateString("fa-IR")) : "بدون تاریخ پایان"}</td>
+        <td>${fmt(c.usage_count)} / ${Number(c.usage_limit) ? fmt(c.usage_limit) : "∞"}</td>
+        <td><span class="pill ${valid ? "green" : "red"}">${valid ? "قابل استفاده" : "غیرفعال/نامعتبر"}</span></td>
+        <td>
+          <button class="small" data-edit-coupon="${esc(c.id)}">ویرایش</button>
+          <button class="small danger" data-delete-coupon="${esc(c.id)}">حذف</button>
+        </td>
+      </tr>`;
+    }).join("") || emptyRow(6, "کدی ثبت نشده است.");
+  }
+
+  function resetCoupon() {
+    $("coupon-form").reset();
+    $("coupon-id").value = "";
+    $("coupon-form-title").textContent = "ساخت کد تخفیف";
+    $("coupon-type").value = "percent";
+    $("coupon-active").checked = true;
+    $("coupon-minimum").value = 0;
+    $("coupon-max").value = 0;
+    $("coupon-limit").value = 0;
+  }
+
+  function couponPayload() {
+    const code = $("coupon-code").value.trim().toUpperCase();
+    const type = $("coupon-type").value;
+    const value = Number($("coupon-value").value);
+    const minimum = Number($("coupon-minimum").value || 0);
+    const maximum = Number($("coupon-max").value || 0);
+    const limit = Number($("coupon-limit").value || 0);
+    const start = $("coupon-start").value
+      ? new Date($("coupon-start").value).toISOString() : null;
+    const end = $("coupon-end").value
+      ? new Date($("coupon-end").value).toISOString() : null;
+
+    if (!/^[A-Z0-9_-]+$/.test(code) || !Number.isFinite(value) ||
+        value <= 0 || minimum < 0 || maximum < 0 || limit < 0 ||
+        (type === "percent" && value > 100)) {
+      throw new Error("مقادیر کد تخفیف نامعتبر است.");
+    }
+
+    if (start && end && new Date(start) >= new Date(end)) {
+      throw new Error("تاریخ پایان باید بعد از شروع باشد.");
+    }
+
+    return {
+      code,
+      discount_type: type,
+      discount_value: value,
+      minimum_order: minimum,
+      maximum_discount: maximum,
+      usage_limit: limit,
+      starts_at: start,
+      ends_at: end,
+      is_active: $("coupon-active").checked
+    };
+  }
+
+  async function saveCoupon(event) {
+    event.preventDefault();
+
+    try {
+      const id = $("coupon-id").value;
+      const data = couponPayload();
+
+      await api("coupons", id ? "PATCH" : "POST",
+        id || undefined, id ? { id, ...data } : data);
+
+      resetCoupon();
+      await loadAll();
+      note("کد تخفیف ذخیره شد. اعمال آن در پرداخت نیز باید جداگانه پیاده‌سازی شود.", true);
+    } catch (error) {
+      note(error.message);
+    }
+  }
+
+  function renderCustomers() {
+    const term = ($("customer-search")?.value || "").trim().toLowerCase();
+
+    const list = profiles.filter(p =>
+      [p.full_name, p.email, p.phone, p.role].some(
+        v => String(v || "").toLowerCase().includes(term)
+      )
+    );
+
+    $("customer-count").textContent = fmt(list.length) + " حساب";
+
+    $("customers-table").innerHTML = list.map(p => `
+      <tr>
+        <td>${esc(p.full_name || "—")}</td>
+        <td>${esc(p.email || "—")}</td>
+        <td>${esc(p.phone || "—")}</td>
+        <td><span class="pill ${p.role === "admin" ? "green" : ""}">${p.role === "admin" ? "مدیر" : "مشتری"}</span></td>
+        <td>${p.created_at ? esc(new Date(p.created_at).toLocaleDateString("fa-IR")) : "—"}</td>
+      </tr>
+    `).join("") || emptyRow(5, "پروفایلی یافت نشد.");
+  }
+
+  function bind() {
+    document.querySelectorAll("[data-view]").forEach(button =>
+      button.addEventListener("click", () => go(button.dataset.view))
+    );
+
+    document.querySelectorAll("[data-jump]").forEach(button =>
+      button.addEventListener("click", () => go(button.dataset.jump))
+    );
+
+    document.querySelectorAll("[data-refresh]").forEach(button =>
+      button.addEventListener("click", loadAll)
+    );
+
+    $("check-access").addEventListener("click", async () => {
+      try {
+        if (await ensureAdmin()) await loadAll();
+      } catch (error) {
+        note(error.message || "بررسی دسترسی ناموفق بود.");
+      }
+    });
+
+    $("logout-top").addEventListener("click", async () => {
+      try {
+        await A.account.deleteSession("current");
+      } finally {
+        location.href = "account.html";
+      }
+    });
+
+    $("product-form").addEventListener("submit", saveProduct);
+    $("reset-product").addEventListener("click", resetProduct);
+    $("product-search").addEventListener("input", renderProducts);
+    $("order-search").addEventListener("input", renderOrders);
+    $("order-filter").addEventListener("change", renderOrders);
+    $("customer-search").addEventListener("input", renderCustomers);
+
+    $("products-table").addEventListener("click", async event => {
+      const edit = event.target.closest("[data-edit-product]");
+      const del = event.target.closest("[data-delete-product]");
+      const save = event.target.closest("[data-save-stock]");
+      const toggle = event.target.closest("[data-toggle-product]");
+
+      try {
+        if (edit) {
+          const p = products.find(x => x.id === edit.dataset.editProduct);
+          if (p) fillProduct(p);
+        }
+
+        if (save) {
+          const id = save.dataset.saveStock;
+          const input = document.querySelector(`[data-stock-input="${CSS.escape(id)}"]`);
+          const stock = Number(input?.value);
+
+          if (!Number.isInteger(stock) || stock < 0) {
+            throw new Error("موجودی باید عدد صحیح و صفر یا بیشتر باشد.");
+          }
+
+          const p = products.find(x => x.id === id);
+          if (!p) throw new Error("محصول پیدا نشد.");
+
+          const field = Object.hasOwn(p, "stock") ? "stock" : "stock_quantity";
+          await changeProduct(id, { [field]: stock }, "موجودی به‌روزرسانی شد.");
+        }
+
+        if (toggle) {
+          const p = products.find(x => x.id === toggle.dataset.toggleProduct);
+          if (p) {
+            const field = Object.hasOwn(p, "isActive") ? "isActive" : "is_active";
+            await changeProduct(
+              p.id,
+              { [field]: !p.is_active },
+              "وضعیت نمایش محصول تغییر کرد."
+            );
+          }
+        }
+
+        if (del) {
+          const p = products.find(x => x.id === del.dataset.deleteProduct);
+          if (p && confirm(`محصول «${p.name}» حذف شود؟`)) {
+            await api("products", "DELETE", p.id, { id: p.id });
+            await loadAll();
+            note("محصول حذف شد.", true);
+          }
+        }
+      } catch (error) {
+        note(error.message || "عملیات محصول ناموفق بود.");
+      }
+    });
+
+    $("orders-table").addEventListener("change", async event => {
+      const select = event.target.closest("[data-order-status]");
+      if (!select) return;
+
+      try {
+        await api("orders", "PATCH", select.dataset.orderStatus, {
+          id: select.dataset.orderStatus,
+          status: select.value
+        });
+        await loadAll();
+        note("وضعیت سفارش به‌روزرسانی شد.", true);
+      } catch (error) {
+        note(error.message);
+      }
+    });
+
+    $("orders-table").addEventListener("click", event => {
+      const button = event.target.closest("[data-order-detail]");
+      if (button) renderOrderDetail(button.dataset.orderDetail);
+    });
+
+    $("category-form").addEventListener("submit", saveCategory);
+    $("reset-category").addEventListener("click", resetCategory);
+
+    $("categories-table").addEventListener("click", async event => {
+      const edit = event.target.closest("[data-edit-category]");
+      const del = event.target.closest("[data-delete-category]");
+
+      try {
+        if (edit) {
+          const c = categories.find(x => x.id === edit.dataset.editCategory);
+          if (c) {
+            $("category-id").value = c.id;
+            $("category-name").value = c.name || "";
+            $("category-slug").value = c.slug || "";
+            go("categories");
+          }
+        }
+
+        if (del) {
+          const c = categories.find(x => x.id === del.dataset.deleteCategory);
+          if (c && confirm(`دسته‌بندی «${c.name}» حذف شود؟`)) {
+            await api("categories", "DELETE", c.id, { id: c.id });
+            await loadAll();
+            note("دسته‌بندی حذف شد.", true);
+          }
+        }
+      } catch (error) {
+        note(error.message);
+      }
+    });
+
+    $("coupon-form").addEventListener("submit", saveCoupon);
+    $("reset-coupon").addEventListener("click", resetCoupon);
+
+    $("coupons-table").addEventListener("click", async event => {
+      const edit = event.target.closest("[data-edit-coupon]");
+      const del = event.target.closest("[data-delete-coupon]");
+
+      try {
+        if (edit) {
+          const c = coupons.find(x => x.id === edit.dataset.editCoupon);
+
+          if (c) {
+            $("coupon-id").value = c.id;
+            $("coupon-form-title").textContent = "ویرایش کد تخفیف";
+            $("coupon-code").value = c.code || "";
+            $("coupon-type").value = c.discount_type || "percent";
+            $("coupon-value").value = c.discount_value ?? 0;
+            $("coupon-minimum").value = c.minimum_order ?? 0;
+            $("coupon-max").value = c.maximum_discount ?? 0;
+            $("coupon-limit").value = c.usage_limit ?? 0;
+            $("coupon-start").value = toLocal(c.starts_at);
+            $("coupon-end").value = toLocal(c.ends_at);
+            $("coupon-active").checked = !!c.is_active;
+            go("coupons");
+          }
+        }
+
+        if (del) {
+          const c = coupons.find(x => x.id === del.dataset.deleteCoupon);
+          if (c && confirm(`کد «${c.code}» حذف شود؟`)) {
+            await api("coupons", "DELETE", c.id, { id: c.id });
+            await loadAll();
+            note("کد تخفیف حذف شد.", true);
+          }
+        }
+      } catch (error) {
+        note(error.message);
+      }
+    });
+  }
+
+  function toLocal(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+      .toISOString().slice(0, 16);
+  }
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    if (!$("admin-app")) return;
+
+    if (!A) {
+      note("فایل appwrite-client.js یا SDK بارگذاری نشده است.");
+      return;
+    }
+
+    bind();
+
+    try {
+      if (await ensureAdmin()) await loadAll();
+    } catch (error) {
+      authorized = false;
+      $("admin-app").hidden = true;
+      $("admin-login-needed").hidden = false;
+      note(error.message || "راه‌اندازی پنل ناموفق بود.");
+    }
+  });
 })();
