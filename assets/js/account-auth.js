@@ -201,7 +201,7 @@
           }
 
           const user = await B.account.create({
-            userId: ID.unique(),
+            userId: window.Appwrite.ID.unique(),
             email,
             password,
             name: name || email.split("@")[0]
