@@ -185,7 +185,9 @@
       // نقش حساب از فرم عمومی قابل تغییر نیست.
       delete data.role;
 
-       return B.tablesDB.createRow({
+       data.userId = userId;
+
+return B.tablesDB.createRow({
   databaseId: B.config.databaseId,
   tableId: B.config.profilesTableId,
   rowId: userId,
