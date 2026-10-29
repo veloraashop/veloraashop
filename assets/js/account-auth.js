@@ -71,8 +71,6 @@
   function dateToDatetime(value) {
     if (!value) return "";
 
-    // ورودی date به صورت YYYY-MM-DD است.
-    // تاریخ در UTC ذخیره می‌شود تا روز انتخاب‌شده تغییر نکند.
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
       throw new Error("فرمت تاریخ تولد معتبر نیست.");
     }
@@ -83,7 +81,7 @@
       Number.isNaN(date.getTime()) ||
       date.toISOString().slice(0, 10) !== value
     ) {
-      throw new Error("تاریخ تولد واردشده معتبر نیست.");
+      throw new Error("تاریخ تولد معتبر نیست.");
     }
 
     return date.toISOString();
@@ -94,9 +92,9 @@
 
     const date = new Date(value);
 
-    if (Number.isNaN(date.getTime())) return "";
-
-    return date.toISOString().slice(0, 10);
+    return Number.isNaN(date.getTime())
+      ? ""
+      : date.toISOString().slice(0, 10);
   }
 
   function collectProfile(prefix) {
@@ -124,12 +122,11 @@
       throw new Error("کد ملی باید دقیقاً ۱۰ رقم انگلیسی باشد.");
     }
 
-    if (data.postal_code && !/^\d{10}$/.test(data.postal_code)) {
+    if (
+      data.postal_code &&
+      !/^\d{10}$/.test(data.postal_code)
+    ) {
       throw new Error("کد پستی باید ۱۰ رقم انگلیسی باشد.");
-    }
-
-    if (data.alternate_phone && data.alternate_phone.length > 20) {
-      throw new Error("شماره تماس جایگزین بیش از حد طولانی است.");
     }
 
     return data;
@@ -138,7 +135,7 @@
   function normalizeProfile(data) {
     const result = { ...data };
 
-    // اگر فیلد تاریخ خالی باشد، مقدار خالی برای Datetime ارسال نمی‌کنیم.
+    // برای ستون Datetime، مقدار رشته خالی ارسال نکن.
     if (!result.birth_date) {
       delete result.birth_date;
     }
@@ -172,7 +169,8 @@
         method: "GET"
       });
 
-      return result?.success === true && result?.isAdmin === true;
+      return result?.success === true &&
+             result?.isAdmin === true;
     } catch (error) {
       console.warn("[Veloraa] Admin verification failed:", error);
       return false;
@@ -181,11 +179,10 @@
 
   async function saveProfile(userId, values) {
     const existing = await getProfile(userId);
-
     const data = normalizeProfile(values);
 
     if (existing) {
-      // نقش موجود را از فرم عمومی تغییر نمی‌دهیم.
+      // نقش حساب از فرم عمومی قابل تغییر نیست.
       delete data.role;
 
       return B.tablesDB.updateRow({
@@ -196,8 +193,7 @@
       });
     }
 
-    // نقش مشتری فقط در سمت برنامه تعیین می‌شود.
-    // نقش مدیر باید جداگانه و از مسیر امن مدیریت شود.
+    // نقش اولیه مشتری؛ هرگز از ورودی کاربر دریافت نمی‌شود.
     data.role = "customer";
 
     return B.tablesDB.createRow({
@@ -227,15 +223,11 @@
       address_details: profile?.address_details || ""
     };
 
-    for (const [field, inputSuffix] of Object.entries(PROFILE_FIELDS)) {
-      const el = $("profile-" + inputSuffix);
+    for (const [field, suffix] of Object.entries(PROFILE_FIELDS)) {
+      const el = $("profile-" + suffix);
+      if (!el) continue;
 
-      if (el) {
-        el.value =
-          field === "birth_date"
-            ? values.birth_date
-            : values[field];
-      }
+      el.value = values[field] || "";
     }
   }
 
@@ -273,7 +265,7 @@
     } else {
       currentProfile = null;
       console.error(
-        "[Veloraa] Could not load profile:",
+        "[Veloraa] Profile read failed:",
         results[0].reason
       );
     }
@@ -282,7 +274,11 @@
       results[1].status === "fulfilled" &&
       results[1].value === true;
 
-    populateProfile(currentProfile, currentUser);
+    if (currentProfile) {
+      populateProfile(currentProfile, currentUser);
+    } else {
+      populateProfile({}, currentUser);
+    }
 
     if ($("profile-role")) {
       $("profile-role").textContent =
@@ -293,8 +289,8 @@
 
     if (!currentProfile) {
       note(
-        "حساب وارد شده است، اما پروفایل بارگذاری نشد. " +
-        "دسترسی‌های جدول profiles را بررسی کن."
+        "حساب وارد شده است، اما پروفایل خوانده نشد. " +
+        "مجوزها و ستون‌های جدول profiles را بررسی کن."
       );
     }
   }
@@ -304,175 +300,189 @@
     const signupForm = $("signup-form");
     const profileForm = $("profile-form");
 
-    if (loginForm) {
-      loginForm.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        if (!ready()) return;
+    // ورود
+    loginForm?.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      if (!ready()) return;
 
-        const btn = loginForm.querySelector('[type="submit"]');
-        const oldText = btn?.textContent;
+      const btn = loginForm.querySelector('[type="submit"]');
+      const oldText = btn?.textContent;
 
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "در حال ورود…";
+      }
+
+      clearNote();
+
+      try {
+        const email = $("login-email")?.value.trim();
+        const password = $("login-password")?.value;
+
+        if (!email || !password) {
+          throw new Error("ایمیل و رمز عبور را وارد کن.");
+        }
+
+        await B.account.createEmailPasswordSession({
+          email,
+          password
+        });
+
+        await refresh();
+
+        if (currentIsAdmin) {
+          note("ورود مدیر موفق بود.", true);
+          location.href = "admin.html";
+          return;
+        }
+
+        if (currentProfile) {
+          note("با موفقیت وارد حساب کاربری شدی.", true);
+        }
+      } catch (error) {
+        console.error("[Veloraa] Login error:", error);
+        note(error?.message || "ورود ناموفق بود.");
+      } finally {
         if (btn) {
-          btn.disabled = true;
-          btn.textContent = "در حال ورود…";
+          btn.disabled = false;
+          btn.textContent = oldText || "ورود به حساب";
+        }
+      }
+    });
+
+    // ثبت‌نام
+    signupForm?.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      if (!ready()) return;
+
+      const btn = signupForm.querySelector('[type="submit"]');
+      const oldText = btn?.textContent;
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "در حال ثبت‌نام…";
+      }
+
+      clearNote();
+
+      let accountCreated = false;
+
+      try {
+        const email = $("signup-email")?.value.trim();
+        const password = $("signup-password")?.value;
+        const name = $("signup-name")?.value.trim();
+
+        if (!email || !password || !name) {
+          throw new Error("نام، ایمیل و رمز عبور الزامی هستند.");
         }
 
-        clearNote();
+        if (password.length < 10) {
+          throw new Error("رمز عبور باید حداقل ۱۰ نویسه باشد.");
+        }
 
+        const values = validateProfile(collectProfile("signup"));
+
+        const user = await B.account.create({
+          userId: window.Appwrite.ID.unique(),
+          email,
+          password,
+          name
+        });
+
+        accountCreated = true;
+
+        // مهم: ابتدا نشست ایجاد می‌شود.
+        await B.account.createEmailPasswordSession({
+          email,
+          password
+        });
+
+        // سپس پروفایل در جدول ذخیره می‌شود.
         try {
-          const email = $("login-email").value.trim();
-          const password = $("login-password").value;
-
-          if (!email || !password) {
-            throw new Error("ایمیل و رمز عبور را وارد کن.");
-          }
-
-          await B.account.createEmailPasswordSession({
-            email,
-            password
-          });
-
-          await refresh();
-
-          if (currentIsAdmin) {
-            note("ورود مدیر با موفقیت انجام شد.", true);
-            location.href = "admin.html";
-            return;
-          }
-
-          if (currentProfile) {
-            note("با موفقیت وارد حساب کاربری شدی.", true);
-          }
-        } catch (error) {
-          console.error("[Veloraa] Login error:", error);
-          note(error?.message || "ورود ناموفق بود.");
-        } finally {
-          if (btn) {
-            btn.disabled = false;
-            btn.textContent = oldText || "ورود به حساب";
-          }
-        }
-      });
-    }
-
-    if (signupForm) {
-      signupForm.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        if (!ready()) return;
-
-        const btn = signupForm.querySelector('[type="submit"]');
-        const oldText = btn?.textContent;
-
-        if (btn) {
-          btn.disabled = true;
-          btn.textContent = "در حال ثبت‌نام…";
-        }
-
-        clearNote();
-
-        try {
-          const email = $("signup-email").value.trim();
-          const password = $("signup-password").value;
-          const name = $("signup-name").value.trim();
-
-          if (!email || !password || !name) {
-            throw new Error("نام، ایمیل و رمز عبور الزامی هستند.");
-          }
-
-          if (password.length < 10) {
-            throw new Error("رمز عبور باید حداقل ۱۰ نویسه داشته باشد.");
-          }
-
-          const values = validateProfile(collectProfile("signup"));
-
-          const user = await B.account.create({
-            userId: window.Appwrite.ID.unique(),
-            email,
-            password,
-            name
-          });
-
-          try {
-            await saveProfile(user.$id, values);
-          } catch (profileError) {
-            console.error("[Veloraa] Profile creation error:", profileError);
-
-            note(
-              "حساب ساخته شد، اما ذخیره پروفایل انجام نشد. " +
-              "وارد حساب شو و دسترسی جدول profiles و ستون‌های آن را بررسی کن."
-            );
-            return;
-          }
-
-          await B.account.createEmailPasswordSession({
-            email,
-            password
-          });
-
-          await refresh();
-
-          if (currentProfile) {
-            note("ثبت‌نام و ورود با موفقیت انجام شد.", true);
-          }
-        } catch (error) {
-          console.error("[Veloraa] Signup error:", error);
-          note(error?.message || "ثبت‌نام انجام نشد.");
-        } finally {
-          if (btn) {
-            btn.disabled = false;
-            btn.textContent = oldText || "ساخت حساب کاربری";
-          }
-        }
-      });
-    }
-
-    if (profileForm) {
-      profileForm.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        if (!ready()) return;
-
-        const btn = profileForm.querySelector('[type="submit"]');
-        const oldText = btn?.textContent;
-
-        if (btn) {
-          btn.disabled = true;
-          btn.textContent = "در حال ذخیره…";
-        }
-
-        clearNote();
-
-        try {
-          const user = await B.getCurrentUser();
-
-          if (!user) {
-            throw new Error("ابتدا وارد حساب کاربری شو.");
-          }
-
-          const values = validateProfile(collectProfile("profile"));
-
           await saveProfile(user.$id, values);
-          await refresh();
+        } catch (profileError) {
+          console.error(
+            "[Veloraa] Profile creation error:",
+            profileError
+          );
 
-          if (currentProfile) {
-            note("اطلاعات پروفایل ذخیره شد.", true);
-          }
-        } catch (error) {
-          console.error("[Veloraa] Profile save error:", error);
-          note(error?.message || "ذخیره اطلاعات ناموفق بود.");
-        } finally {
-          if (btn) {
-            btn.disabled = false;
-            btn.textContent = oldText || "ذخیره تغییرات";
-          }
+          note(
+            "حساب ساخته شد و وارد شدی، اما پروفایل ذخیره نشد. " +
+            "خطای Console و مجوزهای جدول profiles را بررسی کن."
+          );
+          return;
         }
-      });
-    }
 
+        await refresh();
+        note("ثبت‌نام و ذخیره پروفایل موفق بود.", true);
+      } catch (error) {
+        console.error("[Veloraa] Signup error:", error);
+
+        if (accountCreated) {
+          note(
+            "حساب ساخته شده است، اما مرحله بعدی کامل نشد. " +
+            (error?.message || "خطای ناشناخته")
+          );
+        } else {
+          note(error?.message || "ثبت‌نام انجام نشد.");
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = oldText || "ساخت حساب کاربری";
+        }
+      }
+    });
+
+    // ویرایش پروفایل
+    profileForm?.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      if (!ready()) return;
+
+      const btn = profileForm.querySelector('[type="submit"]');
+      const oldText = btn?.textContent;
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "در حال ذخیره…";
+      }
+
+      clearNote();
+
+      try {
+        const user = await B.getCurrentUser();
+
+        if (!user) {
+          throw new Error("ابتدا وارد حساب کاربری شو.");
+        }
+
+        const values = validateProfile(collectProfile("profile"));
+
+        await saveProfile(user.$id, values);
+        await refresh();
+
+        if (currentProfile) {
+          note("اطلاعات پروفایل ذخیره شد.", true);
+        }
+      } catch (error) {
+        console.error("[Veloraa] Profile save error:", error);
+        note(error?.message || "ذخیره پروفایل ناموفق بود.");
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = oldText || "ذخیره تغییرات";
+        }
+      }
+    });
+
+    // خروج
     $("logout")?.addEventListener("click", async function () {
       try {
         if (!ready()) return;
 
-        await B.account.deleteSession({ sessionId: "current" });
+        await B.account.deleteSession({
+          sessionId: "current"
+        });
 
         currentUser = null;
         currentProfile = null;
@@ -486,13 +496,14 @@
       }
     });
 
+    // بازیابی رمز
     $("reset-password")?.addEventListener("click", async function () {
       if (!ready()) return;
 
       const email = $("login-email")?.value.trim();
 
       if (!email) {
-        note("ابتدا ایمیل خودت را در کادر ورود بنویس.");
+        note("ابتدا ایمیل خودت را وارد کن.");
         return;
       }
 
@@ -508,7 +519,7 @@
         );
       } catch (error) {
         console.error("[Veloraa] Recovery error:", error);
-        note(error?.message || "ارسال لینک بازیابی انجام نشد.");
+        note(error?.message || "ارسال لینک بازیابی ناموفق بود.");
       }
     });
 
