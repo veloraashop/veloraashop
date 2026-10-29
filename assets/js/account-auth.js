@@ -288,10 +288,13 @@
     show($("admin-link"), currentIsAdmin);
 
     if (!currentProfile) {
-      note(
-        "حساب وارد شده است، اما پروفایل خوانده نشد. " +
-        "مجوزها و ستون‌های جدول profiles را بررسی کن."
-      );
+      
+note(
+  "خطای ذخیره پروفایل: " +
+  (profileError?.message || String(profileError)) +
+  " | Code: " + (profileError?.code ?? "نامشخص") +
+  " | Type: " + (profileError?.type ?? "نامشخص")
+);
     }
   }
 
