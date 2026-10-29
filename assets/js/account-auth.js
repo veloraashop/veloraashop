@@ -185,12 +185,17 @@
       // نقش حساب از فرم عمومی قابل تغییر نیست.
       delete data.role;
 
-      return B.tablesDB.updateRow({
-        databaseId: B.config.databaseId,
-        tableId: B.config.profilesTableId,
-        rowId: userId,
-        data
-      });
+       return B.tablesDB.createRow({
+  databaseId: B.config.databaseId,
+  tableId: B.config.profilesTableId,
+  rowId: userId,
+  data,
+  permissions: [
+    `read("user:${userId}")`,
+    `update("user:${userId}")`,
+    `delete("user:${userId}")`
+  ]
+});
     }
 
     // نقش اولیه مشتری؛ هرگز از ورودی کاربر دریافت نمی‌شود.
