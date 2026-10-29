@@ -187,6 +187,8 @@
 
        data.userId = userId;
 
+console.log("[Veloraa] Profile data being created:", data);
+
 return B.tablesDB.createRow({
   databaseId: B.config.databaseId,
   tableId: B.config.profilesTableId,
