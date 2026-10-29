@@ -60,30 +60,58 @@
       || '<div class="col-span-full py-12 text-center text-[#776B70]">هنوز محصول فعالی ثبت نشده است.</div>';
   }
 
-  function mapProduct(p) {
-    const price = Number(p.price || 0);
-    const discount = Math.min(100, Math.max(0, Number(p.discount || 0)));
+  
+function mapProduct(p) {
+  const price = Number(p.price || 0);
 
-    return {
-      id: p.$id || p.id || p.$rowId || '',
-      title: p.name || '',
-      brand: 'Veloraa',
-      category: categoryMap[p.category] || p.category || 'other',
-      skinType: 'all',
-      price: Math.round(price * (1 - discount / 100)),
-      originalPrice: Number(p.oldPrice || p.originalPrice || price),
-      discount,
-      rating: 0,
-      reviewsCount: 0,
-      inStock: Number(p.stock || 0) > 0,
-      stock: Number(p.stock || 0),
-      volume: '',
-      image: p.image || '',
-      description: p.description || '',
-      features: [],
-      remote: true
-    };
-  }
+  const discount = Math.max(
+    0,
+    Math.min(
+      100,
+      Number(p.discount_percent ?? p.discount ?? 0)
+    )
+  );
+
+  const stock = Number(
+    p.stock_quantity ?? p.stock ?? 0
+  );
+
+  const originalPrice = Number(
+    p.original_price ??
+    p.originalPrice ??
+    p.oldPrice ??
+    price
+  );
+
+  const finalPrice = Number(
+    p.sale_price ??
+    Math.round(price * (1 - discount / 100))
+  );
+
+  return {
+    id: p.$id || p.id || p.$rowId || "",
+    title: p.name || p.title || "",
+    name: p.name || p.title || "",
+    brand: Array.isArray(p.brand)
+      ? (p.brand[0] || "Veloraa")
+      : (p.brand || "Veloraa"),
+    category: categoryMap[p.category] || p.category || "other",
+    skinType: "all",
+    price: finalPrice,
+    originalPrice,
+    discount,
+    rating: 0,
+    reviewsCount: 0,
+    inStock: stock > 0,
+    stock,
+    volume: p.variant || "",
+    image: p.image_url || p.image || "",
+    description: p.description || "",
+    features: [],
+    remote: true
+  };
+}
+
 
   async function load() {
     const catalog = window.VeloraaApp?.PRODUCTS_CATALOG;
