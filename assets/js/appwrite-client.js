@@ -66,9 +66,9 @@
     const jwt = await createJWT();
 
     const headers = {
-      "x-appwrite-user-jwt": jwt,
-      Accept: "application/json"
-    };
+  Authorization: `Bearer ${jwt}`,
+  Accept: "application/json"
+};
 
     const options = {
       method: method.toUpperCase(),
