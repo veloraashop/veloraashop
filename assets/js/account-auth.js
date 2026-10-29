@@ -195,6 +195,7 @@
 
     // این ستون در جدول profiles اجباری است.
     data.userId = userId;
+    data.createdAt = new Date().toISOString();
 
     if (existing) {
       // نقش مدیر یا مشتری از فرم کاربر قابل تغییر نیست.
