@@ -1,4 +1,3 @@
-
 /* Veloraa Shop - Appwrite Products */
 (function () {
   "use strict";
@@ -16,9 +15,7 @@
       throw new Error("Appwrite SDK is not loaded.");
     }
 
-    const { Query } = window.Appwrite;
     const { databaseId, productsTableId } = backend.config;
-
     const tablesDB = backend.tablesDB;
 
     if (!tablesDB || !databaseId || !productsTableId) {
@@ -28,43 +25,82 @@
     const result = await tablesDB.listRows({
       databaseId,
       tableId: productsTableId,
-      queries: [Query.limit(PAGE_SIZE)]
+      queries: [window.Appwrite.Query.limit(PAGE_SIZE)]
     });
 
-    return (result.rows || [])
-      .filter(product => product.isActive === true)
-      .map(product => {
-        const id = product.$id || product.$rowId || "";
+    const rows = result.rows || [];
 
-        if (!id) {
-          console.error("Product has no Appwrite row ID:", product);
-        }
+    console.log("[Veloraa] Appwrite rows:", rows.length);
+
+    return rows
+      .filter(product => {
+        // پشتیبانی از نام قدیمی و نام واقعی ستون
+        const active = product.is_active ?? product.isActive;
+
+        // فقط محصولی را حذف کن که صریحاً غیرفعال است
+        return active !== false && active !== 0;
+      })
+      .map(product => {
+        const id =
+          product.$id ||
+          product.$rowId ||
+          product.$sequence ||
+          "";
+
+        const price = Number(product.price || 0);
+        const discount = Math.max(
+          0,
+          Math.min(
+            100,
+            Number(
+              product.discount_percent ??
+              product.discount ??
+              0
+            )
+          )
+        );
+
+        const stock = Number(
+          product.stock_quantity ??
+          product.stock ??
+          0
+        );
+
+        const originalPrice = Number(
+          product.original_price ??
+          product.originalPrice ??
+          product.oldPrice ??
+          price
+        );
+
+        const salePrice = Number(
+          product.sale_price ??
+          Math.round(price * (1 - discount / 100))
+        );
 
         return {
           id,
           $id: id,
           name: product.name || "",
           title: product.name || "",
-          brand: product.brand || "Veloraa",
-          price: Number(product.price || 0),
-          oldPrice: Number(
-            product.oldPrice ??
-            product.originalPrice ??
-            product.price ??
-            0
-          ),
-          originalPrice: Number(
-            product.originalPrice ??
-            product.oldPrice ??
-            product.price ??
-            0
-          ),
-          description: product.description || "",
-          image: product.image || "",
+          brand: Array.isArray(product.brand)
+            ? (product.brand[0] || "Veloraa")
+            : (product.brand || "Veloraa"),
           category: product.category || "other",
-          stock: Number(product.stock || 0),
-          discount: Number(product.discount || 0),
-          inStock: Number(product.stock || 0) > 0,
+          price: salePrice,
+          sale_price: salePrice,
+          originalPrice,
+          oldPrice: originalPrice,
+          discount,
+          discount_percent: discount,
+          stock,
+          stock_quantity: stock,
+          inStock: stock > 0,
+          image: product.image_url || product.image || "",
+          image_url: product.image_url || product.image || "",
+          description: product.description || "",
+          variant: product.variant || "",
+          is_active: product.is_active ?? product.isActive ?? true,
           remote: true
         };
       });
