@@ -193,21 +193,25 @@
     const existing = await getProfile(userId);
     const data = normalizeProfile(values);
 
-    // این ستون در جدول profiles اجباری است.
-    data.userId = userId;
-    data.createdAt = new Date().toISOString();
+data.userId = userId;
+data.role = "customer";
+data.createdAt = new Date().toISOString();
 
-    if (existing) {
-      // نقش مدیر یا مشتری از فرم کاربر قابل تغییر نیست.
-      delete data.role;
-
-      return B.tablesDB.updateRow({
-        databaseId: B.config.databaseId,
-        tableId: B.config.profilesTableId,
-        rowId: userId,
-        data
-      });
-    }
+return await B.tablesDB.createRow({
+  databaseId: B.config.databaseId,
+  tableId: B.config.profilesTableId,
+  rowId: userId,
+  data: data,
+  permissions: [
+    B.client ? "user:" + userId : "user:" + userId
+  ].length
+    ? [
+        Appwrite.Permission.read(Appwrite.Role.user(userId)),
+        Appwrite.Permission.update(Appwrite.Role.user(userId)),
+        Appwrite.Permission.delete(Appwrite.Role.user(userId))
+      ]
+    : []
+});
 
     // نقش اولیه فقط برای ردیف جدید تنظیم می‌شود.
     data.role = "customer";
