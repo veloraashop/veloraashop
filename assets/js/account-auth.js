@@ -8,6 +8,10 @@
   const $ = (id) => document.getElementById(id);
   const B = window.VeloraaAppwrite;
 
+  let currentUser = null;
+  let currentProfile = null;
+  let currentIsAdmin = false;
+
   function note(message, ok = false) {
     const el = $("auth-message");
     if (!el) return;
@@ -17,20 +21,32 @@
     el.hidden = false;
   }
 
-  function ready() {
-    if (!B?.account) {
-      note("اتصال Appwrite آماده نیست. فایل appwrite-client.js و بارگذاری SDK را بررسی کن.");
-      return false;
-    }
-    return true;
+  function clearNote() {
+    const el = $("auth-message");
+    if (el) el.hidden = true;
   }
 
   function show(el, visible) {
     if (el) el.hidden = !visible;
   }
 
+  function ready() {
+    if (!B?.account || typeof B.getCurrentUser !== "function") {
+      note(
+        "اتصال Appwrite آماده نیست. فایل appwrite-client.js را بررسی کن."
+      );
+      return false;
+    }
+
+    return true;
+  }
+
   async function getProfile(userId) {
-    if (!B?.tablesDB || !B.config?.databaseId || !B.config?.profilesTableId) {
+    if (
+      !B?.tablesDB ||
+      !B.config?.databaseId ||
+      !B.config?.profilesTableId
+    ) {
       return null;
     }
 
@@ -41,15 +57,46 @@
         rowId: userId
       });
     } catch (error) {
-      // پروفایل ممکن است هنوز ایجاد نشده باشد.
       if (error?.code === 404) return null;
-      throw error;
+
+      console.error("[Veloraa] Profile read error:", error);
+      return null;
+    }
+  }
+
+  async function checkAdminAccess() {
+    if (!B?.adminRequest || !B?.config?.adminApiUrl) {
+      console.warn(
+        "[Veloraa] Admin API is not configured in appwrite-client.js"
+      );
+      return false;
+    }
+
+    try {
+      const result = await B.adminRequest({
+        url: B.config.adminApiUrl,
+        method: "GET"
+      });
+
+      return result?.success === true &&
+             result?.isAdmin === true;
+    } catch (error) {
+      console.warn(
+        "[Veloraa] Admin verification failed:",
+        error
+      );
+
+      return false;
     }
   }
 
   async function saveProfile(userId, values) {
-    if (!B?.tablesDB) {
-      throw new Error("اتصال دیتابیس Appwrite آماده نیست.");
+    if (
+      !B?.tablesDB ||
+      !B.config?.databaseId ||
+      !B.config?.profilesTableId
+    ) {
+      throw new Error("اتصال جدول پروفایل‌های Appwrite آماده نیست.");
     }
 
     const databaseId = B.config.databaseId;
@@ -83,42 +130,59 @@
     if (!ready()) {
       show($("auth-forms"), true);
       show($("profile-panel"), false);
-      return;
-    }
-
-    const user = await B.getCurrentUser();
-
-    show($("auth-forms"), !user);
-    show($("profile-panel"), !!user);
-
-    if (!user) {
       show($("admin-link"), false);
       return;
     }
 
-    const profile = await getProfile(user.$id);
+    currentUser = await B.getCurrentUser();
+
+    show($("auth-forms"), !currentUser);
+    show($("profile-panel"), !!currentUser);
+
+    if (!currentUser) {
+      currentProfile = null;
+      currentIsAdmin = false;
+      show($("admin-link"), false);
+      return;
+    }
+
+    // اطلاعات پروفایل و مجوز مدیریت دو موضوع جدا هستند.
+    const results = await Promise.allSettled([
+      getProfile(currentUser.$id),
+      checkAdminAccess()
+    ]);
+
+    currentProfile =
+      results[0].status === "fulfilled"
+        ? results[0].value
+        : null;
+
+    currentIsAdmin =
+      results[1].status === "fulfilled" &&
+      results[1].value === true;
 
     if ($("profile-email")) {
-      $("profile-email").textContent = user.email || "";
+      $("profile-email").textContent = currentUser.email || "";
     }
 
     if ($("profile-name")) {
-      $("profile-name").value = profile?.full_name || user.name || "";
+      $("profile-name").value =
+        currentProfile?.full_name ||
+        currentUser.name ||
+        "";
     }
 
     if ($("profile-phone")) {
-      $("profile-phone").value = profile?.phone || "";
+      $("profile-phone").value =
+        currentProfile?.phone || "";
     }
-
-    // نقش موجود در پروفایل برای نمایش است؛ مجوز مدیر
-    // باید جداگانه توسط Admin API سمت سرور بررسی شود.
-    const isAdmin = profile?.role === "admin";
 
     if ($("profile-role")) {
-      $("profile-role").textContent = isAdmin ? "مدیر سایت" : "مشتری";
+      $("profile-role").textContent =
+        currentIsAdmin ? "مدیر سایت" : "مشتری";
     }
 
-    show($("admin-link"), isAdmin);
+    show($("admin-link"), currentIsAdmin);
   }
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -138,6 +202,8 @@
           btn.textContent = "در حال ورود…";
         }
 
+        clearNote();
+
         try {
           const email = $("login-email")?.value.trim();
           const password = $("login-password")?.value;
@@ -151,18 +217,15 @@
             password
           });
 
-          const user = await B.getCurrentUser();
-          const profile = user ? await getProfile(user.$id) : null;
+          await refresh();
 
-          note("ورود موفق بود.", true);
-
-          if (profile?.role === "admin") {
+          if (currentIsAdmin) {
+            note("ورود مدیر با موفقیت انجام شد.", true);
             location.href = "admin.html";
             return;
           }
 
-          await refresh();
-          note("وارد حساب شدی؛ این حساب دسترسی مدیریت ندارد.", true);
+          note("ورود موفق بود؛ این حساب دسترسی مدیریت ندارد.", true);
         } catch (error) {
           console.error("[Veloraa] Login error:", error);
           note(error?.message || "ورود ناموفق بود.");
@@ -187,13 +250,16 @@
           btn.textContent = "در حال ثبت‌نام…";
         }
 
+        clearNote();
+
         try {
           const email = $("signup-email")?.value.trim();
           const password = $("signup-password")?.value;
           const name = $("signup-name")?.value.trim();
+          const phone = $("signup-phone")?.value.trim();
 
-          if (!email || !password) {
-            throw new Error("ایمیل و رمز عبور را وارد کن.");
+          if (!email || !password || !name) {
+            throw new Error("نام، ایمیل و رمز عبور الزامی هستند.");
           }
 
           if (password.length < 10) {
@@ -204,30 +270,35 @@
             userId: window.Appwrite.ID.unique(),
             email,
             password,
-            name: name || email.split("@")[0]
+            name
           });
 
-          // ساخت پروفایل ممکن است به مجوز و فیلدهای درست جدول نیاز داشته باشد.
+          // نقش مدیر هرگز هنگام ثبت‌نام عمومی تعیین نمی‌شود.
           try {
             await saveProfile(user.$id, {
-              full_name: name || "",
-              phone: ""
+              full_name: name,
+              phone: phone || ""
             });
           } catch (profileError) {
-            console.error("[Veloraa] Profile creation error:", profileError);
+            console.error(
+              "[Veloraa] Profile creation error:",
+              profileError
+            );
+
             note(
-              "حساب ساخته شد، اما ذخیره پروفایل کامل نشد. تنظیمات مجوز و فیلدهای جدول profiles را بررسی کن."
+              "حساب ساخته شد، اما پروفایل ذخیره نشد. " +
+              "تنظیمات جدول profiles را بررسی کن."
             );
             return;
           }
 
-          // ساخت حساب، لزوماً به معنی ورود خودکار نیست.
           await B.account.createEmailPasswordSession({
             email,
             password
           });
 
           await refresh();
+
           note("ثبت‌نام و ورود با موفقیت انجام شد.", true);
         } catch (error) {
           console.error("[Veloraa] Signup error:", error);
@@ -271,8 +342,16 @@
       try {
         if (!ready()) return;
 
-        await B.account.deleteSession({ sessionId: "current" });
+        await B.account.deleteSession({
+          sessionId: "current"
+        });
+
+        currentUser = null;
+        currentProfile = null;
+        currentIsAdmin = false;
+
         show($("admin-link"), false);
+
         await refresh();
         note("از حساب خارج شدی.", true);
       } catch (error) {
@@ -297,7 +376,10 @@
           url: location.origin + "/account.html"
         });
 
-        note("اگر ایمیل معتبر باشد، لینک بازیابی ارسال می‌شود.", true);
+        note(
+          "اگر ایمیل معتبر باشد، لینک بازیابی ارسال می‌شود.",
+          true
+        );
       } catch (error) {
         console.error("[Veloraa] Recovery error:", error);
         note(error?.message || "ارسال لینک بازیابی انجام نشد.");
