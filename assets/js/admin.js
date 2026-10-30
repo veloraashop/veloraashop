@@ -1,5 +1,5 @@
 /* =========================================================
-   VELORAA SHOP - ADMIN PANEL
+   VELORAA SHOP - COMPLETE ADMIN PANEL
    Appwrite Backend Integration
    ========================================================= */
 
@@ -22,6 +22,9 @@
   const money = (value) =>
     new Intl.NumberFormat("fa-IR").format(Number(value || 0)) + " تومان";
 
+  const number = (value) =>
+    new Intl.NumberFormat("fa-IR").format(Number(value || 0));
+
   const escapeHTML = (value) =>
     String(value ?? "").replace(/[&<>"']/g, (char) => ({
       "&": "&amp;",
@@ -33,6 +36,7 @@
 
   const notify = (message, type = "ok") => {
     const box = $("admin-message");
+
     if (!box) {
       alert(message);
       return;
@@ -48,49 +52,109 @@
     }, 4500);
   };
 
-  const api = async (url, method = "GET", body = undefined) => {
+  /* =========================================================
+     API
+     ========================================================= */
+
+  const API_BASE = String(A?.config?.adminApiUrl || "")
+    .replace(/\/+$/, "");
+
+  const api = async (path, method = "GET", body = undefined) => {
     if (!A?.adminRequest) {
       throw new Error("اتصال Appwrite در دسترس نیست.");
     }
 
-    return A.adminRequest({
+    if (!API_BASE) {
+      throw new Error("آدرس Admin API در appwrite-client.js تنظیم نشده است.");
+    }
+
+    const url = /^https?:\/\//i.test(path)
+      ? path
+      : `${API_BASE}/${String(path).replace(/^\/+/, "")}`;
+
+    const result = await A.adminRequest({
       url,
       method,
       body
     });
+
+    if (result?.success === false) {
+      throw new Error(result.message || result.error || "درخواست ناموفق بود.");
+    }
+
+    return result;
   };
 
   const setBusy = (element, busy, text = "در حال ذخیره...") => {
     if (!element) return;
 
     if (busy) {
-      element.dataset.originalText = element.textContent;
+      if (!element.dataset.originalText) {
+        element.dataset.originalText = element.textContent;
+      }
+
       element.disabled = true;
       element.textContent = text;
     } else {
       element.disabled = false;
       element.textContent =
         element.dataset.originalText || element.textContent;
+
+      delete element.dataset.originalText;
     }
   };
 
   const emptyRow = (columns, message = "موردی یافت نشد.") =>
     `<tr><td colspan="${columns}" class="empty-state">${escapeHTML(message)}</td></tr>`;
 
+  const getList = (result, key) =>
+    Array.isArray(result?.[key])
+      ? result[key]
+      : Array.isArray(result?.data)
+        ? result.data
+        : [];
+
+  /* =========================================================
+     NAVIGATION
+     ========================================================= */
+
   const go = (section) => {
-    document.querySelectorAll("[data-admin-section]").forEach((item) => {
-      item.hidden = item.dataset.adminSection !== section;
+    const panels = document.querySelectorAll(
+      "[data-admin-section], [data-panel]"
+    );
+
+    panels.forEach((item) => {
+      const name =
+        item.dataset.adminSection ||
+        item.dataset.panel;
+
+      item.hidden = name !== section;
     });
 
-    document.querySelectorAll("[data-admin-nav]").forEach((item) => {
-      item.classList.toggle(
-        "active",
-        item.dataset.adminNav === section
-      );
+    document.querySelectorAll(
+      "[data-admin-nav], [data-view]"
+    ).forEach((item) => {
+      const name =
+        item.dataset.adminNav ||
+        item.dataset.view;
+
+      item.classList.toggle("active", name === section);
     });
+
+    const titles = {
+      dashboard: "داشبورد مدیریت",
+      products: "مدیریت محصولات",
+      orders: "مدیریت سفارش‌ها",
+      categories: "مدیریت دسته‌بندی‌ها",
+      coupons: "کدهای تخفیف",
+      customers: "مدیریت مشتریان"
+    };
 
     const title = $("admin-page-title");
-    if (title) title.textContent = section;
+
+    if (title) {
+      title.textContent = titles[section] || section;
+    }
 
     if (section === "dashboard") loadDashboard();
     if (section === "products") loadProducts();
@@ -98,6 +162,44 @@
     if (section === "coupons") loadCoupons();
     if (section === "customers") loadCustomers();
     if (section === "orders") loadOrders();
+  };
+
+  const refreshCurrentSection = () => {
+    const active = document.querySelector(
+      "[data-view].active, [data-admin-nav].active"
+    );
+
+    const section =
+      active?.dataset.view ||
+      active?.dataset.adminNav ||
+      "dashboard";
+
+    go(section);
+  };
+
+  const jumpTo = (target) => {
+    const sectionNames = [
+      "dashboard",
+      "products",
+      "orders",
+      "categories",
+      "coupons",
+      "customers"
+    ];
+
+    if (sectionNames.includes(target)) {
+      go(target);
+      return;
+    }
+
+    const element = $(target);
+
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
   };
 
   /* =========================================================
@@ -109,6 +211,10 @@
     const adminApp = $("admin-app");
 
     try {
+      if (!A?.getCurrentUser) {
+        throw new Error("سرویس Appwrite بارگذاری نشده است.");
+      }
+
       const user = await A.getCurrentUser();
 
       if (!user) {
@@ -119,16 +225,18 @@
 
       const result = await api("/admin-check");
 
-      if (!result?.isAdmin) {
-        throw new Error("این حساب دسترسی مدیریت ندارد.");
+      if (result?.isAdmin !== true) {
+        throw new Error("این حساب مجوز مدیریت فروشگاه را ندارد.");
       }
 
       if (loginNeeded) loginNeeded.hidden = true;
       if (adminApp) adminApp.hidden = false;
 
       const adminName = $("admin-name");
+
       if (adminName) {
-        adminName.textContent = user.name || user.email || "مدیر";
+        adminName.textContent =
+          user.name || user.email || "مدیر";
       }
 
       return true;
@@ -139,7 +247,11 @@
       if (loginNeeded) loginNeeded.hidden = false;
       if (adminApp) adminApp.hidden = true;
 
-      notify(error.message || "خطا در بررسی دسترسی مدیر.", "error");
+      notify(
+        error.message || "بررسی دسترسی مدیر ناموفق بود.",
+        "error"
+      );
+
       return false;
     }
   }
@@ -149,6 +261,7 @@
       await A.account.deleteSession("current");
       location.href = "account.html";
     } catch (error) {
+      console.error(error);
       notify("خروج از حساب انجام نشد.", "error");
     }
   }
@@ -159,31 +272,36 @@
 
   async function loadProducts() {
     const table = $("products-table");
+
     if (table) {
       table.innerHTML = emptyRow(8, "در حال دریافت محصولات...");
     }
 
     try {
       const result = await api("/products");
-      state.products = result.products || result.data || [];
+
+      state.products = getList(result, "products");
 
       renderProducts();
       updateProductCount();
 
     } catch (error) {
-      console.error(error);
+      console.error("Products:", error);
+
       if (table) {
         table.innerHTML = emptyRow(8, "خطا در دریافت محصولات.");
       }
-      notify(error.message, "error");
+
+      notify(error.message || "دریافت محصولات ناموفق بود.", "error");
     }
   }
 
   function updateProductCount() {
     const count = $("product-count");
+
     if (count) {
-      count.textContent = new Intl.NumberFormat("fa-IR")
-        .format(state.products.length);
+      count.textContent =
+        `${number(state.products.length)} محصول`;
     }
   }
 
@@ -214,24 +332,50 @@
       const id = escapeHTML(product.$id);
       const active = product.is_active !== false;
 
+      const price = Number(product.price || 0);
+      const salePrice = Number(
+        product.sale_price || price
+      );
+
+      const discount = Number(
+        product.discount_percent || 0
+      );
+
       return `
         <tr>
           <td>
             ${
               product.image_url
-                ? `<img src="${escapeHTML(product.image_url)}"
-                     alt="" width="48" height="48"
-                     style="object-fit:cover;border-radius:8px">`
+                ? `<img
+                    src="${escapeHTML(product.image_url)}"
+                    alt=""
+                    width="48"
+                    height="48"
+                    style="object-fit:cover;border-radius:8px"
+                  >`
                 : "—"
             }
           </td>
 
-          <td>${escapeHTML(product.name)}</td>
-          <td>${escapeHTML(product.brand || "—")}</td>
+          <td>
+            ${escapeHTML(product.name || "—")}
+            <small class="muted">
+              ${escapeHTML(product.brand || "")}
+            </small>
+          </td>
+
           <td>${escapeHTML(product.category || "—")}</td>
-          <td>${money(product.price)}</td>
-          <td>${money(product.sale_price || product.price)}</td>
-          <td>${escapeHTML(product.stock_quantity ?? 0)}</td>
+
+          <td>${money(price)}</td>
+
+          <td>
+            ${discount > 0
+              ? `${number(discount)}٪ · ${money(salePrice)}`
+              : "بدون تخفیف"
+            }
+          </td>
+
+          <td>${number(product.stock_quantity || 0)}</td>
 
           <td>
             <span class="badge ${active ? "success" : "danger"}">
@@ -240,11 +384,21 @@
           </td>
 
           <td>
-            <button type="button" data-action="edit-product"
-              data-id="${id}">ویرایش</button>
+            <div class="table-actions">
+              <button
+                type="button"
+                class="btn btn-secondary btn-small"
+                data-action="edit-product"
+                data-id="${id}"
+              >ویرایش</button>
 
-            <button type="button" data-action="delete-product"
-              data-id="${id}">حذف</button>
+              <button
+                type="button"
+                class="btn btn-danger btn-small"
+                data-action="delete-product"
+                data-id="${id}"
+              >حذف</button>
+            </div>
           </td>
         </tr>
       `;
@@ -255,18 +409,26 @@
     $("product-form")?.reset();
 
     if ($("product-id")) $("product-id").value = "";
-    if ($("product-active")) $("product-active").checked = true;
     if ($("p-active")) $("p-active").checked = true;
 
     const title = $("product-form-title");
-    if (title) title.textContent = "افزودن محصول جدید";
+
+    if (title) {
+      title.textContent = "افزودن محصول";
+    }
 
     const preview = $("image-preview");
-    if (preview) preview.innerHTML = "";
+
+    if (preview) {
+      preview.innerHTML = "";
+    }
   }
 
   function editProduct(id) {
-    const product = state.products.find((item) => item.$id === id);
+    const product = state.products.find(
+      (item) => item.$id === id
+    );
+
     if (!product) return;
 
     $("product-id").value = product.$id;
@@ -285,32 +447,50 @@
     }
 
     const title = $("product-form-title");
-    if (title) title.textContent = "ویرایش محصول";
 
-    const preview = $("image-preview");
-    if (preview && product.image_url) {
-      preview.innerHTML = `
-        <img src="${escapeHTML(product.image_url)}"
-          alt="" style="max-width:120px;border-radius:10px">
-      `;
+    if (title) {
+      title.textContent = "ویرایش محصول";
     }
 
-    $("product-form")?.scrollIntoView({
+    const preview = $("image-preview");
+
+    if (preview) {
+      preview.innerHTML = product.image_url
+        ? `<img src="${escapeHTML(product.image_url)}"
+             alt=""
+             style="max-width:120px;border-radius:10px">`
+        : "";
+    }
+
+    $("product-form-card")?.scrollIntoView({
       behavior: "smooth",
       block: "start"
     });
   }
 
   async function uploadProductImage(file) {
-    if (!file) return $("p-image-url")?.value || "";
+    if (!file) {
+      return $("p-image-url")?.value.trim() || "";
+    }
 
-    const form = new FormData();
-    form.append("file", file);
+    if (!file.type.startsWith("image/")) {
+      throw new Error("فایل انتخاب‌شده تصویر نیست.");
+    }
+
+    const maxSize = 8 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      throw new Error("حجم تصویر نباید بیشتر از ۸ مگابایت باشد.");
+    }
 
     const base64 = await new Promise((resolve, reject) => {
       const reader = new FileReader();
+
       reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
+      reader.onerror = () => reject(
+        new Error("خواندن تصویر ناموفق بود.")
+      );
+
       reader.readAsDataURL(file);
     });
 
@@ -334,41 +514,60 @@
       const id = $("product-id")?.value;
 
       const price = Number($("p-price")?.value || 0);
+
       const discount = Math.max(
         0,
         Math.min(100, Number($("p-discount")?.value || 0))
       );
 
+      const stock = Number($("p-stock")?.value || 0);
+
+      if (!Number.isFinite(price) || price < 0) {
+        throw new Error("قیمت محصول معتبر نیست.");
+      }
+
+      if (!Number.isFinite(stock) || stock < 0) {
+        throw new Error("موجودی محصول معتبر نیست.");
+      }
+
       const file = $("p-image-file")?.files?.[0];
       const imageURL = await uploadProductImage(file);
-
-      const salePrice = Math.round(
-        price * (100 - discount) / 100
-      );
 
       const payload = {
         name: $("p-name")?.value.trim(),
         brand: $("p-brand")?.value.trim(),
         category: $("p-category")?.value.trim(),
         price,
-        sale_price: salePrice,
+        sale_price: Math.round(
+          price * (100 - discount) / 100
+        ),
         discount_percent: discount,
-        stock_quantity: Number($("p-stock")?.value || 0),
+        stock_quantity: stock,
         variant: $("p-variant")?.value.trim(),
         image_url: imageURL,
         description: $("p-description")?.value.trim(),
         is_active: $("p-active")?.checked ?? true
       };
 
-      if (!payload.name || !payload.category) {
-        throw new Error("نام و دسته‌بندی محصول را وارد کن.");
+      if (!payload.name) {
+        throw new Error("نام محصول را وارد کن.");
+      }
+
+      if (!payload.category) {
+        throw new Error("دسته‌بندی محصول را وارد کن.");
       }
 
       if (id) {
-        await api(`/products/${encodeURIComponent(id)}`, "PATCH", payload);
+        await api(
+          `/products/${encodeURIComponent(id)}`,
+          "PATCH",
+          payload
+        );
+
         notify("محصول با موفقیت ویرایش شد.");
       } else {
         await api("/products", "POST", payload);
+
         notify("محصول جدید اضافه شد.");
       }
 
@@ -376,22 +575,34 @@
       await loadProducts();
 
     } catch (error) {
-      console.error(error);
-      notify(error.message || "ذخیره محصول ناموفق بود.", "error");
+      console.error("Save product:", error);
+
+      notify(
+        error.message || "ذخیره محصول ناموفق بود.",
+        "error"
+      );
     } finally {
       setBusy(button, false);
     }
   }
 
   async function deleteProduct(id) {
-    const product = state.products.find((item) => item.$id === id);
+    const product = state.products.find(
+      (item) => item.$id === id
+    );
 
-    if (!confirm(`محصول «${product?.name || ""}» حذف شود؟`)) {
+    if (!confirm(
+      `محصول «${product?.name || ""}» حذف شود؟`
+    )) {
       return;
     }
 
     try {
-      await api(`/products/${encodeURIComponent(id)}`, "DELETE");
+      await api(
+        `/products/${encodeURIComponent(id)}`,
+        "DELETE"
+      );
+
       notify("محصول حذف شد.");
       await loadProducts();
 
@@ -406,16 +617,26 @@
 
   async function loadCategories() {
     const table = $("categories-table");
-    if (table) table.innerHTML = emptyRow(4, "در حال دریافت...");
+
+    if (table) {
+      table.innerHTML = emptyRow(3, "در حال دریافت دسته‌بندی‌ها...");
+    }
 
     try {
       const result = await api("/categories");
-      state.categories = result.categories || result.data || [];
+
+      state.categories = getList(result, "categories");
+
       renderCategories();
 
     } catch (error) {
-      console.error(error);
-      if (table) table.innerHTML = emptyRow(4, "خطا در دریافت دسته‌بندی‌ها.");
+      console.error("Categories:", error);
+
+      if (table) {
+        table.innerHTML = emptyRow(3, "خطا در دریافت دسته‌بندی‌ها.");
+      }
+
+      notify(error.message || "دریافت دسته‌بندی‌ها ناموفق بود.", "error");
     }
   }
 
@@ -424,24 +645,30 @@
     if (!table) return;
 
     if (!state.categories.length) {
-      table.innerHTML = emptyRow(4);
+      table.innerHTML = emptyRow(3);
       return;
     }
 
     table.innerHTML = state.categories.map((category) => `
       <tr>
         <td>${escapeHTML(category.name)}</td>
-        <td>${escapeHTML(category.slug)}</td>
+        <td>${escapeHTML(category.slug || "—")}</td>
         <td>
-          <span class="badge ${category.active ? "success" : "danger"}">
-            ${category.active ? "فعال" : "غیرفعال"}
-          </span>
-        </td>
-        <td>
-          <button type="button" data-action="edit-category"
-            data-id="${escapeHTML(category.$id)}">ویرایش</button>
-          <button type="button" data-action="delete-category"
-            data-id="${escapeHTML(category.$id)}">حذف</button>
+          <div class="table-actions">
+            <button
+              type="button"
+              class="btn btn-secondary btn-small"
+              data-action="edit-category"
+              data-id="${escapeHTML(category.$id)}"
+            >ویرایش</button>
+
+            <button
+              type="button"
+              class="btn btn-danger btn-small"
+              data-action="delete-category"
+              data-id="${escapeHTML(category.$id)}"
+            >حذف</button>
+          </div>
         </td>
       </tr>
     `).join("");
@@ -449,51 +676,66 @@
 
   function resetCategoryForm() {
     $("category-form")?.reset();
-    if ($("category-id")) $("category-id").value = "";
-    if ($("category-active")) $("category-active").checked = true;
+
+    if ($("category-id")) {
+      $("category-id").value = "";
+    }
   }
 
   function editCategory(id) {
-    const item = state.categories.find((x) => x.$id === id);
+    const item = state.categories.find(
+      (category) => category.$id === id
+    );
+
     if (!item) return;
 
     $("category-id").value = item.$id;
     $("category-name").value = item.name || "";
     $("category-slug").value = item.slug || "";
 
-    if ($("category-description")) {
-      $("category-description").value = item.description || "";
-    }
-
-    if ($("category-active")) {
-      $("category-active").checked = item.active !== false;
-    }
-
-    $("category-form")?.scrollIntoView({ behavior: "smooth" });
+    $("category-form")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   }
 
   async function saveCategory(event) {
     event.preventDefault();
 
+    const button = event.submitter;
+    setBusy(button, true);
+
     try {
       const id = $("category-id")?.value;
 
-      const payload = {
-        name: $("category-name")?.value.trim(),
-        slug: $("category-slug")?.value.trim(),
-        description: $("category-description")?.value.trim() || "",
-        active: $("category-active")?.checked ?? true
-      };
+      const name = $("category-name")?.value.trim();
 
-      if (!payload.name || !payload.slug) {
-        throw new Error("نام و شناسه دسته‌بندی الزامی است.");
+      const slugInput = $("category-slug")?.value.trim();
+
+      const slug = slugInput || name
+        .toLowerCase()
+        .replace(/\s+/g, "-");
+
+      if (!name) {
+        throw new Error("نام دسته‌بندی الزامی است.");
       }
 
+      const payload = {
+        name,
+        slug
+      };
+
       if (id) {
-        await api(`/categories/${encodeURIComponent(id)}`, "PATCH", payload);
+        await api(
+          `/categories/${encodeURIComponent(id)}`,
+          "PATCH",
+          payload
+        );
+
         notify("دسته‌بندی ویرایش شد.");
       } else {
         await api("/categories", "POST", payload);
+
         notify("دسته‌بندی جدید ایجاد شد.");
       }
 
@@ -502,6 +744,8 @@
 
     } catch (error) {
       notify(error.message || "ذخیره دسته‌بندی ناموفق بود.", "error");
+    } finally {
+      setBusy(button, false);
     }
   }
 
@@ -509,7 +753,11 @@
     if (!confirm("این دسته‌بندی حذف شود؟")) return;
 
     try {
-      await api(`/categories/${encodeURIComponent(id)}`, "DELETE");
+      await api(
+        `/categories/${encodeURIComponent(id)}`,
+        "DELETE"
+      );
+
       notify("دسته‌بندی حذف شد.");
       await loadCategories();
 
@@ -524,16 +772,26 @@
 
   async function loadCoupons() {
     const table = $("coupons-table");
-    if (table) table.innerHTML = emptyRow(5, "در حال دریافت...");
+
+    if (table) {
+      table.innerHTML = emptyRow(5, "در حال دریافت کدهای تخفیف...");
+    }
 
     try {
       const result = await api("/coupons");
-      state.coupons = result.coupons || result.data || [];
+
+      state.coupons = getList(result, "coupons");
+
       renderCoupons();
 
     } catch (error) {
-      console.error(error);
-      if (table) table.innerHTML = emptyRow(5, "خطا در دریافت کدهای تخفیف.");
+      console.error("Coupons:", error);
+
+      if (table) {
+        table.innerHTML = emptyRow(5, "خطا در دریافت کدهای تخفیف.");
+      }
+
+      notify(error.message || "دریافت کدهای تخفیف ناموفق بود.", "error");
     }
   }
 
@@ -546,45 +804,75 @@
       return;
     }
 
-    table.innerHTML = state.coupons.map((coupon) => `
-      <tr>
-        <td>${escapeHTML(coupon.code)}</td>
-        <td>
-          ${
-            coupon.type === "percentage"
-              ? `${escapeHTML(coupon.value)}٪`
-              : money(coupon.value)
-          }
-        </td>
-        <td>${escapeHTML(coupon.used_count || 0)}</td>
-        <td>
-          <span class="badge ${coupon.active ? "success" : "danger"}">
-            ${coupon.active ? "فعال" : "غیرفعال"}
-          </span>
-        </td>
-        <td>
-          <button type="button" data-action="edit-coupon"
-            data-id="${escapeHTML(coupon.$id)}">ویرایش</button>
-          <button type="button" data-action="delete-coupon"
-            data-id="${escapeHTML(coupon.$id)}">حذف</button>
-        </td>
-      </tr>
-    `).join("");
+    table.innerHTML = state.coupons.map((coupon) => {
+      const type = coupon.type === "percent"
+        ? "درصدی"
+        : "مبلغ ثابت";
+
+      const value = coupon.type === "percent"
+        ? `${number(coupon.value)}٪`
+        : money(coupon.value);
+
+      return `
+        <tr>
+          <td>${escapeHTML(coupon.code)}</td>
+          <td>${type}</td>
+          <td>${value}</td>
+          <td>
+            <span class="badge ${coupon.active ? "success" : "danger"}">
+              ${coupon.active ? "فعال" : "غیرفعال"}
+            </span>
+          </td>
+          <td>
+            <div class="table-actions">
+              <button
+                type="button"
+                class="btn btn-secondary btn-small"
+                data-action="edit-coupon"
+                data-id="${escapeHTML(coupon.$id)}"
+              >ویرایش</button>
+
+              <button
+                type="button"
+                class="btn btn-danger btn-small"
+                data-action="delete-coupon"
+                data-id="${escapeHTML(coupon.$id)}"
+              >حذف</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
   }
 
   function resetCouponForm() {
     $("coupon-form")?.reset();
-    if ($("coupon-id")) $("coupon-id").value = "";
-    if ($("coupon-active")) $("coupon-active").checked = true;
+
+    if ($("coupon-id")) {
+      $("coupon-id").value = "";
+    }
+
+    if ($("coupon-active")) {
+      $("coupon-active").checked = true;
+    }
+
+    const title = $("coupon-form-title");
+
+    if (title) {
+      title.textContent = "ساخت کد تخفیف";
+    }
   }
 
   function editCoupon(id) {
-    const item = state.coupons.find((x) => x.$id === id);
+    const item = state.coupons.find(
+      (coupon) => coupon.$id === id
+    );
+
     if (!item) return;
 
     $("coupon-id").value = item.$id;
     $("coupon-code").value = item.code || "";
-    $("coupon-type").value = item.type || "percentage";
+    $("coupon-type").value = item.type || "percent";
     $("coupon-value").value = item.value || 0;
     $("coupon-minimum").value = item.minimum_order || 0;
     $("coupon-max").value = item.maximum_discount || "";
@@ -592,13 +880,13 @@
 
     if ($("coupon-start")) {
       $("coupon-start").value = item.start_at
-        ? new Date(item.start_at).toISOString().slice(0, 16)
+        ? String(item.start_at).slice(0, 10)
         : "";
     }
 
     if ($("coupon-end")) {
       $("coupon-end").value = item.end_at
-        ? new Date(item.end_at).toISOString().slice(0, 16)
+        ? String(item.end_at).slice(0, 10)
         : "";
     }
 
@@ -606,11 +894,23 @@
       $("coupon-active").checked = item.active !== false;
     }
 
-    $("coupon-form")?.scrollIntoView({ behavior: "smooth" });
+    const title = $("coupon-form-title");
+
+    if (title) {
+      title.textContent = "ویرایش کد تخفیف";
+    }
+
+    $("coupon-form")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   }
 
   async function saveCoupon(event) {
     event.preventDefault();
+
+    const button = event.submitter;
+    setBusy(button, true);
 
     try {
       const id = $("coupon-id")?.value;
@@ -627,12 +927,8 @@
         maximum_discount: Number($("coupon-max")?.value || 0),
         usage_limit: Number($("coupon-limit")?.value || 0),
         used_count: existing?.used_count || 0,
-        start_at: $("coupon-start")?.value
-          ? new Date($("coupon-start").value).toISOString()
-          : null,
-        end_at: $("coupon-end")?.value
-          ? new Date($("coupon-end").value).toISOString()
-          : null,
+        start_at: $("coupon-start")?.value || null,
+        end_at: $("coupon-end")?.value || null,
         active: $("coupon-active")?.checked ?? true
       };
 
@@ -640,11 +936,24 @@
         throw new Error("کد تخفیف و مقدار معتبر وارد کن.");
       }
 
+      if (
+        payload.type === "percent" &&
+        payload.value > 100
+      ) {
+        throw new Error("درصد تخفیف نمی‌تواند بیشتر از ۱۰۰ باشد.");
+      }
+
       if (id) {
-        await api(`/coupons/${encodeURIComponent(id)}`, "PATCH", payload);
+        await api(
+          `/coupons/${encodeURIComponent(id)}`,
+          "PATCH",
+          payload
+        );
+
         notify("کد تخفیف ویرایش شد.");
       } else {
         await api("/coupons", "POST", payload);
+
         notify("کد تخفیف جدید ایجاد شد.");
       }
 
@@ -653,6 +962,8 @@
 
     } catch (error) {
       notify(error.message || "ذخیره کد تخفیف ناموفق بود.", "error");
+    } finally {
+      setBusy(button, false);
     }
   }
 
@@ -660,7 +971,11 @@
     if (!confirm("این کد تخفیف حذف شود؟")) return;
 
     try {
-      await api(`/coupons/${encodeURIComponent(id)}`, "DELETE");
+      await api(
+        `/coupons/${encodeURIComponent(id)}`,
+        "DELETE"
+      );
+
       notify("کد تخفیف حذف شد.");
       await loadCoupons();
 
@@ -675,16 +990,26 @@
 
   async function loadCustomers() {
     const table = $("customers-table");
-    if (table) table.innerHTML = emptyRow(5, "در حال دریافت مشتریان...");
+
+    if (table) {
+      table.innerHTML = emptyRow(5, "در حال دریافت مشتریان...");
+    }
 
     try {
       const result = await api("/customers");
-      state.customers = result.customers || result.data || [];
+
+      state.customers = getList(result, "customers");
+
       renderCustomers();
 
     } catch (error) {
-      console.error(error);
-      if (table) table.innerHTML = emptyRow(5, "خطا در دریافت مشتریان.");
+      console.error("Customers:", error);
+
+      if (table) {
+        table.innerHTML = emptyRow(5, "خطا در دریافت مشتریان.");
+      }
+
+      notify(error.message || "دریافت مشتریان ناموفق بود.", "error");
     }
   }
 
@@ -700,14 +1025,16 @@
       return [
         customer.full_name,
         customer.email,
-        customer.phone
+        customer.phone,
+        customer.role,
+        customer.userId
       ].join(" ").toLowerCase().includes(search);
     });
 
     const count = $("customer-count");
+
     if (count) {
-      count.textContent = new Intl.NumberFormat("fa-IR")
-        .format(customers.length);
+      count.textContent = `${number(customers.length)} مشتری`;
     }
 
     if (!customers.length) {
@@ -720,8 +1047,8 @@
         <td>${escapeHTML(customer.full_name || "بدون نام")}</td>
         <td>${escapeHTML(customer.email || "—")}</td>
         <td>${escapeHTML(customer.phone || "—")}</td>
-        <td>${escapeHTML(customer.city || "—")}</td>
-        <td>${escapeHTML(customer.createdAt || "—")}</td>
+        <td>${escapeHTML(customer.role || "customer")}</td>
+        <td>${escapeHTML(customer.userId || customer.$id || "—")}</td>
       </tr>
     `).join("");
   }
@@ -730,27 +1057,13 @@
      ORDERS
      ========================================================= */
 
-  async function loadOrders() {
-    const table = $("orders-table");
-    if (table) table.innerHTML = emptyRow(7, "در حال دریافت سفارش‌ها...");
-
-    try {
-      const result = await api("/orders");
-      state.orders = result.orders || result.data || [];
-      renderOrders();
-
-    } catch (error) {
-      console.error(error);
-      if (table) table.innerHTML = emptyRow(7, "خطا در دریافت سفارش‌ها.");
-    }
-  }
-
   const orderStatus = {
     pending: "در انتظار بررسی",
     processing: "در حال آماده‌سازی",
     shipped: "ارسال شده",
     delivered: "تحویل شده",
-    cancelled: "لغو شده"
+    cancelled: "لغو شده",
+    paid: "پرداخت شده"
   };
 
   const paymentStatus = {
@@ -759,6 +1072,31 @@
     failed: "ناموفق",
     refunded: "بازپرداخت شده"
   };
+
+  async function loadOrders() {
+    const table = $("orders-table");
+
+    if (table) {
+      table.innerHTML = emptyRow(6, "در حال دریافت سفارش‌ها...");
+    }
+
+    try {
+      const result = await api("/orders");
+
+      state.orders = getList(result, "orders");
+
+      renderOrders();
+
+    } catch (error) {
+      console.error("Orders:", error);
+
+      if (table) {
+        table.innerHTML = emptyRow(6, "خطا در دریافت سفارش‌ها.");
+      }
+
+      notify(error.message || "دریافت سفارش‌ها ناموفق بود.", "error");
+    }
+  }
 
   function renderOrders() {
     const table = $("orders-table");
@@ -774,16 +1112,20 @@
       const matchesSearch = [
         order.order_number,
         order.recipient_name,
-        order.phone
+        order.phone,
+        order.$id
       ].join(" ").toLowerCase().includes(search);
 
-      const matchesFilter = !filter || order.status === filter;
+      const matchesFilter =
+        !filter ||
+        order.status === filter ||
+        order.payment_status === filter;
 
       return matchesSearch && matchesFilter;
     });
 
     if (!orders.length) {
-      table.innerHTML = emptyRow(7);
+      table.innerHTML = emptyRow(6);
       return;
     }
 
@@ -792,12 +1134,15 @@
         <td>${escapeHTML(order.order_number || order.$id)}</td>
         <td>${escapeHTML(order.recipient_name || "—")}</td>
         <td>${money(order.total)}</td>
-        <td>${escapeHTML(orderStatus[order.status] || order.status)}</td>
-        <td>${escapeHTML(paymentStatus[order.payment_status] || order.payment_status)}</td>
-        <td>${escapeHTML(order.phone || "—")}</td>
+        <td>${escapeHTML(orderStatus[order.status] || order.status || "—")}</td>
+        <td>${escapeHTML(order.createdAt || order.$createdAt || "—")}</td>
         <td>
-          <button type="button" data-action="view-order"
-            data-id="${escapeHTML(order.$id)}">جزئیات</button>
+          <button
+            type="button"
+            class="btn btn-secondary btn-small"
+            data-action="view-order"
+            data-id="${escapeHTML(order.$id)}"
+          >جزئیات</button>
         </td>
       </tr>
     `).join("");
@@ -805,7 +1150,10 @@
 
   async function viewOrder(id) {
     try {
-      const result = await api(`/orders/${encodeURIComponent(id)}`);
+      const result = await api(
+        `/orders/${encodeURIComponent(id)}`
+      );
+
       const order = result.order || result;
 
       state.currentOrder = order;
@@ -813,15 +1161,34 @@
       const box = $("order-detail");
       if (!box) return;
 
-      const items = order.items || [];
+      const items = Array.isArray(order.items)
+        ? order.items
+        : [];
 
       box.innerHTML = `
-        <h3>سفارش ${escapeHTML(order.order_number || order.$id)}</h3>
+        <h3>
+          سفارش ${escapeHTML(order.order_number || order.$id)}
+        </h3>
 
-        <p>نام گیرنده: ${escapeHTML(order.recipient_name || "—")}</p>
-        <p>شماره تماس: ${escapeHTML(order.phone || "—")}</p>
-        <p>آدرس: ${escapeHTML(order.address || "—")}</p>
-        <p>مبلغ کل: ${money(order.total)}</p>
+        <p>
+          نام گیرنده:
+          ${escapeHTML(order.recipient_name || "—")}
+        </p>
+
+        <p>
+          شماره تماس:
+          ${escapeHTML(order.phone || "—")}
+        </p>
+
+        <p>
+          آدرس:
+          ${escapeHTML(order.address || "—")}
+        </p>
+
+        <p>
+          مبلغ کل:
+          ${money(order.total)}
+        </p>
 
         <h4>محصولات سفارش</h4>
 
@@ -829,8 +1196,8 @@
           items.length
             ? items.map((item) => `
                 <p>
-                  ${escapeHTML(item.product_name)}
-                  — تعداد: ${escapeHTML(item.quantity)}
+                  ${escapeHTML(item.product_name || "محصول")}
+                  — تعداد: ${number(item.quantity)}
                   — ${money(item.total_price)}
                 </p>
               `).join("")
@@ -839,36 +1206,52 @@
 
         <hr>
 
-        <label>وضعیت سفارش</label>
-        <select id="detail-order-status">
-          ${Object.entries(orderStatus).map(([key, value]) => `
-            <option value="${key}"
-              ${order.status === key ? "selected" : ""}>
-              ${value}
-            </option>
-          `).join("")}
-        </select>
+        <div class="field">
+          <label for="detail-order-status">وضعیت سفارش</label>
 
-        <label>وضعیت پرداخت</label>
-        <select id="detail-payment-status">
-          ${Object.entries(paymentStatus).map(([key, value]) => `
-            <option value="${key}"
-              ${order.payment_status === key ? "selected" : ""}>
-              ${value}
-            </option>
-          `).join("")}
-        </select>
+          <select id="detail-order-status">
+            ${Object.entries(orderStatus).map(([key, value]) => `
+              <option
+                value="${key}"
+                ${order.status === key ? "selected" : ""}
+              >${value}</option>
+            `).join("")}
+          </select>
+        </div>
 
-        <label>کد رهگیری</label>
-        <input id="detail-tracking-code"
-          value="${escapeHTML(order.tracking_code || "")}">
+        <div class="field">
+          <label for="detail-payment-status">وضعیت پرداخت</label>
 
-        <label>یادداشت</label>
-        <textarea id="detail-order-notes">${escapeHTML(order.notes || "")}</textarea>
+          <select id="detail-payment-status">
+            ${Object.entries(paymentStatus).map(([key, value]) => `
+              <option
+                value="${key}"
+                ${order.payment_status === key ? "selected" : ""}
+              >${value}</option>
+            `).join("")}
+          </select>
+        </div>
 
-        <button type="button" id="save-order-detail">
-          ذخیره تغییرات
-        </button>
+        <div class="field">
+          <label for="detail-tracking-code">کد رهگیری</label>
+          <input
+            id="detail-tracking-code"
+            value="${escapeHTML(order.tracking_code || "")}"
+          >
+        </div>
+
+        <div class="field">
+          <label for="detail-order-notes">یادداشت</label>
+          <textarea id="detail-order-notes">${escapeHTML(order.notes || "")}</textarea>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-primary"
+            id="save-order-detail"
+          >ذخیره تغییرات</button>
+        </div>
       `;
 
       $("save-order-detail")?.addEventListener(
@@ -885,6 +1268,9 @@
     const order = state.currentOrder;
     if (!order) return;
 
+    const button = $("save-order-detail");
+    setBusy(button, true);
+
     try {
       const payload = {
         status: $("detail-order-status")?.value,
@@ -893,13 +1279,20 @@
         notes: $("detail-order-notes")?.value.trim()
       };
 
-      await api(`/orders/${encodeURIComponent(order.$id)}`, "PATCH", payload);
+      await api(
+        `/orders/${encodeURIComponent(order.$id)}`,
+        "PATCH",
+        payload
+      );
 
       notify("تغییرات سفارش ذخیره شد.");
+
       await loadOrders();
 
     } catch (error) {
       notify(error.message || "ذخیره سفارش ناموفق بود.", "error");
+    } finally {
+      setBusy(button, false);
     }
   }
 
@@ -914,8 +1307,8 @@
         api("/orders")
       ]);
 
-      state.products = productResult.products || productResult.data || [];
-      state.orders = orderResult.orders || orderResult.data || [];
+      state.products = getList(productResult, "products");
+      state.orders = getList(orderResult, "orders");
 
       const products = state.products;
       const orders = state.orders;
@@ -926,14 +1319,17 @@
 
       const sales = orders
         .filter((order) => order.payment_status === "paid")
-        .reduce((sum, order) => sum + Number(order.total || 0), 0);
+        .reduce(
+          (sum, order) => sum + Number(order.total || 0),
+          0
+        );
 
       if ($("stat-products")) {
-        $("stat-products").textContent = products.length;
+        $("stat-products").textContent = number(products.length);
       }
 
       if ($("stat-orders")) {
-        $("stat-orders").textContent = orders.length;
+        $("stat-orders").textContent = number(orders.length);
       }
 
       if ($("stat-sales")) {
@@ -941,13 +1337,19 @@
       }
 
       if ($("stat-low")) {
-        $("stat-low").textContent = lowStock.length;
+        $("stat-low").textContent = number(lowStock.length);
       }
 
       const recent = $("recent-orders");
 
       if (recent) {
-        const latest = [...orders].slice(0, 5);
+        const latest = [...orders]
+          .sort((a, b) =>
+            String(b.$createdAt || "").localeCompare(
+              String(a.$createdAt || "")
+            )
+          )
+          .slice(0, 5);
 
         recent.innerHTML = latest.length
           ? latest.map((order) => `
@@ -955,10 +1357,11 @@
                 <td>${escapeHTML(order.order_number || order.$id)}</td>
                 <td>${escapeHTML(order.recipient_name || "—")}</td>
                 <td>${money(order.total)}</td>
-                <td>${escapeHTML(orderStatus[order.status] || order.status)}</td>
+                <td>${escapeHTML(orderStatus[order.status] || order.status || "—")}</td>
+                <td>${escapeHTML(order.createdAt || order.$createdAt || "—")}</td>
               </tr>
             `).join("")
-          : emptyRow(4, "هنوز سفارشی ثبت نشده است.");
+          : emptyRow(5, "هنوز سفارشی ثبت نشده است.");
       }
 
       const attention = $("attention");
@@ -969,15 +1372,21 @@
               <div class="notice warning">
                 ${escapeHTML(product.name)}
                 — موجودی:
-                ${escapeHTML(product.stock_quantity)}
+                ${number(product.stock_quantity)}
               </div>
             `).join("")
-          : `<div class="notice ok">همه محصولات موجودی مناسبی دارند.</div>`;
+          : `<div class="notice ok">
+              همه محصولات موجودی مناسبی دارند.
+            </div>`;
       }
 
     } catch (error) {
       console.error("Dashboard:", error);
-      notify("دریافت اطلاعات داشبورد با مشکل مواجه شد.", "error");
+
+      notify(
+        error.message || "دریافت اطلاعات داشبورد با مشکل مواجه شد.",
+        "error"
+      );
     }
   }
 
@@ -987,28 +1396,74 @@
 
   function bindEvents() {
     $("product-form")?.addEventListener("submit", saveProduct);
-    $("reset-product")?.addEventListener("click", resetProductForm);
 
-    $("product-search")?.addEventListener("input", renderProducts);
+    $("reset-product")?.addEventListener("click", () => {
+      resetProductForm();
+    });
 
-    $("category-form")?.addEventListener("submit", saveCategory);
-    $("reset-category")?.addEventListener("click", resetCategoryForm);
+    $("product-search")?.addEventListener(
+      "input",
+      renderProducts
+    );
 
-    $("coupon-form")?.addEventListener("submit", saveCoupon);
-    $("reset-coupon")?.addEventListener("click", resetCouponForm);
+    $("category-form")?.addEventListener(
+      "submit",
+      saveCategory
+    );
 
-    $("customer-search")?.addEventListener("input", renderCustomers);
+    $("reset-category")?.addEventListener(
+      "click",
+      resetCategoryForm
+    );
 
-    $("order-search")?.addEventListener("input", renderOrders);
-    $("order-filter")?.addEventListener("change", renderOrders);
+    $("coupon-form")?.addEventListener(
+      "submit",
+      saveCoupon
+    );
+
+    $("reset-coupon")?.addEventListener(
+      "click",
+      resetCouponForm
+    );
+
+    $("customer-search")?.addEventListener(
+      "input",
+      renderCustomers
+    );
+
+    $("order-search")?.addEventListener(
+      "input",
+      renderOrders
+    );
+
+    $("order-filter")?.addEventListener(
+      "change",
+      renderOrders
+    );
 
     $("logout-top")?.addEventListener("click", logout);
 
     $("check-access")?.addEventListener("click", checkAdmin);
 
-    document.querySelectorAll("[data-admin-nav]").forEach((button) => {
+    document.querySelectorAll(
+      "[data-admin-nav], [data-view]"
+    ).forEach((button) => {
       button.addEventListener("click", () => {
-        go(button.dataset.adminNav);
+        const section =
+          button.dataset.adminNav ||
+          button.dataset.view;
+
+        if (section) go(section);
+      });
+    });
+
+    document.querySelectorAll("[data-refresh]").forEach((button) => {
+      button.addEventListener("click", refreshCurrentSection);
+    });
+
+    document.querySelectorAll("[data-jump]").forEach((button) => {
+      button.addEventListener("click", () => {
+        jumpTo(button.dataset.jump);
       });
     });
 
@@ -1062,13 +1517,26 @@
         return;
       }
 
+      if (file.size > 8 * 1024 * 1024) {
+        notify("حجم تصویر نباید بیشتر از ۸ مگابایت باشد.", "error");
+        event.target.value = "";
+        return;
+      }
+
       const reader = new FileReader();
 
       reader.onload = () => {
         preview.innerHTML = `
-          <img src="${reader.result}" alt=""
-            style="max-width:120px;border-radius:10px">
+          <img
+            src="${reader.result}"
+            alt=""
+            style="max-width:120px;border-radius:10px"
+          >
         `;
+      };
+
+      reader.onerror = () => {
+        notify("نمایش تصویر ناموفق بود.", "error");
       };
 
       reader.readAsDataURL(file);
@@ -1081,7 +1549,10 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
     if (!A) {
-      notify("فایل appwrite-client.js بارگذاری نشده است.", "error");
+      notify(
+        "فایل appwrite-client.js بارگذاری نشده است.",
+        "error"
+      );
       return;
     }
 
