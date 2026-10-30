@@ -33,7 +33,10 @@
     try {
       return await account.get();
     } catch (error) {
-      if (error && error.code === 401) return null;
+      if (error && error.code === 401) {
+        return null;
+      }
+
       throw error;
     }
   }
@@ -66,12 +69,13 @@
     const jwt = await createJWT();
 
     const headers = {
-  Authorization: `Bearer ${jwt}`,
-  Accept: "application/json"
-};
+      "Authorization": `Bearer ${jwt}`,
+      "X-Appwrite-User-JWT": jwt,
+      "Accept": "application/json"
+    };
 
     const options = {
-      method: method.toUpperCase(),
+      method: String(method).toUpperCase(),
       headers
     };
 
@@ -80,7 +84,16 @@
       options.body = JSON.stringify(body);
     }
 
-    const response = await fetch(url, options);
+    let response;
+
+    try {
+      response = await fetch(url, options);
+    } catch (error) {
+      throw new Error(
+        "ارتباط با سرور مدیریت برقرار نشد: " + error.message
+      );
+    }
+
     const text = await response.text();
 
     let data = {};
@@ -89,16 +102,22 @@
       try {
         data = JSON.parse(text);
       } catch {
-        data = { message: text };
+        data = {
+          message: text
+        };
       }
     }
 
     if (!response.ok) {
       const error = new Error(
-        data.error || data.message || `خطای درخواست: ${response.status}`
+        data.error ||
+        data.message ||
+        `خطای درخواست: ${response.status}`
       );
 
       error.status = response.status;
+      error.response = data;
+
       throw error;
     }
 
@@ -116,4 +135,5 @@
   });
 
   console.info("[Veloraa] Appwrite client initialized.");
+
 })();
