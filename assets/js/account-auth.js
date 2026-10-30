@@ -147,7 +147,6 @@
   function normalizeProfile(data) {
     const result = { ...data };
 
-    // ستون Datetime نباید رشته خالی دریافت کند.
     if (!result.birth_date) {
       delete result.birth_date;
     }
@@ -176,8 +175,9 @@
     }
 
     try {
+      const base = B.config.adminApiUrl.replace(/\/+$/, "");
       const result = await B.adminRequest({
-        url: B.config.adminApiUrl,
+        url: base + "/admin-check",
         method: "GET"
       });
 
@@ -193,45 +193,45 @@
     const existing = await getProfile(userId);
     const data = normalizeProfile(values);
 
-data.userId = userId;
-data.role = "customer";
-data.createdAt = new Date().toISOString();
+    data.userId = userId;
 
-return await B.tablesDB.createRow({
-  databaseId: B.config.databaseId,
-  tableId: B.config.profilesTableId,
-  rowId: userId,
-  data: data,
-  permissions: [
-    B.client ? "user:" + userId : "user:" + userId
-  ].length
-    ? [
-        Appwrite.Permission.read(Appwrite.Role.user(userId)),
-        Appwrite.Permission.update(Appwrite.Role.user(userId)),
-        Appwrite.Permission.delete(Appwrite.Role.user(userId))
-      ]
-    : []
-});
+    if (existing) {
+      // نقش و زمان ساخت پروفایل قبلی حفظ می‌شود.
+      data.role = existing.role || "customer";
+      data.createdAt = existing.createdAt || new Date().toISOString();
 
-    // نقش اولیه فقط برای ردیف جدید تنظیم می‌شود.
-    data.role = "customer";
-
-    try {
-      return await B.tablesDB.createRow({
+      return await B.tablesDB.updateRow({
         databaseId: B.config.databaseId,
         tableId: B.config.profilesTableId,
         rowId: userId,
-        data,
-        permissions: [
-          `read("user:${userId}")`,
-          `update("user:${userId}")`,
-          `delete("user:${userId}")`
-        ]
+        data
       });
-    } catch (error) {
-      console.error("[Veloraa] Profile creation error:", error);
-      throw error;
     }
+
+    // نقش اولیه فقط هنگام ساخت پروفایل جدید تعیین می‌شود.
+    data.role = "customer";
+    data.createdAt = new Date().toISOString();
+
+    const permissions = [];
+
+    if (window.Appwrite?.Permission && window.Appwrite?.Role) {
+      permissions.push(
+        window.Appwrite.Permission.read(
+          window.Appwrite.Role.user(userId)
+        ),
+        window.Appwrite.Permission.update(
+          window.Appwrite.Role.user(userId)
+        )
+      );
+    }
+
+    return await B.tablesDB.createRow({
+      databaseId: B.config.databaseId,
+      tableId: B.config.profilesTableId,
+      rowId: userId,
+      data,
+      ...(permissions.length ? { permissions } : {})
+    });
   }
 
   function populateProfile(profile, user) {
@@ -427,7 +427,6 @@ return await B.tablesDB.createRow({
 
         accountCreated = true;
 
-        // تا زمانی که نشست ایجاد نشده، پروفایل ذخیره نمی‌شود.
         await B.account.createEmailPasswordSession({
           email,
           password
@@ -488,9 +487,7 @@ return await B.tablesDB.createRow({
         if (currentProfile) {
           note("اطلاعات پروفایل با موفقیت ذخیره شد.", true);
         } else {
-          note(
-            "ذخیره انجام شد، اما بارگذاری مجدد پروفایل تأیید نشد."
-          );
+          note("ذخیره انجام شد، اما بارگذاری مجدد پروفایل تأیید نشد.");
         }
       } catch (error) {
         console.error("[Veloraa] Profile save error:", error);
