@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
@@ -29,13 +28,9 @@
       --shadow: 0 8px 28px rgba(53, 26, 43, .06);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
@@ -46,30 +41,11 @@
       line-height: 1.8;
     }
 
-    button,
-    input,
-    select,
-    textarea {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    a { color: inherit; text-decoration: none; }
+    [hidden] { display: none !important; }
 
     .topbar {
       position: sticky;
@@ -104,15 +80,8 @@
       font-weight: 800;
     }
 
-    .brand-name {
-      font-weight: 800;
-      font-size: 17px;
-    }
-
-    .brand-caption {
-      color: var(--muted);
-      font-size: 12px;
-    }
+    .brand-name { font-weight: 800; font-size: 17px; }
+    .brand-caption { color: var(--muted); font-size: 12px; }
 
     .top-actions {
       display: flex;
@@ -148,10 +117,7 @@
       font-weight: 700;
     }
 
-    .tabs {
-      display: grid;
-      gap: 5px;
-    }
+    .tabs { display: grid; gap: 5px; }
 
     .tab {
       width: 100%;
@@ -178,9 +144,7 @@
       font-weight: 700;
     }
 
-    .main {
-      min-width: 0;
-    }
+    .main { min-width: 0; }
 
     .page-heading {
       display: flex;
@@ -191,33 +155,12 @@
       margin-bottom: 20px;
     }
 
-    h1,
-    h2,
-    h3,
-    p {
-      margin-top: 0;
-    }
-
-    h1 {
-      margin-bottom: 4px;
-      font-size: 23px;
-    }
-
-    h2 {
-      font-size: 18px;
-    }
-
-    h3 {
-      font-size: 15px;
-    }
-
-    .muted {
-      color: var(--muted);
-    }
-
-    .small {
-      font-size: 12px;
-    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 4px; font-size: 23px; }
+    h2 { font-size: 18px; }
+    h3 { font-size: 15px; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
 
     .card {
       min-width: 0;
@@ -228,9 +171,7 @@
       box-shadow: var(--shadow);
     }
 
-    .card + .card {
-      margin-top: 18px;
-    }
+    .card + .card { margin-top: 18px; }
 
     .stats {
       display: grid;
@@ -247,10 +188,7 @@
       box-shadow: var(--shadow);
     }
 
-    .stat-label {
-      color: var(--muted);
-      font-size: 12px;
-    }
+    .stat-label { color: var(--muted); font-size: 12px; }
 
     .stat-value {
       margin: 8px 0 0;
@@ -268,10 +206,7 @@
       margin-bottom: 16px;
     }
 
-    .section-heading h2,
-    .section-heading h3 {
-      margin: 0;
-    }
+    .section-heading h2, .section-heading h3 { margin: 0; }
 
     .btn {
       display: inline-flex;
@@ -286,14 +221,8 @@
       transition: .2s;
     }
 
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
 
     .btn-secondary {
       background: #fff;
@@ -301,9 +230,7 @@
       border-color: var(--border);
     }
 
-    .btn-secondary:hover {
-      background: #faf6f8;
-    }
+    .btn-secondary:hover { background: #faf6f8; }
 
     .btn-danger {
       color: var(--danger);
@@ -329,9 +256,7 @@
       min-width: 0;
     }
 
-    .field.full {
-      grid-column: 1 / -1;
-    }
+    .field.full { grid-column: 1 / -1; }
 
     .field label {
       font-weight: 600;
@@ -362,10 +287,7 @@
       box-shadow: 0 0 0 3px rgba(145, 59, 96, .09);
     }
 
-    .field textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
+    .field textarea { resize: vertical; min-height: 100px; }
 
     .check-field {
       display: flex;
@@ -395,9 +317,7 @@
       margin-bottom: 15px;
     }
 
-    .toolbar > * {
-      flex: 1 1 160px;
-    }
+    .toolbar > * { flex: 1 1 160px; }
 
     .table-wrap {
       width: 100%;
@@ -413,8 +333,7 @@
       background: #fff;
     }
 
-    th,
-    td {
+    th, td {
       padding: 12px 13px;
       border-bottom: 1px solid var(--border);
       text-align: right;
@@ -428,17 +347,9 @@
       white-space: nowrap;
     }
 
-    td {
-      font-size: 13px;
-    }
-
-    tbody tr:last-child td {
-      border-bottom: 0;
-    }
-
-    tbody tr:hover {
-      background: #fdfafd;
-    }
+    td { font-size: 13px; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #fdfafd; }
 
     .table-actions {
       display: flex;
@@ -457,20 +368,9 @@
       white-space: nowrap;
     }
 
-    .badge.success {
-      color: var(--success);
-      background: #e7f7ef;
-    }
-
-    .badge.danger {
-      color: var(--danger);
-      background: #fff0f2;
-    }
-
-    .badge.warning {
-      color: var(--warning);
-      background: #fff4dc;
-    }
+    .badge.success { color: var(--success); background: #e7f7ef; }
+    .badge.danger { color: var(--danger); background: #fff0f2; }
+    .badge.warning { color: var(--warning); background: #fff4dc; }
 
     .notice {
       margin: 0 0 18px;
@@ -488,7 +388,8 @@
       background: #edfbf3;
     }
 
-    .notice.error {
+    .notice.error,
+    .notice.bad {
       color: #a3263d;
       border-color: #f0c7cf;
       background: #fff1f3;
@@ -506,13 +407,8 @@
       color: var(--muted);
     }
 
-    .view {
-      min-width: 0;
-    }
-
-    .view > .card + .card {
-      margin-top: 18px;
-    }
+    .view { min-width: 0; }
+    .view > .card + .card { margin-top: 18px; }
 
     .login-card {
       max-width: 600px;
@@ -520,9 +416,7 @@
       text-align: center;
     }
 
-    .login-card .form-actions {
-      justify-content: center;
-    }
+    .login-card .form-actions { justify-content: center; }
 
     .detail-box {
       padding: 15px;
@@ -532,9 +426,7 @@
       overflow-wrap: anywhere;
     }
 
-    .detail-box:empty {
-      display: none;
-    }
+    .detail-box:empty { display: none; }
 
     footer {
       padding: 22px;
@@ -549,86 +441,40 @@
         padding: 16px;
       }
 
-      .sidebar {
-        position: static;
-      }
-
-      .tabs {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .stats {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+      .sidebar { position: static; }
+      .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
     @media (max-width: 600px) {
-      .topbar {
-        padding: 12px;
-      }
-
-      .brand-name {
-        font-size: 14px;
-      }
-
-      .brand-caption {
-        font-size: 11px;
-      }
+      .topbar { padding: 12px; }
+      .brand-name { font-size: 14px; }
+      .brand-caption { font-size: 11px; }
 
       .top-actions .btn {
         padding: 7px 9px;
         font-size: 12px;
       }
 
-      .layout {
-        padding: 12px;
-        gap: 14px;
-      }
-
-      .tabs {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+      .layout { padding: 12px; gap: 14px; }
+      .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
       .tab {
         padding: 9px;
         font-size: 12px;
       }
 
-      .card {
-        padding: 14px;
-      }
-
-      .stats {
-        gap: 9px;
-      }
-
-      .stat {
-        padding: 13px;
-      }
-
-      .stat-value {
-        font-size: 20px;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .field.full {
-        grid-column: auto;
-      }
-
-      .check-field {
-        padding-top: 0;
-      }
-
-      h1 {
-        font-size: 20px;
-      }
+      .card { padding: 14px; }
+      .stats { gap: 9px; }
+      .stat { padding: 13px; }
+      .stat-value { font-size: 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .check-field { padding-top: 0; }
+      h1 { font-size: 20px; }
     }
   </style>
 
-  <!-- بارگذاری SDK و فایل اتصال، هر کدام فقط یک بار -->
   <script src="https://cdn.jsdelivr.net/npm/appwrite@20.0.0"></script>
   <script src="assets/js/appwrite-client.js" defer></script>
 </head>
@@ -680,7 +526,6 @@
       </section>
 
       <div id="admin-app" hidden>
-        <!-- داشبورد -->
         <section class="view" data-panel="dashboard">
           <div class="page-heading">
             <div>
@@ -734,13 +579,10 @@
 
           <div class="card">
             <h2>نیازمند بررسی</h2>
-            <div id="attention" class="detail-box">
-              هنوز اطلاعاتی بارگذاری نشده است.
-            </div>
+            <div id="attention" class="detail-box">هنوز اطلاعاتی بارگذاری نشده است.</div>
           </div>
         </section>
 
-        <!-- محصولات -->
         <section class="view" data-panel="products" hidden>
           <div class="page-heading">
             <div>
@@ -800,9 +642,11 @@
                 </div>
 
                 <div class="field full">
-                  <label for="p-image-file">انتخاب فایل تصویر (در صورت پشتیبانی API)</label>
+                  <label for="p-image-file">انتخاب فایل تصویر</label>
                   <input id="p-image-file" name="imageFile" type="file" accept="image/*">
-                  <small class="muted">انتخاب فایل به‌تنهایی تصویر را آپلود نمی‌کند؛ برای آن باید Storage و منطق آپلود پیاده‌سازی شده باشد.</small>
+                  <small class="muted">
+                    برای آپلود فایل، اتصال Appwrite Storage و منطق آپلود در JavaScript لازم است.
+                  </small>
                 </div>
 
                 <div class="field full">
@@ -838,7 +682,8 @@
               <table>
                 <thead>
                   <tr>
-                    <th>محصول</th>
+                    <th>تصویر</th>
+                    <th>نام محصول و برند</th>
                     <th>دسته‌بندی</th>
                     <th>قیمت</th>
                     <th>تخفیف</th>
@@ -848,14 +693,15 @@
                   </tr>
                 </thead>
                 <tbody id="products-table">
-                  <tr><td colspan="7" class="empty-state">در انتظار دریافت محصولات...</td></tr>
+                  <tr>
+                    <td colspan="8" class="empty-state">در انتظار دریافت محصولات...</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- سفارش‌ها -->
         <section class="view" data-panel="orders" hidden>
           <div class="page-heading">
             <div>
@@ -904,7 +750,6 @@
           </div>
         </section>
 
-        <!-- دسته‌بندی‌ها -->
         <section class="view" data-panel="categories" hidden>
           <div class="page-heading">
             <div>
@@ -959,7 +804,6 @@
           </div>
         </section>
 
-        <!-- کدهای تخفیف -->
         <section class="view" data-panel="coupons" hidden>
           <div class="page-heading">
             <div>
@@ -1052,7 +896,6 @@
           </div>
         </section>
 
-        <!-- مشتریان -->
         <section class="view" data-panel="customers" hidden>
           <div class="page-heading">
             <div>
@@ -1094,7 +937,6 @@
     Veloraa Shop · پنل مدیریت فروشگاه
   </footer>
 
-  <!-- appwrite-client.js در بخش head بارگذاری شده؛ اینجا فقط admin.js را بارگذاری کن -->
   <script src="assets/js/admin.js" defer></script>
 </body>
 </html>
