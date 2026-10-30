@@ -1,10 +1,9 @@
 /**
  * Veloraa Shop — Admin Panel
  * File: assets/js/admin.js
- *
  * Backend: Appwrite Function
- * Product API: /products and /products/:id
  */
+
 (function () {
   "use strict";
 
@@ -14,8 +13,18 @@
   let products = [];
   let authorized = false;
   let busy = false;
+  let previewObjectUrl = null;
 
-  const implementedViews = new Set(["dashboard", "products"]);
+  const implementedViews = new Set([
+    "dashboard",
+    "products"
+  ]);
+
+  const allowedImageTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+  ];
 
   const fmt = (value) =>
     new Intl.NumberFormat("fa-IR", {
@@ -42,7 +51,7 @@
     }
 
     el.textContent = message;
-    el.className = "notice " + (success ? "ok" : "bad");
+    el.className = "notice " + (success ? "ok" : "error");
     el.hidden = false;
   }
 
@@ -71,15 +80,22 @@
 
   function normalizeProduct(item) {
     const price = Number(
-      item.price ?? item.originalPrice ?? item.oldPrice ?? 0
+      item.price ??
+      item.originalPrice ??
+      item.oldPrice ??
+      0
     );
 
     const discount = Number(
-      item.discount_percent ?? item.discount ?? 0
+      item.discount_percent ??
+      item.discount ??
+      0
     );
 
     const stock = Number(
-      item.stock_quantity ?? item.stock ?? 0
+      item.stock_quantity ??
+      item.stock ??
+      0
     );
 
     return {
@@ -96,7 +112,8 @@
       description: item.description ?? "",
       active: item.is_active ?? item.isActive ?? true,
       salePrice: Number(
-        item.sale_price ?? Math.round(price * (1 - discount / 100))
+        item.sale_price ??
+        Math.round(price * (1 - discount / 100))
       )
     };
   }
@@ -116,12 +133,17 @@
   async function api(path = "", method = "GET", body) {
     if (typeof A?.adminRequest !== "function") {
       throw new Error(
-        "تابع adminRequest پیدا نشد. فایل appwrite-client.js را بررسی کن."
+        "تابع adminRequest در appwrite-client.js پیدا نشد."
       );
     }
 
-    const url = apiBase() + String(path).replace(/^\/+/, "");
-    const options = { url, method };
+    const url =
+      apiBase() + String(path).replace(/^\/+/, "");
+
+    const options = {
+      url,
+      method
+    };
 
     if (body !== undefined) {
       options.body = body;
@@ -131,7 +153,9 @@
 
     if (result?.success === false) {
       throw new Error(
-        result.message || result.error || "درخواست توسط سرور رد شد."
+        result.message ||
+        result.error ||
+        "درخواست توسط سرور رد شد."
       );
     }
 
@@ -157,11 +181,12 @@
 
     if (!user) return false;
 
-    // مجوز باید در سمت سرور تأیید شود.
     const result = await api("");
 
-    return result?.success === true &&
-           result?.isAdmin === true;
+    return (
+      result?.success === true &&
+      result?.isAdmin === true
+    );
   }
 
   function go(view) {
@@ -174,7 +199,9 @@
       "customers"
     ];
 
-    if (!allowed.includes(view)) view = "dashboard";
+    if (!allowed.includes(view)) {
+      view = "dashboard";
+    }
 
     document.querySelectorAll("[data-view]").forEach((button) => {
       button.classList.toggle(
@@ -191,8 +218,7 @@
 
     if (!implementedViews.has(view)) {
       notify(
-        "این بخش هنوز در API پیاده‌سازی نشده است؛ " +
-        "ابتدا باید مسیر سرور مربوط به آن ساخته شود."
+        "این بخش هنوز در API پیاده‌سازی نشده است."
       );
     }
   }
@@ -200,21 +226,45 @@
   function getProductPayload() {
     const name = $("p-name")?.value.trim() ?? "";
     const brand = $("p-brand")?.value.trim() ?? "";
-    const category = $("p-category")?.value.trim() || "other";
+    const category =
+      $("p-category")?.value.trim() || "other";
+
     const price = Number($("p-price")?.value);
-    const discount = Number($("p-discount")?.value || 0);
-    const stock = Number($("p-stock")?.value || 0);
-    const variant = $("p-variant")?.value.trim() ?? "";
-    const imageUrl = $("p-image-url")?.value.trim() ?? "";
-    const description = $("p-description")?.value.trim() ?? "";
-    const isActive = Boolean($("p-active")?.checked);
+    const discount = Number(
+      $("p-discount")?.value || 0
+    );
+
+    const stock = Number(
+      $("p-stock")?.value || 0
+    );
+
+    const variant =
+      $("p-variant")?.value.trim() ?? "";
+
+    const imageUrl =
+      $("p-image-url")?.value.trim() ?? "";
+
+    const description =
+      $("p-description")?.value.trim() ?? "";
+
+    const isActive = Boolean(
+      $("p-active")?.checked
+    );
 
     if (!name) {
       throw new Error("نام محصول را وارد کن.");
     }
 
-    if (!Number.isFinite(price) || price < 0) {
-      throw new Error("قیمت باید عدد معتبر و غیرمنفی باشد.");
+    if (name.length > 255) {
+      throw new Error("نام محصول بیش از حد مجاز است.");
+    }
+
+    if (
+      !Number.isFinite(price) ||
+      price < 0 ||
+      price > 1000000000
+    ) {
+      throw new Error("قیمت محصول معتبر نیست.");
     }
 
     if (
@@ -222,11 +272,19 @@
       discount < 0 ||
       discount > 100
     ) {
-      throw new Error("تخفیف باید عدد صحیح بین صفر تا ۱۰۰ باشد.");
+      throw new Error(
+        "تخفیف باید عدد صحیح بین صفر تا ۱۰۰ باشد."
+      );
     }
 
-    if (!Number.isInteger(stock) || stock < 0) {
-      throw new Error("موجودی باید عدد صحیح و غیرمنفی باشد.");
+    if (
+      !Number.isInteger(stock) ||
+      stock < 0 ||
+      stock > 1000000
+    ) {
+      throw new Error(
+        "موجودی باید عدد صحیح بین صفر تا یک میلیون باشد."
+      );
     }
 
     if (imageUrl) {
@@ -238,26 +296,24 @@
         throw new Error("آدرس تصویر معتبر نیست.");
       }
 
-      if (!["https:", "http:"].includes(parsed.protocol)) {
-        throw new Error("آدرس تصویر باید با http یا https شروع شود.");
+      if (
+        !["https:", "http:"].includes(parsed.protocol)
+      ) {
+        throw new Error(
+          "آدرس تصویر باید با HTTP یا HTTPS شروع شود."
+        );
       }
     }
 
-    if ($("p-image-file")?.files?.length) {
-      throw new Error(
-        "آپلود مستقیم تصویر هنوز به Appwrite Storage متصل نشده است. " +
-        "فعلاً آدرس تصویر را در فیلد مربوط وارد کن."
-      );
-    }
-
-    // نام فیلدها مطابق قرارداد API محصولات است.
     return {
       name,
       brand,
       category,
       price,
       discount_percent: discount,
-      sale_price: Math.round(price * (1 - discount / 100)),
+      sale_price: Math.round(
+        price * (1 - discount / 100)
+      ),
       stock_quantity: stock,
       variant,
       image_url: imageUrl,
@@ -266,30 +322,176 @@
     };
   }
 
-  function resetProduct() {
-    $("product-form")?.reset();
+  async function uploadProductImage(file) {
+    if (!file) return null;
 
-    if ($("product-id")) $("product-id").value = "";
-
-    if ($("product-form-title")) {
-      $("product-form-title").textContent = "افزودن محصول";
+    if (!allowedImageTypes.includes(file.type)) {
+      throw new Error(
+        "فرمت تصویر باید JPG، PNG یا WebP باشد."
+      );
     }
 
-    if ($("p-discount")) $("p-discount").value = "0";
-    if ($("p-stock")) $("p-stock").value = "0";
-    if ($("p-active")) $("p-active").checked = true;
-    if ($("p-image-file")) $("p-image-file").value = "";
+    if (
+      file.size <= 0 ||
+      file.size > 5 * 1024 * 1024
+    ) {
+      throw new Error(
+        "حجم تصویر باید حداکثر ۵ مگابایت باشد."
+      );
+    }
+
+    const fileBase64 = await new Promise(
+      (resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          const result = String(reader.result || "");
+          const base64 = result.split(",")[1];
+
+          if (!base64) {
+            reject(
+              new Error("خواندن تصویر ناموفق بود.")
+            );
+            return;
+          }
+
+          resolve(base64);
+        };
+
+        reader.onerror = () => {
+          reject(
+            new Error("خطا در خواندن فایل تصویر.")
+          );
+        };
+
+        reader.readAsDataURL(file);
+      }
+    );
+
+    const result = await api("upload", "POST", {
+      fileName: file.name,
+      mimeType: file.type,
+      fileBase64
+    });
+
+    if (
+      !result?.success ||
+      !result?.image?.url
+    ) {
+      throw new Error("آپلود تصویر انجام نشد.");
+    }
+
+    return result.image;
+  }
+
+  function clearPreview() {
+    if (previewObjectUrl) {
+      URL.revokeObjectURL(previewObjectUrl);
+      previewObjectUrl = null;
+    }
+
+    const preview = $("product-image-preview");
+
+    if (preview) {
+      preview.removeAttribute("src");
+      preview.hidden = true;
+    }
+  }
+
+  function createPreview(file) {
+    const input = $("p-image-file");
+
+    if (!input || !file) return;
+
+    if (!allowedImageTypes.includes(file.type)) {
+      input.value = "";
+      throw new Error(
+        "فرمت تصویر باید JPG، PNG یا WebP باشد."
+      );
+    }
+
+    if (
+      file.size <= 0 ||
+      file.size > 5 * 1024 * 1024
+    ) {
+      input.value = "";
+      throw new Error(
+        "حجم تصویر باید حداکثر ۵ مگابایت باشد."
+      );
+    }
+
+    let preview = $("product-image-preview");
+
+    if (!preview) {
+      preview = document.createElement("img");
+      preview.id = "product-image-preview";
+      preview.alt = "پیش‌نمایش تصویر محصول";
+
+      preview.style.cssText =
+        "width:110px;height:110px;object-fit:cover;" +
+        "border-radius:12px;margin-top:10px;";
+
+      input.insertAdjacentElement(
+        "afterend",
+        preview
+      );
+    }
+
+    clearPreview();
+
+    previewObjectUrl = URL.createObjectURL(file);
+    preview.src = previewObjectUrl;
+    preview.hidden = false;
+  }
+
+  function resetProduct() {
+    clearPreview();
+
+    $("product-form")?.reset();
+
+    if ($("product-id")) {
+      $("product-id").value = "";
+    }
+
+    if ($("product-form-title")) {
+      $("product-form-title").textContent =
+        "افزودن محصول";
+    }
+
+    if ($("p-discount")) {
+      $("p-discount").value = "0";
+    }
+
+    if ($("p-stock")) {
+      $("p-stock").value = "0";
+    }
+
+    if ($("p-active")) {
+      $("p-active").checked = true;
+    }
+
+    if ($("p-image-file")) {
+      $("p-image-file").value = "";
+    }
   }
 
   function editProduct(id) {
-    const p = products.find((item) => item.id === id);
+    const p = products.find(
+      (item) => item.id === id
+    );
 
     if (!p) {
-      throw new Error("محصول موردنظر پیدا نشد.");
+      throw new Error(
+        "محصول موردنظر پیدا نشد."
+      );
     }
 
+    resetProduct();
+
     $("product-id").value = p.id;
-    $("product-form-title").textContent = "ویرایش محصول";
+    $("product-form-title").textContent =
+      "ویرایش محصول";
+
     $("p-name").value = p.name;
     $("p-brand").value = p.brand;
     $("p-category").value = p.category;
@@ -311,9 +513,12 @@
 
   function renderProducts() {
     const table = $("products-table");
+
     if (!table) return;
 
-    const search = ($("product-search")?.value || "")
+    const search = (
+      $("product-search")?.value || ""
+    )
       .trim()
       .toLocaleLowerCase();
 
@@ -336,69 +541,106 @@
           : "فعال";
 
       const image = p.image
-        ? `<img src="${esc(p.image)}"
-                alt="${esc(p.name)}"
-                loading="lazy"
-                style="width:46px;height:46px;object-fit:cover;border-radius:9px"
-                onerror="this.style.display='none'">`
+        ? `
+          <img
+            src="${esc(p.image)}"
+            alt="${esc(p.name)}"
+            loading="lazy"
+            style="
+              width:46px;
+              height:46px;
+              object-fit:cover;
+              border-radius:9px;
+            "
+            onerror="this.style.display='none'"
+          >
+        `
         : "—";
 
       return `
         <tr>
           <td>${image}</td>
+
           <td>
             <strong>${esc(p.name)}</strong>
             <div>${esc(p.brand)}</div>
           </td>
+
           <td>${esc(p.category)}</td>
           <td>${money(p.price)}</td>
           <td>${fmt(p.discount)}٪</td>
           <td>${fmt(p.stock)}</td>
           <td>${status}</td>
+
           <td>
-            <button type="button"
-              data-edit-product="${esc(p.id)}">ویرایش</button>
+            <button
+              type="button"
+              data-edit-product="${esc(p.id)}"
+            >ویرایش</button>
 
-            <button type="button"
-              data-stock-product="${esc(p.id)}">موجودی</button>
+            <button
+              type="button"
+              data-stock-product="${esc(p.id)}"
+            >موجودی</button>
 
-            <button type="button"
-              data-toggle-product="${esc(p.id)}">
+            <button
+              type="button"
+              data-toggle-product="${esc(p.id)}"
+            >
               ${p.active ? "پنهان‌کردن" : "نمایش"}
             </button>
 
-            <button type="button"
-              data-delete-product="${esc(p.id)}">حذف</button>
+            <button
+              type="button"
+              data-delete-product="${esc(p.id)}"
+            >حذف</button>
           </td>
         </tr>
       `;
-    }).join("") || emptyRow(8, "محصولی پیدا نشد.");
+    }).join("") || emptyRow(
+      8,
+      "محصولی پیدا نشد."
+    );
   }
 
   function renderDashboard() {
     if ($("stat-products")) {
-      $("stat-products").textContent = fmt(products.length);
+      $("stat-products").textContent =
+        fmt(products.length);
     }
 
     if ($("stat-low")) {
       $("stat-low").textContent = fmt(
-        products.filter((p) => p.active && p.stock <= 5).length
+        products.filter(
+          (p) => p.active && p.stock <= 5
+        ).length
       );
     }
 
-    if ($("stat-orders")) $("stat-orders").textContent = "—";
-    if ($("stat-sales")) $("stat-sales").textContent = "—";
+    if ($("stat-orders")) {
+      $("stat-orders").textContent = "—";
+    }
+
+    if ($("stat-sales")) {
+      $("stat-sales").textContent = "—";
+    }
 
     if ($("recent-orders")) {
       $("recent-orders").innerHTML =
-        emptyRow(5, "اطلاعات سفارش‌ها هنوز به API متصل نشده است.");
+        emptyRow(
+          5,
+          "اطلاعات سفارش‌ها هنوز به API متصل نشده است."
+        );
     }
 
     if ($("attention")) {
-      const low = products.filter((p) => p.active && p.stock <= 5);
+      const low = products.filter(
+        (p) => p.active && p.stock <= 5
+      );
 
       $("attention").textContent = low.length
-        ? "موجودی کم: " + low.map(
+        ? "موجودی کم: " +
+          low.map(
             (p) => `${p.name} (${fmt(p.stock)})`
           ).join("، ")
         : "محصول فعالی با موجودی ۵ عدد یا کمتر وجود ندارد.";
@@ -411,14 +653,19 @@
     busy = true;
     clearNotice();
 
-    const refreshButtons = document.querySelectorAll("[data-refresh]");
+    const refreshButtons =
+      document.querySelectorAll("[data-refresh]");
+
     refreshButtons.forEach((button) => {
       button.disabled = true;
     });
 
     if ($("products-table")) {
       $("products-table").innerHTML =
-        emptyRow(8, "در حال دریافت محصولات...");
+        emptyRow(
+          8,
+          "در حال دریافت محصولات..."
+        );
     }
 
     try {
@@ -426,7 +673,7 @@
 
       if (!Array.isArray(result?.rows)) {
         throw new Error(
-          "ساختار پاسخ API درست نیست؛ انتظار فهرست rows را داشتیم."
+          "ساختار پاسخ API معتبر نیست."
         );
       }
 
@@ -434,17 +681,29 @@
 
       renderProducts();
       renderDashboard();
+
     } catch (error) {
-      console.error("[Veloraa Admin] Load products:", error);
+      console.error(
+        "[Veloraa Admin] Load products:",
+        error
+      );
 
       if ($("products-table")) {
         $("products-table").innerHTML =
-          emptyRow(8, "دریافت محصولات ناموفق بود.");
+          emptyRow(
+            8,
+            "دریافت محصولات ناموفق بود."
+          );
       }
 
-      notify(error.message || "خطا در دریافت محصولات.");
+      notify(
+        error.message ||
+        "خطا در دریافت محصولات."
+      );
+
     } finally {
       busy = false;
+
       refreshButtons.forEach((button) => {
         button.disabled = false;
       });
@@ -455,11 +714,28 @@
     event.preventDefault();
 
     const button = $("save-product");
-    if (button) button.disabled = true;
+
+    if (button) {
+      button.disabled = true;
+    }
 
     try {
-      const id = $("product-id")?.value.trim() || "";
+      const id =
+        $("product-id")?.value.trim() || "";
+
       const payload = getProductPayload();
+
+      const selectedFile =
+        $("p-image-file")?.files?.[0];
+
+      if (selectedFile) {
+        notify("در حال آپلود تصویر محصول...");
+
+        const uploadedImage =
+          await uploadProductImage(selectedFile);
+
+        payload.image_url = uploadedImage.url;
+      }
 
       if (id) {
         await api(
@@ -468,27 +744,54 @@
           payload
         );
 
-        notify("درخواست ویرایش محصول با موفقیت انجام شد.", true);
+        notify(
+          "محصول با موفقیت ویرایش شد.",
+          true
+        );
+
       } else {
-        await api("products", "POST", payload);
-        notify("درخواست افزودن محصول با موفقیت انجام شد.", true);
+        await api(
+          "products",
+          "POST",
+          payload
+        );
+
+        notify(
+          "محصول با موفقیت اضافه شد.",
+          true
+        );
       }
 
       resetProduct();
       await loadProducts();
+
     } catch (error) {
-      console.error("[Veloraa Admin] Save product:", error);
-      notify(error.message || "ذخیره محصول ناموفق بود.");
+      console.error(
+        "[Veloraa Admin] Save product:",
+        error
+      );
+
+      notify(
+        error.message ||
+        "ذخیره محصول ناموفق بود."
+      );
+
     } finally {
-      if (button) button.disabled = false;
+      if (button) {
+        button.disabled = false;
+      }
     }
   }
 
   async function changeStock(id) {
-    const p = products.find((item) => item.id === id);
+    const p = products.find(
+      (item) => item.id === id
+    );
 
     if (!p) {
-      throw new Error("محصول موردنظر پیدا نشد.");
+      throw new Error(
+        "محصول موردنظر پیدا نشد."
+      );
     }
 
     const answer = prompt(
@@ -500,45 +803,75 @@
 
     const stock = Number(answer);
 
-    if (!Number.isInteger(stock) || stock < 0) {
-      throw new Error("موجودی باید عدد صحیح و غیرمنفی باشد.");
+    if (
+      !Number.isInteger(stock) ||
+      stock < 0 ||
+      stock > 1000000
+    ) {
+      throw new Error(
+        "موجودی باید عدد صحیح بین صفر تا یک میلیون باشد."
+      );
     }
 
     await api(
       "products/" + encodeURIComponent(id),
       "PATCH",
-      { stock_quantity: stock }
+      {
+        stock_quantity: stock
+      }
     );
 
     await loadProducts();
-    notify("موجودی محصول به‌روزرسانی شد.", true);
+
+    notify(
+      "موجودی محصول به‌روزرسانی شد.",
+      true
+    );
   }
 
   async function toggleProduct(id) {
-    const p = products.find((item) => item.id === id);
+    const p = products.find(
+      (item) => item.id === id
+    );
 
     if (!p) {
-      throw new Error("محصول موردنظر پیدا نشد.");
+      throw new Error(
+        "محصول موردنظر پیدا نشد."
+      );
     }
 
     await api(
       "products/" + encodeURIComponent(id),
       "PATCH",
-      { is_active: !p.active }
+      {
+        is_active: !p.active
+      }
     );
 
     await loadProducts();
-    notify("وضعیت نمایش محصول تغییر کرد.", true);
+
+    notify(
+      "وضعیت نمایش محصول تغییر کرد.",
+      true
+    );
   }
 
   async function deleteProduct(id) {
-    const p = products.find((item) => item.id === id);
+    const p = products.find(
+      (item) => item.id === id
+    );
 
     if (!p) {
-      throw new Error("محصول موردنظر پیدا نشد.");
+      throw new Error(
+        "محصول موردنظر پیدا نشد."
+      );
     }
 
-    if (!confirm(`آیا محصول «${p.name}» حذف شود؟`)) {
+    if (
+      !confirm(
+        `آیا محصول «${p.name}» حذف شود؟`
+      )
+    ) {
       return;
     }
 
@@ -548,133 +881,251 @@
     );
 
     await loadProducts();
-    notify("محصول حذف شد.", true);
+
+    notify(
+      "محصول حذف شد.",
+      true
+    );
   }
 
   function bindEvents() {
-    document.querySelectorAll("[data-view]").forEach((button) => {
-      button.addEventListener("click", () => {
-        go(button.dataset.view);
+    document.querySelectorAll("[data-view]")
+      .forEach((button) => {
+        button.addEventListener("click", () => {
+          go(button.dataset.view);
+        });
       });
-    });
 
-    document.querySelectorAll("[data-jump]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const target = button.dataset.jump;
+    document.querySelectorAll("[data-jump]")
+      .forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = button.dataset.jump;
 
-        if (target === "product-form") {
-          go("products");
-          $("product-form")?.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-          });
-        } else {
-          go(target);
+          if (target === "product-form") {
+            go("products");
+
+            $("product-form")?.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+
+          } else {
+            go(target);
+          }
+        });
+      });
+
+    document.querySelectorAll("[data-refresh]")
+      .forEach((button) => {
+        button.addEventListener(
+          "click",
+          loadProducts
+        );
+      });
+
+    $("check-access")?.addEventListener(
+      "click",
+      async () => {
+        try {
+          authorized = await checkAdmin();
+
+          if (!authorized) {
+            throw new Error(
+              "این حساب دسترسی مدیر ندارد."
+            );
+          }
+
+          show($("admin-login-needed"), false);
+          show($("admin-app"), true);
+
+          go("dashboard");
+          await loadProducts();
+
+        } catch (error) {
+          console.error(
+            "[Veloraa Admin] Access:",
+            error
+          );
+
+          notify(
+            error.message ||
+            "بررسی دسترسی ناموفق بود."
+          );
         }
-      });
-    });
+      }
+    );
 
-    document.querySelectorAll("[data-refresh]").forEach((button) => {
-      button.addEventListener("click", loadProducts);
-    });
+    $("logout-top")?.addEventListener(
+      "click",
+      async () => {
+        try {
+          if (typeof A?.logout === "function") {
+            await A.logout();
 
-    $("check-access")?.addEventListener("click", async () => {
+          } else if (
+            typeof A?.account?.deleteSession === "function"
+          ) {
+            await A.account.deleteSession({
+              sessionId: "current"
+            });
+
+          } else {
+            throw new Error(
+              "تابع خروج در appwrite-client.js موجود نیست."
+            );
+          }
+
+          location.href = "account.html";
+
+        } catch (error) {
+          console.error(
+            "[Veloraa Admin] Logout:",
+            error
+          );
+
+          notify(
+            error.message ||
+            "خروج ناموفق بود."
+          );
+        }
+      }
+    );
+
+    $("product-form")?.addEventListener(
+      "submit",
+      saveProduct
+    );
+
+    $("reset-product")?.addEventListener(
+      "click",
+      resetProduct
+    );
+
+    $("product-search")?.addEventListener(
+      "input",
+      renderProducts
+    );
+
+    $("p-image-file")?.addEventListener(
+      "change",
+      (event) => {
+        const file =
+          event.target.files?.[0];
+
+        if (!file) {
+          clearPreview();
+          return;
+        }
+
+        try {
+          createPreview(file);
+        } catch (error) {
+          notify(error.message);
+        }
+      }
+    );
+
+    $("products-table")?.addEventListener(
+      "click",
+      async (event) => {
+        const edit = event.target.closest(
+          "[data-edit-product]"
+        );
+
+        const stock = event.target.closest(
+          "[data-stock-product]"
+        );
+
+        const toggle = event.target.closest(
+          "[data-toggle-product]"
+        );
+
+        const del = event.target.closest(
+          "[data-delete-product]"
+        );
+
+        try {
+          if (edit) {
+            editProduct(
+              edit.dataset.editProduct
+            );
+
+          } else if (stock) {
+            await changeStock(
+              stock.dataset.stockProduct
+            );
+
+          } else if (toggle) {
+            await toggleProduct(
+              toggle.dataset.toggleProduct
+            );
+
+          } else if (del) {
+            await deleteProduct(
+              del.dataset.deleteProduct
+            );
+          }
+
+        } catch (error) {
+          console.error(
+            "[Veloraa Admin] Product action:",
+            error
+          );
+
+          notify(
+            error.message ||
+            "عملیات محصول ناموفق بود."
+          );
+        }
+      }
+    );
+  }
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+      if (!$("admin-app")) return;
+
+      if (!A) {
+        notify(
+          "فایل appwrite-client.js بارگذاری نشده است."
+        );
+        return;
+      }
+
+      bindEvents();
+
+      show($("admin-app"), false);
+      show($("admin-login-needed"), true);
+
       try {
         authorized = await checkAdmin();
 
         if (!authorized) {
-          throw new Error(
-            "این حساب دسترسی مدیر ندارد یا API نتوانسته آن را تأیید کند."
+          notify(
+            "برای ورود به پنل باید با حساب مدیر وارد شوی."
           );
+          return;
         }
 
         show($("admin-login-needed"), false);
         show($("admin-app"), true);
 
+        go("dashboard");
         await loadProducts();
+
       } catch (error) {
-        console.error("[Veloraa Admin] Access:", error);
-        notify(error.message || "بررسی دسترسی ناموفق بود.");
-      }
-    });
-
-    $("logout-top")?.addEventListener("click", async () => {
-      try {
-        if (typeof A?.logout === "function") {
-          await A.logout();
-        } else if (A?.account?.deleteSession) {
-          await A.account.deleteSession({
-            sessionId: "current"
-          });
-        } else {
-          throw new Error("تابع خروج در appwrite-client.js موجود نیست.");
-        }
-
-        location.href = "account.html";
-      } catch (error) {
-        console.error("[Veloraa Admin] Logout:", error);
-        notify(error.message || "خروج ناموفق بود.");
-      }
-    });
-
-    $("product-form")?.addEventListener("submit", saveProduct);
-    $("reset-product")?.addEventListener("click", resetProduct);
-    $("product-search")?.addEventListener("input", renderProducts);
-
-    $("products-table")?.addEventListener("click", async (event) => {
-      const edit = event.target.closest("[data-edit-product]");
-      const stock = event.target.closest("[data-stock-product]");
-      const toggle = event.target.closest("[data-toggle-product]");
-      const del = event.target.closest("[data-delete-product]");
-
-      try {
-        if (edit) {
-          editProduct(edit.dataset.editProduct);
-        } else if (stock) {
-          await changeStock(stock.dataset.stockProduct);
-        } else if (toggle) {
-          await toggleProduct(toggle.dataset.toggleProduct);
-        } else if (del) {
-          await deleteProduct(del.dataset.deleteProduct);
-        }
-      } catch (error) {
-        console.error("[Veloraa Admin] Product action:", error);
-        notify(error.message || "عملیات محصول ناموفق بود.");
-      }
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    if (!$("admin-app")) return;
-
-    if (!A) {
-      notify("فایل appwrite-client.js بارگذاری نشده است.");
-      return;
-    }
-
-    bindEvents();
-
-    show($("admin-app"), false);
-    show($("admin-login-needed"), true);
-
-    try {
-      authorized = await checkAdmin();
-
-      if (!authorized) {
-        notify(
-          "برای ورود به پنل باید با حساب مدیر وارد شوی."
+        console.error(
+          "[Veloraa Admin] Initialization:",
+          error
         );
-        return;
+
+        notify(
+          error.message ||
+          "راه‌اندازی پنل ناموفق بود."
+        );
       }
-
-      show($("admin-login-needed"), false);
-      show($("admin-app"), true);
-
-      go("dashboard");
-      await loadProducts();
-    } catch (error) {
-      console.error("[Veloraa Admin] Initialization:", error);
-      notify(error.message || "راه‌اندازی پنل ناموفق بود.");
     }
-  });
+  );
+
 })();
