@@ -1,4 +1,4 @@
-/* Veloraa Shop - Dynamic Product Details + SEO */
+/* Veloraa Shop - Dynamic Product Details + SEO + Google Product Schema */
 (function () {
   "use strict";
 
@@ -177,7 +177,10 @@
       try {
         imageURL = new URL(image, location.origin).href;
       } catch (error) {
-        console.warn("[Veloraa] Invalid product image URL:", image);
+        console.warn(
+          "[Veloraa] Invalid product image URL:",
+          image
+        );
       }
     }
 
@@ -217,11 +220,109 @@
     setMeta("twitter:title", title);
     setMeta("twitter:description", seoDescription);
 
-    console.info("[Veloraa SEO] Product metadata updated:", {
-      id,
-      title,
-      canonical: canonicalURL.href
-    });
+    console.info(
+      "[Veloraa SEO] Product metadata updated:",
+      {
+        id,
+        title,
+        canonical: canonicalURL.href
+      }
+    );
+  }
+
+  /* =========================
+     GOOGLE PRODUCT SCHEMA
+  ========================= */
+
+  function updateProductSchema(product) {
+    const id = getId(product);
+
+    const name = String(
+      product.name ||
+      product.title ||
+      "محصول"
+    ).trim();
+
+    const description = String(
+      product.description ||
+      `مشاهده مشخصات و خرید ${name} از فروشگاه Veloraa Shop.`
+    ).replace(/\s+/g, " ").trim();
+
+    const image = getImage(product);
+
+    let imageURL = "";
+
+    if (image) {
+      try {
+        imageURL = new URL(
+          image,
+          location.origin
+        ).href;
+      } catch (error) {
+        console.warn(
+          "[Veloraa Schema] Invalid image URL:",
+          image
+        );
+      }
+    }
+
+    const priceToman = getFinalPrice(product);
+    const priceRial = Math.round(priceToman * 10);
+    const stock = getStock(product);
+
+    const productURL = new URL(
+      "product-details.html",
+      location.origin
+    );
+
+    productURL.searchParams.set("id", id);
+
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": name,
+      "description": description,
+      "brand": {
+        "@type": "Brand",
+        "name": String(getBrand(product))
+      },
+      "url": productURL.href
+    };
+
+    if (imageURL) {
+      schema.image = [imageURL];
+    }
+
+    if (priceRial > 0) {
+      schema.offers = {
+        "@type": "Offer",
+        "url": productURL.href,
+        "priceCurrency": "IRR",
+        "price": String(priceRial),
+        "availability": stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+        "itemCondition": "https://schema.org/NewCondition"
+      };
+    }
+
+    let script = document.getElementById(
+      "veloraa-product-schema"
+    );
+
+    if (!script) {
+      script = document.createElement("script");
+      script.id = "veloraa-product-schema";
+      script.type = "application/ld+json";
+      document.head.appendChild(script);
+    }
+
+    script.textContent = JSON.stringify(schema);
+
+    console.info(
+      "[Veloraa Schema] Product structured data updated:",
+      schema
+    );
   }
 
   /* =========================
@@ -249,7 +350,9 @@
       image.hidden = true;
     }
 
-    $$(".thumb-btn").forEach(button => button.remove());
+    $$(".thumb-btn").forEach(
+      button => button.remove()
+    );
   }
 
   function updateBrand(product) {
@@ -339,11 +442,21 @@
           `${money(original)} تومان`
         );
 
-        if (discountLabel) discountLabel.hidden = false;
-        if (originalLabel) originalLabel.hidden = false;
+        if (discountLabel) {
+          discountLabel.hidden = false;
+        }
+
+        if (originalLabel) {
+          originalLabel.hidden = false;
+        }
       } else {
-        if (discountLabel) discountLabel.hidden = true;
-        if (originalLabel) originalLabel.hidden = true;
+        if (discountLabel) {
+          discountLabel.hidden = true;
+        }
+
+        if (originalLabel) {
+          originalLabel.hidden = true;
+        }
       }
     }
   }
@@ -375,7 +488,9 @@
 
     if (addButton) {
       addButton.disabled = stock <= 0;
-      addButton.style.opacity = stock > 0 ? "1" : "0.55";
+
+      addButton.style.opacity =
+        stock > 0 ? "1" : "0.55";
 
       addButton.style.cursor =
         stock > 0 ? "pointer" : "not-allowed";
@@ -383,7 +498,9 @@
 
     const quantity = $("#product-qty");
 
-    if (quantity) text(quantity, "۱");
+    if (quantity) {
+      text(quantity, "۱");
+    }
   }
 
   function updateDescription(product) {
@@ -422,7 +539,9 @@
       );
     }
 
-    buttons.forEach(button => button.remove());
+    buttons.forEach(
+      button => button.remove()
+    );
   }
 
   function updateRelatedLinks(products, currentProduct) {
@@ -464,7 +583,9 @@
       if (image) {
         const url = getImage(product);
 
-        if (url) image.src = url;
+        if (url) {
+          image.src = url;
+        }
 
         image.alt =
           `${product.name || product.title || "محصول"} - ${getBrand(product)}`;
@@ -521,7 +642,8 @@
         );
       }
 
-      const products = await window.VeloraaProducts.load();
+      const products =
+        await window.VeloraaProducts.load();
 
       const product = products.find(
         item => getId(item) === productId
@@ -550,8 +672,9 @@
         product.name || product.title || "محصول"
       );
 
-      // SEO
+      // SEO + Google Product Schema
       updateProductSEO(product);
+      updateProductSchema(product);
 
       // Product details
       updateBrand(product);
