@@ -100,6 +100,7 @@
           image_url: product.image_url || product.image || "",
           description: product.description || "",
           variant: product.variant || "",
+          details_json: product.details_json ?? product.detailsJson ?? "",
           is_active: product.is_active ?? product.isActive ?? true,
           remote: true
         };
