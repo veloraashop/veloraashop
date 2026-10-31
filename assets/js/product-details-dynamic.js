@@ -528,6 +528,91 @@
     }
   }
 
+  function parseDetails(product) {
+    const raw = product?.details_json ?? product?.detailsJson ?? product?.details;
+    if (raw && typeof raw === "object") return raw;
+    if (typeof raw === "string" && raw.trim()) {
+      try { return JSON.parse(raw); } catch (error) {
+        console.warn("[Veloraa] Invalid details_json", error);
+      }
+    }
+    return {};
+  }
+
+  function safeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    })[char]);
+  }
+
+  function updateExtendedDetails(product) {
+    const details = parseDetails(product);
+    const specsTab = $("#tab-specs");
+    if (specsTab) {
+      const specifications = Array.isArray(details.specifications) ? details.specifications : [];
+      const rows = specifications.map(item => {
+        const label = typeof item === "string" ? item.split(":")[0] : (item.label || item.name || "");
+        const value = typeof item === "string" ? item.slice(item.indexOf(":") + 1).trim() : (item.value || "");
+        return `<div class="p-3.5 rounded-xl bg-surface-container-low flex justify-between items-start gap-4"><span class="font-label-md text-label-md text-on-surface-variant">${safeHTML(label)}</span><span class="font-label-lg text-label-lg font-semibold text-on-surface text-left">${safeHTML(value)}</span></div>`;
+      }).join("");
+      specsTab.innerHTML = `<div class="max-w-3xl space-y-3"><h3 class="font-headline-sm text-headline-sm text-on-surface mb-space-md">مشخصات فنی و اطلاعات محصول</h3>${rows ? `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${rows}</div>` : `<p class="text-on-surface-variant">مشخصات فنی برای این محصول ثبت نشده است.</p>`}</div>`;
+    }
+
+    const usageTab = $("#tab-usage");
+    if (usageTab) {
+      const usage = Array.isArray(details.usage) ? details.usage : [];
+      usageTab.innerHTML = `<div class="max-w-3xl space-y-4"><h3 class="font-headline-sm text-headline-sm text-on-surface">نحوه و دستور مصرف</h3><ol class="space-y-3">${usage.map((item, index) => `<li class="flex items-start gap-3 p-4 rounded-xl bg-surface-container-low"><span class="flex-shrink-0 rounded-full bg-primary text-on-primary w-8 h-8 flex items-center justify-center font-bold">${index + 1}</span><span class="pt-1">${safeHTML(item)}</span></li>`).join("")}</ol>${usage.length ? "" : `<p class="text-on-surface-variant">دستور مصرفی ثبت نشده است.</p>`}</div>`;
+    }
+
+    const ingredientsTab = $("#tab-ingredients");
+    if (ingredientsTab) {
+      const ingredients = Array.isArray(details.ingredients) ? details.ingredients : [];
+      ingredientsTab.innerHTML = `<div class="max-w-3xl space-y-4"><h3 class="font-headline-sm text-headline-sm text-on-surface">ترکیبات محصول</h3><ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">${ingredients.map(item => `<li class="p-3.5 rounded-xl bg-surface-container-low">${safeHTML(item)}</li>`).join("")}</ul>${ingredients.length ? "" : `<p class="text-on-surface-variant">ترکیباتی ثبت نشده است.</p>`}</div>`;
+    }
+
+    const descriptionTab = $("#tab-desc");
+    if (descriptionTab && Array.isArray(details.highlights) && details.highlights.length) {
+      let highlights = $("#admin-product-highlights", descriptionTab);
+      if (!highlights) {
+        highlights = document.createElement("div");
+        highlights.id = "admin-product-highlights";
+        highlights.className = "grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5";
+        descriptionTab.prepend(highlights);
+      }
+      highlights.innerHTML = details.highlights.map(item => `<div class="p-3.5 rounded-xl bg-surface-container-low flex items-center gap-2"><span class="text-primary">✓</span><span>${safeHTML(item)}</span></div>`).join("");
+    }
+
+    const gallery = details.gallery;
+    if (Array.isArray(gallery) && gallery.length) {
+      const galleryGrid = $("#main-product-image")?.parentElement?.parentElement?.querySelector(".grid.grid-cols-4");
+      if (galleryGrid) {
+        galleryGrid.innerHTML = "";
+        gallery.slice(0, 8).forEach((url, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "relative aspect-square rounded-lg overflow-hidden bg-surface-container-lowest p-2 shadow-sm";
+          const img = document.createElement("img");
+          img.src = url;
+          img.alt = `${product.name || "محصول"} - تصویر ${index + 2}`;
+          img.className = "w-full h-full object-contain";
+          button.appendChild(img);
+          button.addEventListener("click", () => {
+            const mainImage = $("#main-product-image");
+            if (mainImage) mainImage.src = url;
+          });
+          galleryGrid.appendChild(button);
+        });
+      }
+    }
+
+    if (Array.isArray(details.badges) && details.badges.length) {
+      const badgeContainer = $("#main-product-image")?.parentElement?.querySelector(".absolute.top-5.right-5");
+      if (badgeContainer) {
+        badgeContainer.innerHTML = details.badges.map((item, index) => `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${index === 0 ? "bg-primary text-on-primary" : "bg-secondary-fixed text-on-secondary-fixed"} font-label-md text-label-md shadow-sm">${safeHTML(item)}</span>`).join("");
+      }
+    }
+  }
+
   function updateVariant(product) {
     const variant = String(
       product.variant || ""
@@ -687,6 +772,7 @@
       updatePrice(product);
       updateStock(product);
       updateDescription(product);
+      updateExtendedDetails(product);
       updateVariant(product);
       updateRelatedLinks(products, product);
 
