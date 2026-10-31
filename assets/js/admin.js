@@ -114,6 +114,32 @@
         ? result.data
         : [];
 
+  const parseDetails = (product) => {
+    const value = product?.details_json ?? product?.detailsJson ?? product?.details;
+    if (value && typeof value === "object") return value;
+    if (typeof value === "string" && value.trim()) {
+      try { return JSON.parse(value); } catch (error) {
+        console.warn("Invalid product details_json", error);
+      }
+    }
+    return {};
+  };
+
+  const linesToText = (value) =>
+    Array.isArray(value) ? value.join("\n") : String(value || "");
+
+  const textToLines = (value) =>
+    String(value || "").split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+
+  const parseSpecifications = (value) =>
+    String(value || "").split(/\r?\n/).map(line => {
+      const index = line.indexOf(":");
+      if (index < 1) return null;
+      const label = line.slice(0, index).trim();
+      const content = line.slice(index + 1).trim();
+      return label && content ? { label, value: content } : null;
+    }).filter(Boolean);
+
   /* =========================================================
      NAVIGATION
      ========================================================= */
@@ -442,6 +468,19 @@
     $("p-image-url").value = product.image_url || "";
     $("p-description").value = product.description || "";
 
+    const details = parseDetails(product);
+    const specs = Array.isArray(details.specifications)
+      ? details.specifications.map(item =>
+          typeof item === "string" ? item : `${item.label || item.name || ""}: ${item.value || ""}`
+        )
+      : [];
+    $("p-specifications").value = specs.join("\n");
+    $("p-highlights").value = linesToText(details.highlights);
+    $("p-usage").value = linesToText(details.usage);
+    $("p-ingredients").value = linesToText(details.ingredients);
+    $("p-gallery").value = linesToText(details.gallery);
+    $("p-badges").value = linesToText(details.badges);
+
     if ($("p-active")) {
       $("p-active").checked = product.is_active !== false;
     }
@@ -546,6 +585,14 @@
         variant: $("p-variant")?.value.trim(),
         image_url: imageURL,
         description: $("p-description")?.value.trim(),
+        details_json: JSON.stringify({
+          specifications: parseSpecifications($("p-specifications")?.value),
+          highlights: textToLines($("p-highlights")?.value),
+          usage: textToLines($("p-usage")?.value),
+          ingredients: textToLines($("p-ingredients")?.value),
+          gallery: textToLines($("p-gallery")?.value),
+          badges: textToLines($("p-badges")?.value)
+        }),
         is_active: $("p-active")?.checked ?? true
       };
 
