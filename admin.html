@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
@@ -653,6 +654,38 @@
                   <label for="p-description">توضیحات محصول</label>
                   <textarea id="p-description" name="description" rows="4"></textarea>
                 </div>
+
+                <div class="field full">
+                  <label for="p-specifications">مشخصات فنی (هر خط: عنوان: مقدار)</label>
+                  <textarea id="p-specifications" rows="6" placeholder="کشور سازنده: کانادا\nنوع پوست: انواع پوست\nحجم: ۳۰ میلی‌لیتر\nبافت: سرم ژلی سبک"></textarea>
+                </div>
+
+                <div class="field full">
+                  <label for="p-highlights">مزایا و ویژگی‌های برجسته (هر مورد در یک خط)</label>
+                  <textarea id="p-highlights" rows="4" placeholder="آبرسانی عمیق\nتقویت سد دفاعی پوست\nجذب سریع"></textarea>
+                </div>
+
+                <div class="field full">
+                  <label for="p-usage">نحوه و دستور مصرف (هر مرحله در یک خط)</label>
+                  <textarea id="p-usage" rows="4" placeholder="پوست را تمیز کنید\n۲ تا ۳ قطره روی پوست بزنید\nبا مرطوب‌کننده کامل کنید"></textarea>
+                </div>
+
+                <div class="field full">
+                  <label for="p-ingredients">ترکیبات محصول (هر ترکیب در یک خط)</label>
+                  <textarea id="p-ingredients" rows="4" placeholder="Hyaluronic Acid\nPanthenol (Vitamin B5)"></textarea>
+                </div>
+
+                <div class="field full">
+                  <label for="p-gallery">تصاویر بیشتر محصول (هر نشانی تصویر در یک خط)</label>
+                  <textarea id="p-gallery" rows="3" placeholder="https://example.com/image-2.jpg"></textarea>
+                </div>
+
+                <div class="field full">
+                  <label for="p-badges">برچسب‌های روی تصویر محصول (هر برچسب در یک خط)</label>
+                  <textarea id="p-badges" rows="2" placeholder="پرفروش‌ترین\nضمانت اصالت کالا"></textarea>
+                </div>
+
+                <p class="muted small field full">این اطلاعات تکمیلی در فیلد details_json ذخیره می‌شوند. برای فعال شدن ذخیره‌سازی، ستون details_json را در جدول محصولات Appwrite بسازید (نوع String با محدودیت طول مناسب).</p>
 
                 <div class="field check-field">
                   <input id="p-active" name="isActive" type="checkbox" checked>
